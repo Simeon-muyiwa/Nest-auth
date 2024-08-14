@@ -1,0 +1,27 @@
+
+{% set mytenants = [
+  {
+    "name": "tenant1",
+    "namespace": "portal1",
+    "portals": [
+      {"name": "rwauth", "replicacount": 1, "needs_ingress": true},
+      {"name": "rwcust", "replicacount": 1, "needs_ingress": true},
+      {"name": "rwvend", "replicacount": 1, "needs_ingress": false},
+      {"name": "rwbi", "replicacount": 1, "needs_ingress": false}
+    ]
+  },
+  {
+    "name": "tenant2",
+    "namespace": "portal2",
+    "portals": [
+      {"name": "rwauth", "replicacount": 1, "needs_ingress": true},
+      {"name": "rwcust", "replicacount": 1, "needs_ingress": true},
+      {"name": "rwvend", "replicacount": 1, "needs_ingress": false},
+      {"name": "rwbi", "replicacount": 1, "needs_ingress": false}
+    ]
+  }
+] %}
+
+{% for tenant in mytenants %}
+{{ tenant | tojson }}
+{% endfor %}

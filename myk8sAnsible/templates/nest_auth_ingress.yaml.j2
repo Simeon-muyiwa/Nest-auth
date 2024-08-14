@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ mytenantname }}
+  label: {{ mytenantname }}
+  namespace: {{ namespace }}
+spec:
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ portal.name }}
+                port:
+                  number: {{ portal.port_mapping.external }}
