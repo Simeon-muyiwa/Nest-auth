@@ -14,8 +14,9 @@ implements OnApplicationBootstrap, OnApplicationShutdown
         // instead of initiating the connection here.
 
         this.redisClient = new Redis({
-            host: 'localhost', // Note: we should use env variables here 
-            port: 6379,
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+
         });
     }
     onApplicationShutdown() {

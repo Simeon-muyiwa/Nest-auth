@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jwt-configmap
+  namespace: portal1
+data:
+  JWT_TOKEN_SECRET: 'secret'
+  JWT_ACCESS_TOKEN_TTL: '3600'
+  JWT_REFRESH_TOKEN_TTL: '7600'
+  JWT_TOKEN_AUDIENCE: "portal1.default.svc.cluster.local"
+  JWT_TOKEN_AUDIENCE: "portal1.default.svc.cluster.local"

@@ -1,0 +1,39 @@
+# # Create destination directory (if it doesn't exist)
+# - name: Create destination directory
+#   file:
+#     path: "{{ service_path }}"
+#     state: directory
+#   become: true
+
+# # Clone or update the NestJS repository
+# - name: Clone or update the NestJS repository
+#   git:
+#     repo: "{{ repo_path }}"
+#     dest: "{{ service_path }}"
+#     version: main
+#     update: yes
+#     force: yes
+#   register: repo_clone
+#   delegate_to: localhost
+#   become: true
+
+# # Adjust permissions for /nestjs directory
+# - name: Ensure /nestjs has correct permissions
+#   file:
+#     path: "/nestjs"
+#     mode: "u=rwx,g=rx,o=rx" # Set permissions as needed
+#   become: true
+
+# # Synchronize MyK8sAnsible folder to myk8sansible/myportal
+# - name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
+#   synchronize:
+#     src: "{{ service_path }}/myportal/"
+#     dest: "/myk8sansible/myportal/"
+#     delete: yes
+
+# # Synchronize MyK8sAnsible folder to /nestjs
+# - name: Synchronize MyK8sAnsible folder to /nestjs
+#   synchronize:
+#     src: "{{ service_path }}/" # Ensure to include the trailing slash for proper synchronization
+#     dest: "/mnt/nestjs/"
+#     delete: yes
