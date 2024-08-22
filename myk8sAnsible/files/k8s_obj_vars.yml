@@ -1,6 +1,0 @@
-
-  vars:
-    service_path: "/path/to/services"
-    deployment_path: "/path/to/deployments"
-    ingress_path: "/path/to/ingresses"
-    configmap_path: "/path/to/configmaps"
