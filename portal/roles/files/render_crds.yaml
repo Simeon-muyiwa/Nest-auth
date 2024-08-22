@@ -1,0 +1,9 @@
+- name: Render myportal_crd_template templates
+  hosts: localhost
+  tasks:
+    - name: Render myportal_crd_template for each tenant
+      template:
+        src: templates/myportal_tenants.yaml.j2
+        dest: '{{ deployment_path }}/{{ item.namespace }}_myportal.yaml'
+      loop: '{{ mytenants }}'
+      delegate_to: localhost

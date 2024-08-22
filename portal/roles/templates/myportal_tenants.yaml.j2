@@ -1,0 +1,16 @@
+{% from 'mytenants.j2' import mytenants %}
+
+{% for tenant in mytenants %}
+apiVersion: portal.mycourse1.com/v1
+kind: MyPortal
+metadata:
+  name: my{{ tenant.namespace }}
+  namespace: {{ tenant.namespace }}
+spec:
+  myportals:
+  {% for portal in tenant.portals %}
+  - name: '{{ portal.name }}'
+    replicacount: {{ portal.replicacount }}
+  {% endfor %}
+  mytenantname: {{ tenant.mytenantname }}
+{% endfor %}

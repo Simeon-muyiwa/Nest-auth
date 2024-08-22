@@ -1,0 +1,41 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Include install-node role
+      include_role:
+        name: install-node
+
+    - name: Clone or update the NestJS monorepo
+      git:
+        repo: 'https://github.com/yourusername/your-nestjs-monorepo.git'
+        dest: '/opt/nestjs-monorepo'
+      register: repo_clone
+      changed_when: repo_clone.changed
+
+    - name: Iterate over each service in the monorepo
+      include_tasks: service_setup.yml
+      loop: "{{ lookup('directory', '/opt/nestjs-monorepo/services/') }}"
+      loop_control:
+        loop_var: service_name
+      vars:
+        service_path: "/opt/nestjs-monorepo/services/{{ service_name }}"
+
+    - name: Archive NestJS-specific Ansible playbook
+      archive:
+        path: /opt/nestjs-monorepo/ansible/nestjs-playbook.yml
+        dest: /tmp/nestjs-ansible-archive.tar.gz
+        format: gz
+
+
+    - name: Encode archive content in base64
+      command: base64 /tmp/ansible-archive.tar.gz
+      register: base64_output
+
+
+    - name: Create ConfigMap manifest from template
+      ansible.builtin.template:
+        src: configmap_template.yaml.j2
+        dest: /tmp/configmap.yaml
+      vars:
+        base64_content: "{{ base64_output.stdout }}"
+  

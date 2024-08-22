@@ -1,0 +1,58 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Include install-node role
+      include_role:
+        name: install-node
+
+    - name: Clone or update the NestJS repo
+      git:
+        repo: 'https://github.com/Simeon-muyiwa/Nest-auth'
+        dest: '/opt/nestjs'
+      register: repo_clone
+      failed_when: "'error' in repo_clone.stdout"
+      changed_when: repo_clone.changed | bool
+
+    - name: Proceed with further tasks if clone was successful
+      block:
+        - name: Find Myk8sAnsible folder
+          find:
+            paths: '/opt/nestjs'
+            patterns: 'Myk8sAnsible'
+            file_type: directory
+          register: found_dirs
+
+        - name: Copy Myk8sAnsible folder to destination
+          copy:
+            src: "{{ item.path }}/"
+            dest: '/myportal/roles/myk8sAnsible'
+            owner: root
+            group: root
+            mode: '0755'
+            remote_src: yes
+          with_items: "{{ found_dirs.files }}"
+          when: found_dirs.matched > 0
+
+        - name: Synchronize the repo to folders created by operatorsdk init
+          synchronize:
+            src: '/opt/nestjs/'
+            dest: '/myportal/nestjs'
+            recursive: yes
+      when: "'fatal:' not in repo_clone.stdout"
+
+    - name: Archive NestJS-specific Ansible playbook
+      archive:
+        path: /opt/nestjs-monorepo/ansible/nestjs-playbook.yml
+        dest: /tmp/nestjs-ansible-archive.tar.gz
+        format: gz
+
+    - name: Encode archive content in base64
+      command: base64 /tmp/nestjs-ansible-archive.tar.gz
+      register: base64_output
+
+    - name: Create ConfigMap manifest from template
+      ansible.builtin.template:
+        src: configmap_template.yaml.j2
+        dest: /tmp/configmap.yaml
+      vars:
+        base64_content: "{{ base64_output.stdout }}"

@@ -1,0 +1,28 @@
+---
+- name: Deploy NestJS Application
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Install service dependencies
+      npm:
+        chdir: "{{ service_path }}"
+        state: present
+
+    - name: Ensure .env file exists
+      ansible.builtin.template:
+        src: env_vars.yml.j2
+        dest: "{{ service_path }}/.env"
+      delegate_to: localhost
+      vars:
+        env_vars_file: "{{ playbook_dir }}/env_vars.yml"
+
+    - name: Build the service
+      npm:
+        chdir: "{{ service_path }}"
+        run_script: build
+
+    - name: Start the service
+      ansible.builtin.command: npm run start --prefix "{{ service_path }}"
+      async: 3600
+      poll: 0

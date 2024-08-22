@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: "{{ ansible_operator_meta.namespace }}"
+  name: {{ mytenants.portals.name }}
+spec:
+  selector:
+    app: {{ mytenants.portals.name }}
+  ports:
+    - protocol: TCP
+      port: {{ mytenants.portals.port_mapping.external }}
+      targetPort: {{ mytenants.portals.port_mapping.internal }}

@@ -1,0 +1,20 @@
+{% set mytenants = [
+  {
+    'mytenantname': 'tenant1',
+    'namespace': 'portal1',
+    'portals': [
+      { 'name': 'rwauth', 'replicacount': 1, 'needs_ingress': true },
+      { 'name': 'rwcust', 'replicacount': 1, 'needs_ingress': true },
+      { 'name': 'rwvend', 'replicacount': 1, 'needs_ingress': false },
+      { 'name': 'rwbi', 'replicacount': 1, 'needs_ingress': false }
+    ]
+  },
+  {
+    'mytenantname': 'tenant2',
+    'namespace': 'portal2',
+    'portals': [
+      { 'name': 'service1', 'replicacount': 1, 'needs_ingress': true },
+      { 'name': 'service2', 'replicacount': 1, 'needs_ingress': false }
+    ]
+  }
+] %}

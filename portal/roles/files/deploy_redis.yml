@@ -1,0 +1,8 @@
+- name: Deploy Redis StatefulSet
+  community.kubernetes.k8s:
+    definition: "{{ lookup('file', 'templates/redis-statefulset.yaml') }}"
+    state: present
+- name: Deploy Redis Service
+  community.kubernetes.k8s:
+    definition: "{{ lookup('file', 'templates/redis-service.yaml') }}"
+    state: present
