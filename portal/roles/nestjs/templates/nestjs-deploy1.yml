@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: { { portalname } }
+  namespace: default
+spec:
+  replicas: { { replicacount } }
+  selector:
+    matchLabels:
+      app: { { portalname } }
+  template:
+    metadata:
+      labels:
+        app: { { portalname } }
+    spec:
+      initContainers:
+        - name: init-secrets
+          image: busybox
+          command:
+            ['sh', '-c', 'cp /etc/secrets/jwt-secrets.env /root/nestjs/.env']
+          volumeMounts:
+            - name: jwt-secrets
+              mountPath: /etc/secrets
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+
+      containers:
+        - name: { { portalname } }
+          image: ubuntu:latest
+          command: ['/bin/sh', '-c']
+          args:
+            - >
+              echo "${ARCHIVE_CONTENT}" | base64 --decode > /root/nestjs-app-archive.tar.gz && \
+              tar xzf /root/nestjs-app-archive.tar.gz -C /root && \
+              cd /root/nestjs && \
+              ansible-playbook playbooks/nestjs-playbook.yml
+          env:
+            - name: ARCHIVE_CONTENT
+              valueFrom:
+                configMapKeyRef:
+                  name: nestjs-archive-configmap
+                  key: nestjs-app-archive.tar.gz
+            - name: NODE_ENV
+              value: 'production'
+          volumeMounts:
+            - name: app-volume
+              mountPath: /root
+            - name: jwt-secrets
+              mountPath: /root/nestjs/.env
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '250m'
+            limits:
+              memory: '256Mi'
+              cpu: '500m'
+      volumes:
+        - name: app-volume
+          emptyDir: {}
+        - name: jwt-secrets
+          secret:
+            secretName: jwt-secrets

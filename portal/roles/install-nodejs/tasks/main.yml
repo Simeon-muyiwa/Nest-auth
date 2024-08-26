@@ -1,0 +1,31 @@
+
+---
+- name: Add Nodesource repository
+  apt_repository:
+    repo: "{{ nodesource_repo }}{{ node_version }}"
+    state: present
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Run Nodesource installer
+  command: curl -fsSL {{ nodesource_repo }}setup_{{ node_version }} | sudo bash -
+  register: result
+  failed_when: result.rc != 0
+
+- name: Install Node.js and related tools
+  apt:
+    name:
+      - curl
+      - nodejs
+      - npm
+      - pnpm
+      - yarn
+    state: present
+
+- name: Clean up
+  apt:
+    upgrade: dist
+    autoclean: yes
+    autoremove: yes

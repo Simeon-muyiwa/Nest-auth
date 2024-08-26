@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ portalname }}  # Replace with the actual portal name
+  namespace: default
+spec:
+  replicas: {{ replicacount }}  # The number of replicas
+  selector:
+    matchLabels:
+      app: {{ portalname }}  # Matches the label for pod selection
+  template:
+    metadata:
+      labels:
+        app: {{ portalname }}  # Required for correct label matching
+    spec:
+      containers:
+      - name: {{ portalname }}  # Container name based on the portal name
+        image: alpine:latest  # Base image for the container
+        command: ["/bin/sh", "-c"]  # Execute a shell command
+        args:
+        - >
+          apk add --no-cache ansible &&  # Install Ansible
+          echo "${ARCHIVE_CONTENT}" | base64 --decode > /root/nestjs-app-archive.tar.gz && \  # Decode archive content
+          tar xzf /root/nestjs-app-archive.tar.gz -C /root && \  # Extract the contents
+          cd /root/nestjs && \  # Change directory to where the app is extracted
+          ansible-playbook playbooks/nestjs-playbook.yml  # Run the Ansible playbook
+        env:
+          - name: ARCHIVE_CONTENT
+            valueFrom:
+              configMapKeyRef:
+                name: nestjs-archive-configmap  # Reference to your ConfigMap
+                key: nestjs-app-archive.tar.gz  # Key in ConfigMap containing the base64 string
+          {% for var in portal.environment_variables %}
+          - name: {{ var.split('=')[0] }}  # Environment variable key
+            value: {{ var.split('=')[1] }}  # Environment variable value
+          {% endfor %}
+        volumeMounts:
+        - name: app-volume
+          mountPath: /root  # Mount path for the container to access files
+        - name: env-vars
+          mountPath: /etc/config  # Mount path for the ConfigMap
+        resources:  # Resource limits and requests
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+      volumes:
+        - name: app-volume
+          emptyDir: {}
+        - name: env-vars
+          configMap:
+            name: nestjs-env-vars  # Name of the ConfigMap containing environment variables
