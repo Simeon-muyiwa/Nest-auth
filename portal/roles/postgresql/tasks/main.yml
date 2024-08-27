@@ -1,0 +1,13 @@
+---
+
+- name: Create PostgreSQL Deployment
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'postgresql-deployment.yml') | from_yaml }}"
+    state: present
+
+- name: Create PostgreSQL Service
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'postgresql-service.yml') | from_yaml }}"
+    state: present
+
+

@@ -17,10 +17,14 @@ spec:
         - name: init-secrets
           image: busybox
           command:
-            ['sh', '-c', 'cp /etc/secrets/jwt-secrets.env /root/nestjs/.env']
+            - sh
+            - -c
+            - cp /etc/secrets/jwt-secrets.env /root/nestjs/.env
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/secrets
+            - name: app-volume
+              mountPath: /root/nestjs
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -28,9 +32,11 @@ spec:
       containers:
         - name: { { portalname } }
           image: ubuntu:latest
-          command: ['/bin/sh', '-c']
+          command:
+            - /bin/sh
           args:
-            - >
+            - -c
+            - |
               echo "${ARCHIVE_CONTENT}" | base64 --decode > /root/nestjs-app-archive.tar.gz && \
               tar xzf /root/nestjs-app-archive.tar.gz -C /root && \
               cd /root/nestjs && \
@@ -48,6 +54,7 @@ spec:
               mountPath: /root
             - name: jwt-secrets
               mountPath: /root/nestjs/.env
+              subPath: jwt-secrets.env
           resources:
             requests:
               memory: '128Mi'
@@ -55,6 +62,7 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
+
       volumes:
         - name: app-volume
           emptyDir: {}
