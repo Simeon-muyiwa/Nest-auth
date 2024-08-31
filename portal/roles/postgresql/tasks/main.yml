@@ -1,13 +1,20 @@
 ---
+- name: Create PostgreSQL ConfigMap
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'postgresql-configmap.yml') | from_yaml }}"
+    state: present
+
+- name: Create PostgreSQL Secret
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'postgresql-secret.yml') | from_yaml }}"
+    state: present
 
 - name: Create PostgreSQL Deployment
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'postgresql-deployment.yml') | from_yaml }}"
+    definition: "{{ lookup('template', 'postgresql-deploy.yml') | from_yaml }}"
     state: present
 
 - name: Create PostgreSQL Service
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'postgresql-service.yml') | from_yaml }}"
     state: present
-
-
