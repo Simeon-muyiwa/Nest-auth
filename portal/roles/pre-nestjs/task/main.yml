@@ -1,16 +1,10 @@
 - name: Deploy NestJS Application
   hosts: localhost
   vars:
-    service_path: "/opt/nestjs"
+    service_path: '/opt/nestjs'
     repo_path: 'https://github.com/Simeon-muyiwa/Nest-auth'
 
-    # Define any additional variables here
-
   tasks:
-    - name: Include install-node role
-      include_role:
-        name: install-node
-
     - name: Clone or update the NestJS repository
       git:
         repo: '{{ repo_path }}'
@@ -47,23 +41,8 @@
         src: configmap_template.yaml.j2
         dest: /tmp/configmap.yaml
       vars:
-        base64_content: "{{ base64_content }}"
+        base64_content: '{{ base64_content }}'
 
     - name: Display ConfigMap manifest
       ansible.builtin.debug:
         msg: "{{ lookup('file', '/tmp/configmap.yaml') }}"
-
-    - name: Include service setup role
-      include_role:
-        name: service_setup
-
-    - name: auth_token_role
-      include_role:
-          name: auth_token
-
-    - name: Wait for service to start
-      ansible.builtin.wait_for:
-        port: 3000
-        host: localhost
-      async: 600
-      poll: 0
