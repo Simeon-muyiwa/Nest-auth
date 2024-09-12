@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: { { portalname } }runner
-  namespace: { { namespace } }
+  name: {{ portalname }}runner
+  namespace: {{ namespace }}
 spec:
-  replicas: { { replicacount } }
+  replicas: {{ replicacount }}
   selector:
     matchLabels:
-      app: { { portalname } }
+      app: {{ portalname }}
   template:
     metadata:
       labels:
-        app: { { portalname } }
+        app: {{ portalname }}
     spec:
       initContainers:
         - name: init-secrets
@@ -22,13 +22,10 @@ spec:
             - |
               cp /etc/secrets/jwt-secrets.env /root/nestjs/.env.jwt
               cp /etc/secrets/postgresql-secret.env /root/nestjs/.env.postgres
-              cp /etc/secrets/redis-secret.env /root/nestjs/.env.redis
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/secrets
             - name: postgresql-secret
-              mountPath: /etc/secrets
-            - name: redis-secret
               mountPath: /etc/secrets
             - name: app-volume
               mountPath: /root/nestjs
@@ -37,7 +34,7 @@ spec:
             runAsGroup: 1000
 
       containers:
-        - name: { { portalname } }c
+        - name: {{ portalname }}c
           image: ubuntu:latest
           command:
             - /bin/sh
@@ -48,20 +45,18 @@ spec:
               tar xzf /root/nestjs-app-archive.tar.gz -C /root && \
               cd /root/nestjs && \
               ansible-playbook playbooks/nestjs-playbook.yml
+          env:
+            - name: REDIS_HOST
+              value: "redis"  # Update to match the Redis service DNS name
+            - name: REDIS_PORT
+              value: "6379"  # Redis port
           envFrom:
             - secretRef:
                 name: jwt-secrets
               prefix: JWT_
-            - configMapRef:
-                name: postgresql-configmap
             - secretRef:
                 name: postgresql-secret
               prefix: POSTGRES_
-            - configMapRef:
-                name: redis-configmap
-            - secretRef:
-                name: redis-secret
-              prefix: REDIS_
           volumeMounts:
             - name: app-volume
               mountPath: /root
@@ -71,9 +66,6 @@ spec:
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: .env.postgres
-            - name: redis-secret
-              mountPath: /root/nestjs/.env.redis
-              subPath: .env.redis
           resources:
             requests:
               memory: '128Mi'
@@ -93,8 +85,6 @@ spec:
 
       volumes:
         - name: app-volume
-          configMap: 
-            name: { { portalname } }cm
           emptyDir: {}
         - name: jwt-secrets
           secret:
@@ -102,6 +92,3 @@ spec:
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: redis-secret
-          secret:
-            secretName: redis-secret

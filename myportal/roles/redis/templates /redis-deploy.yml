@@ -1,11 +1,11 @@
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis
-  namespace: default
 spec:
   serviceName: "redis"
-  replicas: 1  # Adjust according to your requirements
+  replicas: 1
   selector:
     matchLabels:
       app: redis
@@ -19,20 +19,20 @@ spec:
           image: redis:latest
           ports:
             - containerPort: 6379
+              name: redis
           volumeMounts:
             - name: redis-data
               mountPath: /data
-          command: ["redis-server"]
-          args: ["--appendonly", "yes"]
-      volumes:
-        - name: redis-data
-          persistentVolumeClaim:
-            claimName: redis-data
+          env:
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
   volumeClaimTemplates:
     - metadata:
         name: redis-data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 1Gi  # Adjust according to your requirements
+            storage: 1Gi

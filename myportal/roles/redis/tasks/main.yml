@@ -1,14 +1,4 @@
 ---
-- name: Create Redis ConfigMap
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'redis-configmap.yml') | from_yaml }}"
-    state: present
-
-
-- name: Create Redis Secret
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'redis-secret.yml') | from_yaml }}"
-    state: present
 
 - name: Create Redis Deployment
   community.kubernetes.k8s:

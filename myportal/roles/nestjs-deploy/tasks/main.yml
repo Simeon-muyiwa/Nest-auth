@@ -1,8 +1,8 @@
 ---
 # tasks file for myk8sansible
-- name: Create config maps
+- name: Deploy ConfigMap
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-configmap.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    definition: "{{ lookup('template', 'configmap_template.yaml.j2', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, base64_content=base64_content)) | from_yaml }}"
     state: present
   loop: '{{ myportals }}'
 

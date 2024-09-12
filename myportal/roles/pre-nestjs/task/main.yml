@@ -1,0 +1,65 @@
+- name: Clone and Archive NestJS Application
+  hosts: localhost
+  vars:
+    service_path: '/opt/nestjs'
+    repo_path: 'https://github.com/Simeon-muyiwa/Nest-auth'
+    portalname: 'my-portal'
+    namespace: "{{ ansible_operator_meta.namespace | default('default') }}" # Use dynamic value or default to 'default'
+
+  tasks:
+    - name: Clone or update the NestJS repository
+      git:
+        repo: '{{ repo_path }}'
+        dest: '{{ service_path }}'
+        version: main
+        update: yes
+      register: repo_clone
+      failed_when: "'fatal:' in repo_clone.stderr | default('', true) or repo_clone.rc != 0"
+      changed_when: repo_clone.changed
+
+    - name: Check if Myk8sAnsible folder exists
+      ansible.builtin.stat:
+        path: /opt/nestjs/myportal
+      register: stat
+
+    - name: Ensure destination directory exists
+      ansible.builtin.file:
+        path: /Myk8sAnsible/myportal
+        state: directory
+
+    - name: Synchronize Myk8sAnsible folder if it exists
+      synchronize:
+        src: /opt/nestjs/myportal/
+        dest: /Myk8sAnsible/myportal/
+        delete: no
+      when: stat.stat.exists
+
+    - name: Check if the archive already exists
+      ansible.builtin.stat:
+        path: /tmp/nestjs-app-archive.tar.gz
+      register: archive_stat
+
+    - name: Archive NestJS application excluding Myk8sAnsible
+      archive:
+        path: /opt/nestjs
+        exclude_path: /opt/nestjs/myportal
+        dest: /tmp/nestjs-app-archive.tar.gz
+        format: gz
+      when: not archive_stat.stat.exists
+
+    - name: Encode archive content in base64
+      set_fact:
+        base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
+
+    # - name: Create ConfigMap manifest from template
+    #   ansible.builtin.template:
+    #     src: configmap_template.yaml.j2
+    #     dest: /tmp/configmap.yaml
+    #   vars:
+    #     base64_content: '{{ base64_content }}'
+    #     portalname: '{{ portalname }}'
+    #     namespace: '{{ namespace }}'
+
+    # - name: Display decoded ConfigMap content
+    #   ansible.builtin.debug:
+    #     msg: "{{ base64_content }}"

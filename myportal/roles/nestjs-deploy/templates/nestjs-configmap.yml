@@ -4,5 +4,5 @@ metadata:
   name: {{portalname}}cm
   namespace: {{ namespace }}
 data:
-  nestjs-archive.tar.gz: |
+  nestjs-app-archive.tar.gz: |
     {{ base64_content }}

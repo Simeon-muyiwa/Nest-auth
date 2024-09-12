@@ -1,0 +1,63 @@
+tasks:
+  - name: Sign Up and Obtain Tokens
+    ansible.builtin.uri:
+      url: http://localhost:3000/authentication/sign-up
+      method: POST
+      body:
+        username: "{{ signup_username }}"
+        password: "{{ signup_password }}"
+      body_format: json
+      return_content: yes
+    register: signup_response
+    failed_when: "'token' not in signup_response.json or 'refresh_token' not in signup_response.json"
+
+  - name: Extract Auth and Refresh Tokens
+    set_fact:
+      auth_token: "{{ signup_response.json.token }}"
+      refresh_token: "{{ signup_response.json.refresh_token }}"
+
+  - name: Make a GET request with Bearer token
+    ansible.builtin.uri:
+      url: http://localhost:3000/authentication/sign-in
+      method: GET
+      headers:
+        Authorization: "Bearer {{ auth_token }}"
+      return_content: yes
+    register: Get_api_response
+    failed_when: Get_api_response.status != 200
+
+  - name: Print the API response
+    ansible.builtin.debug:
+      msg: "{{ Get_api_response.content }}"
+
+  - name: Refresh Auth Token
+    ansible.builtin.uri:
+      url: http://localhost:3000/authentication/refresh
+      method: POST
+      body:
+        refresh_token: "{{ refresh_token }}"
+      body_format: json
+      return_content: yes
+    register: refresh_response
+    failed_when: "'token' not in refresh_response.json"
+
+  - name: Extract New Auth Token
+    set_fact:
+      auth_token: "{{ refresh_response.json.token }}"
+
+  - name: Make a POST request with Bearer token and JSON payload
+    ansible.builtin.uri:
+      url: http://localhost:3000/coffee
+      method: POST
+      headers:
+        Authorization: "Bearer {{ auth_token }}"
+        Content-Type: "application/json"
+      body: '{"key": "value"}'
+      body_format: json
+      return_content: yes
+    register: Post_api_response
+    failed_when: Post_api_response.status != 200
+
+  - name: Print the API response
+    ansible.builtin.debug:
+      msg: "{{ Post_api_response.content }}"
