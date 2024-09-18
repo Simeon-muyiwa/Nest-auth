@@ -1,9 +1,0 @@
-- name: Deploy PostgreSQL StatefulSet
-  community.kubernetes.k8s:
-    definition: "{{ lookup('file', 'templates/postgres-statefulset.yaml') }}"
-    state: present
-
-- name: Deploy PostgreSQL Service
-  community.kubernetes.k8s:
-    definition: "{{ lookup('file', 'templates/postgres-service.yaml') }}"
-    state: present

@@ -8,5 +8,5 @@ spec:
     app: { { portalname } }
   ports:
     - protocol: TCP
-      port: { { portal.port_mapping.external } }
-      targetPort: { { portal.port_mapping.internal } }
+      port: 80
+      targetPort: 3000

@@ -18,7 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       port: parseInt(process.env.POSTGRES_PORT, 10) || 5432,
       username: process.env.POSTGRES_USERNAME || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'pass123',
-      database: process.env.POSTGRES_NAME || 'postgres',
+      database: process.env.POSTGRES_DB || 'postgres',
       autoLoadEntities: true,
       synchronize: true,
     }

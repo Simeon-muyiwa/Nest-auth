@@ -15,4 +15,4 @@ spec:
               service:
                 name: { { portal.name } }
                 port:
-                  number: { { portal.port_mapping.external } }
+                  number: 3000

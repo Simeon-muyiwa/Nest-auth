@@ -2,7 +2,7 @@
 # tasks file for myk8sansible
 - name: Deploy ConfigMap
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'configmap_template.yaml.j2', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, base64_content=base64_content)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-configmap.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, base64_content=base64_content)) | from_yaml }}"
     state: present
   loop: '{{ myportals }}'
 
@@ -14,7 +14,7 @@
 
 - name: Create nestjs deployments/replicasets and pods
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-deploy2.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount)) | from_yaml }}"
     state: present
   loop: '{{ myportals }}'
 - name: Create nestjs services

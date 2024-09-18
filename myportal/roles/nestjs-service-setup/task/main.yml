@@ -11,5 +11,5 @@
 
     - name: Start the service
       ansible.builtin.command: npm run start --prefix "{{ service_path }}"
-      async: 3600
+      async: 180
       poll: 0

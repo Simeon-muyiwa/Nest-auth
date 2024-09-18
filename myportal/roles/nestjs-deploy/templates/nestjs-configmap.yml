@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{portalname}}cm
+  name: {{ portalname }}-cm
   namespace: {{ namespace }}
 data:
   nestjs-app-archive.tar.gz: |

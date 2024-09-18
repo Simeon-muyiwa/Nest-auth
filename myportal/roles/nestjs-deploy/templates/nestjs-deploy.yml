@@ -1,54 +1,95 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ portalname }}  # Replace with the actual portal name
-  namespace: default
+  name: {{ portalname }}runner
+  namespace: {{ namespace }}
 spec:
-  replicas: {{ replicacount }}  # The number of replicas
+  replicas: {{ replicacount }}
   selector:
     matchLabels:
-      app: {{ portalname }}  # Matches the label for pod selection
+      app: {{ portalname }}
   template:
     metadata:
       labels:
-        app: {{ portalname }}  # Required for correct label matching
+        app: {{ portalname }}
     spec:
+      initContainers:
+        - name: init-secrets
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              cp /etc/secrets/jwt-secrets.env /root/nestjs/.env.jwt
+              cp /etc/secrets/postgresql-secret.env /root/nestjs/.env.postgres
+          volumeMounts:
+            - name: jwt-secrets
+              mountPath: /etc/secrets
+            - name: postgresql-secret
+              mountPath: /etc/secrets
+            - name: app-volume
+              mountPath: /root/nestjs
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+
       containers:
-      - name: {{ portalname }}  # Container name based on the portal name
-        image: alpine:latest  # Base image for the container
-        command: ["/bin/sh", "-c"]  # Execute a shell command
-        args:
-        - >
-          apk add --no-cache ansible &&  # Install Ansible
-          echo "${ARCHIVE_CONTENT}" | base64 --decode > /root/nestjs-app-archive.tar.gz && \  # Decode archive content
-          tar xzf /root/nestjs-app-archive.tar.gz -C /root && \  # Extract the contents
-          cd /root/nestjs && \  # Change directory to where the app is extracted
-          ansible-playbook playbooks/nestjs-playbook.yml  # Run the Ansible playbook
-        env:
-          - name: ARCHIVE_CONTENT
-            valueFrom:
-              configMapKeyRef:
-                name: nestjs-archive-configmap  # Reference to your ConfigMap
-                key: nestjs-app-archive.tar.gz  # Key in ConfigMap containing the base64 string
-          {% for var in portal.environment_variables %}
-          - name: {{ var.split('=')[0] }}  # Environment variable key
-            value: {{ var.split('=')[1] }}  # Environment variable value
-          {% endfor %}
-        volumeMounts:
-        - name: app-volume
-          mountPath: /root  # Mount path for the container to access files
-        - name: env-vars
-          mountPath: /etc/config  # Mount path for the ConfigMap
-        resources:  # Resource limits and requests
-          requests:
-            memory: "128Mi"
-            cpu: "250m"
-          limits:
-            memory: "256Mi"
-            cpu: "500m"
+        - name: {{ portalname }}-c
+          image: ubuntu:latest
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              echo "${ARCHIVE_CONTENT}" | base64 --decode > /root/nestjs-app-archive.tar.gz && \
+              tar xzf /root/nestjs-app-archive.tar.gz -C /root && \
+              cd /root/nestjs && \
+              ansible-playbook playbooks/nestjs-playbook.yml
+          env:
+            - name: REDIS_HOST
+              value: "redis"  # Update to match the Redis service DNS name
+            - name: REDIS_PORT
+              value: "6379"  # Redis port
+          envFrom:
+            - secretRef:
+                name: jwt-secrets
+              prefix: JWT_
+            - secretRef:
+                name: postgresql-secret
+              prefix: POSTGRES_
+          volumeMounts:
+            - name: app-volume
+              mountPath: /root
+            - name: jwt-secrets
+              mountPath: /root/nestjs/.env.jwt
+              subPath: .env.jwt
+            - name: postgresql-secret
+              mountPath: /root/nestjs/.env.postgres
+              subPath: .env.postgres
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '250m'
+            limits:
+              memory: '256Mi'
+              cpu: '500m'
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+
       volumes:
         - name: app-volume
-          emptyDir: {}
-        - name: env-vars
-          configMap:
-            name: nestjs-env-vars  # Name of the ConfigMap containing environment variables
+          configMap: 
+            name: {{ portalname }}-cm
+        - name: jwt-secrets
+          secret:
+            secretName: jwt-secrets
+        - name: postgresql-secret
+          secret:
+            secretName: postgresql-secret
