@@ -10,7 +10,7 @@
     update_cache: yes
 
 - name: Run Nodesource installer
-  command: curl -fsSL {{ nodesource_repo }}setup_{{ node_version }} | sudo bash -
+  shell: curl -fsSL {{ nodesource_repo }}setup_{{ node_version }} | sudo bash -
   register: result
   failed_when: result.rc != 0
 

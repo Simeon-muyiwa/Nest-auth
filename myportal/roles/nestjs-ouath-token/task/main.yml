@@ -1,7 +1,7 @@
 tasks:
   - name: Sign Up and Obtain Tokens
     ansible.builtin.uri:
-      url: http://localhost:3000/authentication/sign-up
+      url: http://localhost/authentication/sign-up
       method: POST
       body:
         username: "{{ signup_username }}"
@@ -18,7 +18,7 @@ tasks:
 
   - name: Make a GET request with Bearer token
     ansible.builtin.uri:
-      url: http://localhost:3000/authentication/sign-in
+      url: http://localhost/authentication/sign-in
       method: GET
       headers:
         Authorization: "Bearer {{ auth_token }}"
@@ -28,11 +28,11 @@ tasks:
 
   - name: Print the API response
     ansible.builtin.debug:
-      msg: "{{ Get_api_response.content }}"
+      msg: "{{ Get_api_response.content }} (Status: {{ Get_api_response.status}})"
 
   - name: Refresh Auth Token
     ansible.builtin.uri:
-      url: http://localhost:3000/authentication/refresh
+      url: http://localhost/authentication/refresh
       method: POST
       body:
         refresh_token: "{{ refresh_token }}"
@@ -47,12 +47,12 @@ tasks:
 
   - name: Make a POST request with Bearer token and JSON payload
     ansible.builtin.uri:
-      url: http://localhost:3000/coffee
+      url: http://localhost/coffee
       method: POST
       headers:
         Authorization: "Bearer {{ auth_token }}"
         Content-Type: "application/json"
-      body: '{"key": "value"}'
+      body: {key: "value"}
       body_format: json
       return_content: yes
     register: Post_api_response
@@ -60,4 +60,4 @@ tasks:
 
   - name: Print the API response
     ansible.builtin.debug:
-      msg: "{{ Post_api_response.content }}"
+      msg: "{{ Post_api_response.content }} (Status: {{ Post_api_response.status }})"

@@ -1,0 +1,96 @@
+.
+├── Dockerfile
+├── Makefile
+├── PROJECT
+├── bin
+│   └── kustomize
+├── config
+│   ├── crd
+│   │   ├── bases
+│   │   │   └── portal.mycourse1.com_myportals.yaml
+│   │   └── kustomization.yaml
+│   ├── default
+│   │   ├── kustomization.yaml
+│   │   ├── manager_auth_proxy_patch.yaml
+│   │   └── manager_config_patch.yaml
+│   ├── manager
+│   │   ├── kustomization.yaml
+│   │   └── manager.yaml
+│   ├── manifests
+│   │   └── kustomization.yaml
+│   ├── prometheus
+│   │   ├── kustomization.yaml
+│   │   └── monitor.yaml
+│   ├── rbac
+│   │   ├── auth_proxy_client_clusterrole.yaml
+│   │   ├── auth_proxy_role.yaml
+│   │   ├── auth_proxy_role_binding.yaml
+│   │   ├── auth_proxy_service.yaml
+│   │   ├── kustomization.yaml
+│   │   ├── leader_election_role.yaml
+│   │   ├── leader_election_role_binding.yaml
+│   │   ├── myportal_editor_role.yaml
+│   │   ├── myportal_viewer_role.yaml
+│   │   ├── role.yaml
+│   │   ├── role_binding.yaml
+│   │   └── service_account.yaml
+│   ├── samples
+│   │   ├── kustomization.yaml
+│   │   ├── portal_v1_myportal.yaml
+│   │   └── portal_v2_myportal.yaml
+│   ├── scorecard
+│   │   ├── bases
+│   │   │   └── config.yaml
+│   │   ├── kustomization.yaml
+│   │   └── patches
+│   │       ├── basic.config.yaml
+│   │       └── olm.config.yaml
+│   └── testing
+│       ├── debug_logs_patch.yaml
+│       ├── kustomization.yaml
+│       ├── manager_image.yaml
+│       └── pull_policy
+│           ├── Always.yaml
+│           ├── IfNotPresent.yaml
+│           └── Never.yaml
+├── molecule
+│   ├── default
+│   │   ├── converge.yml
+│   │   ├── create.yml
+│   │   ├── destroy.yml
+│   │   ├── kustomize.yml
+│   │   ├── molecule.yml
+│   │   ├── prepare.yml
+│   │   ├── tasks
+│   │   │   └── myportal_test.yml
+│   │   └── verify.yml
+│   └── kind
+│       ├── converge.yml
+│       ├── create.yml
+│       ├── destroy.yml
+│       └── molecule.yml
+├── output.txt
+├── playbooks
+├── requirements.yml
+├── roles
+│   └── myportal
+│       ├── README.md
+│       ├── defaults
+│       │   └── main.yml
+│       ├── files
+│       ├── handlers
+│       │   └── main.yml
+│       ├── meta
+│       │   └── main.yml
+│       ├── tasks
+│       │   └── main.yml
+│       ├── templates
+│       │   ├── myportalcm.yml
+│       │   ├── myportaldeploy.yml
+│       │   ├── myportalingress.yml
+│       │   └── myportalservice.yml
+│       └── vars
+│           └── main.yml
+└── watches.yaml
+
+29 directories, 64 files

@@ -50,6 +50,10 @@ spec:
               value: "redis"  # Update to match the Redis service DNS name
             - name: REDIS_PORT
               value: "6379"  # Redis port
+            - name: JWT_TOKEN_AUDIENCE
+              value: "{{ portalname }}.default.svc.cluster.local" 
+            - name: JWT_TOKEN_ISSUER
+              value: "{{ portalname }}.default.svc.cluster.local"
           envFrom:
             - secretRef:
                 name: jwt-secrets

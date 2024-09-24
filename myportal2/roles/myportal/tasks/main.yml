@@ -1,0 +1,21 @@
+---
+# tasks file for myk8sansible
+- name: Create config maps
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'myportalcm.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"  
+- name: Create portal deployments/replicasets and pods
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'myportaldeploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"  
+- name: Create portal services
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'myportalservice.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+- name: Create portal ingress
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'myportalingress.yml', template_vars=dict(namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present

@@ -1,3 +1,20 @@
+- name: Create Kubernetes namespace for each tenant
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ tenant.namespace }}"
+  loop: "{{ mytenants }}"
+  loop_control:
+    label: "{{ tenant.namespace }}"
+  register: namespace_creation_results
+
+- name: Log namespace creation results
+  debug:
+    var: namespace_creation_results
+
 - name: Render and Save YAML Files for Documentation
   template:
     src: myportal.j2
