@@ -1,4 +1,5 @@
 - name: Configure Redis
-  hosts: all
+  hosts: localhost
+  become: yes # Optional: Add this if you need elevated privileges
   roles:
     - redis

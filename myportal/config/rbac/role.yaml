@@ -61,5 +61,17 @@ rules:
       - patch
       - update
       - watch
+  ##
+  ## Namespace management rules
+  ##
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - watch
 # +kubebuilder:scaffold:rules
-

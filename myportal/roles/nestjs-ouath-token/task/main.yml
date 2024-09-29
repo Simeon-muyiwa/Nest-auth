@@ -1,4 +1,6 @@
-tasks:
+
+---
+# tasks:
   - name: Sign Up and Obtain Tokens
     ansible.builtin.uri:
       url: http://localhost/authentication/sign-up
@@ -23,12 +25,12 @@ tasks:
       headers:
         Authorization: "Bearer {{ auth_token }}"
       return_content: yes
-    register: Get_api_response
-    failed_when: Get_api_response.status != 200
+    register: get_api_response
+    failed_when: get_api_response.status != 200
 
   - name: Print the API response
     ansible.builtin.debug:
-      msg: "{{ Get_api_response.content }} (Status: {{ Get_api_response.status}})"
+      msg: "{{ get_api_response.content }} (Status: {{ get_api_response.status }})"
 
   - name: Refresh Auth Token
     ansible.builtin.uri:
@@ -52,12 +54,13 @@ tasks:
       headers:
         Authorization: "Bearer {{ auth_token }}"
         Content-Type: "application/json"
-      body: {key: "value"}
+      body: 
+        key: "value"
       body_format: json
       return_content: yes
-    register: Post_api_response
-    failed_when: Post_api_response.status != 200
+    register: post_api_response
+    failed_when: post_api_response.status != 200
 
   - name: Print the API response
     ansible.builtin.debug:
-      msg: "{{ Post_api_response.content }} (Status: {{ Post_api_response.status }})"
+      msg: "{{ post_api_response.content }} (Status: {{ post_api_response.status }})"

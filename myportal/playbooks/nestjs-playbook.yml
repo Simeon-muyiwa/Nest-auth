@@ -1,25 +1,35 @@
 - name: Full Deployment of NestJS Application
   hosts: localhost
   become: yes
-
-   roles:
-    - role: portals
+  roles:
+    - portals
 
 - name: Setup PostgreSQL
-  hosts: all
+  hosts: localhost
   tasks:
     - import_playbook: postgresql-playbook.yml
 
+- name: Ensure PostgreSQL is running
+  service:
+    name: postgresql
+    state: started
 
 - name: Setup Redis
-  hosts: all
+  hosts: localhost
   tasks:
     - import_playbook: redis-playbook.yml
 
+- name: Ensure Redis is running
+  service:
+    name: redis
+    state: started
 
+- name: Configure NestJS Application
+  hosts: localhost
+  become: yes
   roles:
-    - role: install-node
-    - role: pre-nestjs
-    - role: nestjs
-    - role: service_setup
-    - role: auth_token
+    - install-node
+    - pre-nestjs
+    - nestjs
+    - service_setup
+    - auth_token

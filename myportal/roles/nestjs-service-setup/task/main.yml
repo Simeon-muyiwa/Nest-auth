@@ -1,4 +1,4 @@
-  tasks:
+
     - name: Install service dependencies
       npm:
         chdir: "{{ service_path }}"

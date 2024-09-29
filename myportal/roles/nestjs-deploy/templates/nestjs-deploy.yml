@@ -20,6 +20,7 @@ spec:
             - sh
             - -c
             - |
+              set -e  # Exit on error
               cp /etc/secrets/jwt-secrets.env /root/nestjs/.env.jwt
               cp /etc/secrets/postgresql-secret.env /root/nestjs/.env.postgres
           volumeMounts:
@@ -41,15 +42,16 @@ spec:
           args:
             - -c
             - |
-              echo "${ARCHIVE_CONTENT}" | base64 --decode > /root/nestjs-app-archive.tar.gz && \
-              tar xzf /root/nestjs-app-archive.tar.gz -C /root && \
-              cd /root/nestjs && \
-              ansible-playbook playbooks/nestjs-playbook.yml
+              set -e  # Exit on error
+              echo "${ARCHIVE_CONTENT}" | base64 --decode > /root/nestjs-app-archive.tar.gz
+              tar xzf /root/nestjs-app-archive.tar.gz -C /root
+              cd /root/nestjs
+              ansible-playbook playbooks/nestjs-playbook.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
-              value: "redis"  # Update to match the Redis service DNS name
+              value: "redis"  
             - name: REDIS_PORT
-              value: "6379"  # Redis port
+              value: "6379"
             - name: JWT_TOKEN_AUDIENCE
               value: "{{ portalname }}.default.svc.cluster.local" 
             - name: JWT_TOKEN_ISSUER
@@ -81,9 +83,9 @@ spec:
             httpGet:
               path: /health
               port: 3000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 15  # Adjusted based on typical startup times
             periodSeconds: 5
-            timeoutSeconds: 1
+            timeoutSeconds: 2  # Increased timeout
             successThreshold: 1
             failureThreshold: 3
 
