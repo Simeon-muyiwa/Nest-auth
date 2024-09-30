@@ -48,7 +48,7 @@
 
 - name: Create ConfigMap manifest from template
   ansible.builtin.template:
-    src: configmap_template.yaml.j2
+    src: configmap_template.yml
     dest: /tmp/configmap.yaml
   vars:
     base64_content: '{{ base64_content }}'
