@@ -26,7 +26,7 @@
   synchronize:
     src: /opt/nestjs/myportal/
     dest: /Myk8sAnsible/myportal/
-    delete: no
+    delete: yes
   when: stat.stat.exists
 
 - name: Check if the archive already exists
