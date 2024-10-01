@@ -35,12 +35,12 @@
     path: /Myk8sAnsible/myportal
     state: directory
 
-- name: Synchronize Myk8sAnsible folder if it exists
-  synchronize:
-    src: /opt/nestjs/myportal/
-    dest: /Myk8sAnsible/myportal/
-    delete: yes
-  when: stat.stat.exists
+- name: Synchronize Myk8sAnsible folder to the correct location
+  command: >
+    rsync --delay-updates -F --compress --delete-after --archive
+    /opt/nestjs/myportal/ /Myk8sAnsible/myportal/
+  args:
+    removes: /Myk8sAnsible/myportal/
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
