@@ -72,7 +72,7 @@
     exclude_path: /opt/nestjs/myportal
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
-  when: has_changes | default(true)
+  when: true 
 
 - name: Encode archive content in base64
   ansible.builtin.set_fact:
