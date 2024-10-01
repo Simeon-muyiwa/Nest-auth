@@ -1,3 +1,4 @@
+---
 - name: Clone or update the NestJS repository
   git:
     repo: '{{ repo_path }}'
@@ -33,10 +34,11 @@
   set_fact:
     has_changes: "{{ git_status.stdout | length > 0 }}"
 
-- name: Check if myportal folder exists
-  ansible.builtin.stat:
-    path: /opt/nestjs/myportal
-  register: stat
+- name: Delete encoded archive
+  ansible.builtin.file:
+    path: /tmp/nestjs-app-archive.tar.gz
+    state: absent
+  when: has_changes | default(false)
 
 - name: Ensure destination directory exists
   ansible.builtin.file:
@@ -64,31 +66,20 @@
     msg: "Rsync failed with error: {{ rsync_result.stderr }}"
   when: rsync_result is defined and rsync_result.rc != 0
 
-- name: Check if the archive already exists
-  ansible.builtin.stat:
-    path: /tmp/nestjs-app-archive.tar.gz
-  register: archive_stat
-
-- name: Remove existing archive if it exists
-  ansible.builtin.file:
-    path: /tmp/nestjs-app-archive.tar.gz
-    state: absent
-  when: archive_stat.stat.exists and has_changes
-
 - name: Archive NestJS application excluding Myk8sAnsible
-  archive:
+  ansible.builtin.archive:
     path: /opt/nestjs
     exclude_path: /opt/nestjs/myportal
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
-  when: has_changes
+  when: has_changes | default(true)
 
 - name: Encode archive content in base64
-  set_fact:
+  ansible.builtin.set_fact:
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
-  when: has_changes
+  when: has_changes | default(true)
 
 - name: Display encoded archive content
   debug:
     msg: '{{ base64_content }}'
-  when: has_changes
+  when: has_changes | default(true)
