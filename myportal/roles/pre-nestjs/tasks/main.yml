@@ -1,74 +1,71 @@
 ---
-    - name: Ensure destination directory exists
-      ansible.builtin.file:
-        path: /Myk8sAnsible/myportal
-        state: directory
-        mode: '0755'
-        owner: "{{ ansible_user | default('root') }}"
-        group: "{{ ansible_user | default('root') }}"
+- name: Clone or update the NestJS repository
+  git:
+    repo: '{{ repo_path }}'
+    dest: '{{ service_path }}'
+    version: main
+    update: yes
+  register: repo_clone
+  delegate_to: localhost
 
-    - name: Clone or update the NestJS repository
-      git:
-        repo: '{{ repo_path }}'  # Ensure this variable is defined
-        dest: '{{ service_path }}'  # Ensure this variable is defined
-        version: main
-        update: yes
-      register: repo_clone
+- name: Debug Git clone result
+  debug:
+    var: repo_clone
 
-    - name: Fail if cloning or updating the repository failed
-      fail:
-        msg: 'Failed to clone or update the repository.'
-      when: repo_clone is failed
+- name: Fail if cloning or updating the repository failed
+  fail:
+    msg: 'Failed to clone or update the repository.'
+  when: repo_clone.failed
 
-    - name: Check for changes in the repository
-      command: >
-        git -C '{{ service_path }}' status --porcelain
-      register: git_status
-      changed_when: false
-      failed_when: false
+- name: Check if myportal folder exists
+  ansible.builtin.stat:
+    path: /opt/nestjs/myportal
+  register: stat
 
-    - name: Determine if there are changes in the main branch
-      set_fact:
-        has_changes: "{{ git_status.stdout | length > 0 }}"
+- name: Ensure destination directory exists
+  ansible.builtin.file:
+    path: /Myk8sAnsible/myportal
+    state: directory
 
-    - name: Delete encoded archive if there are changes
-      ansible.builtin.file:
-        path: /tmp/nestjs-app-archive.tar.gz
-        state: absent
-      when: has_changes | default(false)
+- name: Synchronize Myk8sAnsible folder if it exists
+  synchronize:
+    src: /opt/nestjs/myportal/
+    dest: /Myk8sAnsible/myportal/
+    delete: yes
+  register: synchronize_result
+  when: stat.stat.exists
+  delegate_to: localhost
 
-    - name: Synchronize Myk8sAnsible folder to the correct location
-      synchronize:
-        src: /opt/nestjs/
-        dest: /Myk8sAnsible/myportal
-        rsync_opts: "-vvv --delete-after --exclude=.git"
-        rsync_path: "sudo rsync"
-      register: rsync_result
+- name: Debug synchronization result
+  debug:
+    var: synchronize_result
 
-    - name: Check if rsync was successful
-      debug:
-        msg: "Rsync completed successfully."
-      when: rsync_result.rc == 0
+- name: Check if the archive already exists
+  ansible.builtin.stat:
+    path: /tmp/nestjs-app-archive.tar.gz
+  register: archive_stat
 
-    - name: Report rsync failure
-      debug:
-        msg: "Rsync failed with error: {{ rsync_result.stderr }}"
-      when: rsync_result.rc != 0
+- name: Archive NestJS application excluding Myk8sAnsible
+  archive:
+    path: /opt/nestjs
+    exclude_path: /opt/nestjs/myportal
+    dest: /tmp/nestjs-app-archive.tar.gz
+    format: gz
+  when: not archive_stat.stat.exists
 
-    - name: Archive NestJS application excluding Myk8sAnsible
-      ansible.builtin.archive:
-        path: /opt/nestjs
-        exclude_path: /opt/nestjs/myportal
-        dest: /tmp/nestjs-app-archive.tar.gz
-        format: gz
-      when: has_changes | default(true)
+- name: Encode archive content in base64
+  set_fact:
+    base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
 
-    - name: Encode archive content in base64
-      ansible.builtin.set_fact:
-        base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
-      when: has_changes | default(true)
+# - name: Create ConfigMap manifest from template
+#   ansible.builtin.template:
+#     src: configmap_template.yaml.j2
+#     dest: /tmp/configmap.yaml
+#   vars:
+#     base64_content: '{{ base64_content }}'
+#     portalname: '{{ portalname }}'
+#     namespace: '{{ namespace }}'
 
-    - name: Display encoded archive content
-      debug:
-        msg: '{{ base64_content }}'
-      when: has_changes | default(true)
+# - name: Display decoded ConfigMap content
+#   ansible.builtin.debug:
+#     msg: '{{ base64_content }}'
