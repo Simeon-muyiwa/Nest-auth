@@ -52,19 +52,6 @@
     rsync_path: "sudo rsync"
   register: rsync_result
 
-- name: Debug rsync result
-  debug:
-    var: rsync_result
-
-- name: Check if rsync was successful
-  debug:
-    msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
-  when: rsync_result is defined and rsync_result.rc == 0
-
-- name: Report rsync failure
-  debug:
-    msg: "Rsync failed with error: {{ rsync_result.stderr }}"
-  when: rsync_result is defined and rsync_result.rc != 0
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
