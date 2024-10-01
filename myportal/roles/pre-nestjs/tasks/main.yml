@@ -52,6 +52,10 @@
     rsync_path: "sudo rsync"
   register: rsync_result
 
+- name: Debug rsync result
+  debug:
+    var: rsync_result
+
 - name: Check if rsync was successful
   debug:
     msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
