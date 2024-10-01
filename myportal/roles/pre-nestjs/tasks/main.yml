@@ -1,4 +1,4 @@
-yaml
+
 ---
 - name: Clone or update the NestJS repository
   git:
