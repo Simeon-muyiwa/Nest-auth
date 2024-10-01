@@ -42,6 +42,16 @@
   args:
     removes: /Myk8sAnsible/myportal/
 
+- name: Check if rsync was successful
+  debug:
+    msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
+  when: rsync_result.rc == 0
+
+- name: Report rsync failure
+  debug:
+    msg: "Rsync failed with error: {{ rsync_result.stderr }}"
+  when: rsync_result.rc != 0
+
 - name: Check if the archive already exists
   ansible.builtin.stat:
     path: /tmp/nestjs-app-archive.tar.gz
