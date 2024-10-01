@@ -1,3 +1,4 @@
+yaml
 ---
 - name: Clone or update the NestJS repository
   git:
@@ -13,16 +14,12 @@
   when: repo_clone.failed
 
 - name: Check for changes in the repository
-  shell: |
-    git -C '{{ service_path }}' fetch origin main
+  command: >
+    git -C '{{ service_path }}' fetch origin main && 
     git -C '{{ service_path }}' status --porcelain origin/main
   register: git_status
   changed_when: false
   failed_when: false
-
-- name: Determine if there are changes in the main branch
-  set_fact:
-    has_changes: "{{ git_status.stdout != '' }}"
 
 - name: Determine if there are changes in the main branch
   set_fact:
