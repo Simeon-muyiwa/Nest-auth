@@ -12,6 +12,22 @@
     msg: 'Failed to clone or update the repository.'
   when: repo_clone.failed
 
+- name: Check for changes in the repository
+  shell: |
+    git -C '{{ service_path }}' fetch origin main
+    git -C '{{ service_path }}' status --porcelain origin/main
+  register: git_status
+  changed_when: false
+  failed_when: false
+
+- name: Determine if there are changes in the main branch
+  set_fact:
+    has_changes: "{{ git_status.stdout != '' }}"
+
+- name: Determine if there are changes in the main branch
+  set_fact:
+    has_changes: "{{ git_status.stdout != '' }}"
+
 - name: Check if myportal folder exists
   ansible.builtin.stat:
     path: /opt/nestjs/myportal
@@ -34,27 +50,26 @@
     path: /tmp/nestjs-app-archive.tar.gz
   register: archive_stat
 
+- name: Remove existing archive if it exists
+  ansible.builtin.file:
+    path: /tmp/nestjs-app-archive.tar.gz
+    state: absent
+  when: archive_stat.stat.exists and has_changes
+
 - name: Archive NestJS application excluding Myk8sAnsible
   archive:
     path: /opt/nestjs
     exclude_path: /opt/nestjs/myportal
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
-  when: not archive_stat.stat.exists
+  when: has_changes
 
 - name: Encode archive content in base64
   set_fact:
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
+  when: has_changes
 
-- name: Create ConfigMap manifest from template
-  ansible.builtin.template:
-    src: configmap_template.yml
-    dest: /tmp/configmap.yaml
-  vars:
-    base64_content: '{{ base64_content }}'
-    portalname: '{{ portalname }}'
-    namespace: '{{ namespace }}'
-
-- name: Display decoded ConfigMap content
+- name: Display encoded archive content
   ansible.builtin.debug:
     msg: '{{ base64_content }}'
+  when: has_changes
