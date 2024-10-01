@@ -1,85 +1,74 @@
 ---
-- name: Clone or update the NestJS repository
-  git:
-    repo: '{{ repo_path }}'
-    dest: '{{ service_path }}'
-    version: main
-    update: yes
-  register: repo_clone
+    - name: Ensure destination directory exists
+      ansible.builtin.file:
+        path: /Myk8sAnsible/myportal
+        state: directory
+        mode: '0755'
+        owner: "{{ ansible_user | default('root') }}"
+        group: "{{ ansible_user | default('root') }}"
 
-- name: Fail if cloning or updating the repository failed
-  fail:
-    msg: 'Failed to clone or update the repository.'
-  when: repo_clone is failed
+    - name: Clone or update the NestJS repository
+      git:
+        repo: '{{ repo_path }}'  # Ensure this variable is defined
+        dest: '{{ service_path }}'  # Ensure this variable is defined
+        version: main
+        update: yes
+      register: repo_clone
 
-- name: Pull latest changes from the main branch
-  command: >
-    git -C '{{ service_path }}' pull origin main
-  register: git_pull
-  changed_when: true
+    - name: Fail if cloning or updating the repository failed
+      fail:
+        msg: 'Failed to clone or update the repository.'
+      when: repo_clone is failed
 
-- name: Check if pulling changes was successful
-  fail:
-    msg: 'Failed to pull changes from the repository.'
-  when: git_pull.rc != 0
+    - name: Check for changes in the repository
+      command: >
+        git -C '{{ service_path }}' status --porcelain
+      register: git_status
+      changed_when: false
+      failed_when: false
 
-- name: Check for changes in the repository
-  command: >
-    git -C '{{ service_path }}' status --porcelain
-  register: git_status
-  changed_when: false
-  failed_when: false
+    - name: Determine if there are changes in the main branch
+      set_fact:
+        has_changes: "{{ git_status.stdout | length > 0 }}"
 
-- name: Determine if there are changes in the main branch
-  set_fact:
-    has_changes: "{{ git_status.stdout | length > 0 }}"
+    - name: Delete encoded archive if there are changes
+      ansible.builtin.file:
+        path: /tmp/nestjs-app-archive.tar.gz
+        state: absent
+      when: has_changes | default(false)
 
-- name: Delete encoded archive
-  ansible.builtin.file:
-    path: /tmp/nestjs-app-archive.tar.gz
-    state: absent
-  when: has_changes | default(false)
+    - name: Synchronize Myk8sAnsible folder to the correct location
+      synchronize:
+        src: /opt/nestjs/
+        dest: /Myk8sAnsible/myportal
+        rsync_opts: "-vvv --delete-after --exclude=.git"
+        rsync_path: "sudo rsync"
+      register: rsync_result
 
-- name: Ensure destination directory exists
-  ansible.builtin.file:
-    path: /Myk8sAnsible/myportal
-    state: directory
-    mode: '0755'
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    - name: Check if rsync was successful
+      debug:
+        msg: "Rsync completed successfully."
+      when: rsync_result.rc == 0
 
-- name: Synchronize Myk8sAnsible folder to the correct location
-  synchronize:
-    src: /opt/nestjs/
-    dest: /Myk8sAnsible/myportal
-    rsync_opts: "-vvv --delete-after --exclude=.git"
-    rsync_path: "sudo rsync"
-  register: rsync_result
+    - name: Report rsync failure
+      debug:
+        msg: "Rsync failed with error: {{ rsync_result.stderr }}"
+      when: rsync_result.rc != 0
 
-- name: Check if rsync was successful
-  debug:
-    msg: "Rsync completed successfully."
-  when: rsync_result is defined and rsync_result.rc == 0
+    - name: Archive NestJS application excluding Myk8sAnsible
+      ansible.builtin.archive:
+        path: /opt/nestjs
+        exclude_path: /opt/nestjs/myportal
+        dest: /tmp/nestjs-app-archive.tar.gz
+        format: gz
+      when: has_changes | default(true)
 
-- name: Report rsync failure
-  debug:
-    msg: "Rsync failed with error: {{ rsync_result.stderr }}"
-  when: rsync_result is defined and rsync_result.rc != 0
+    - name: Encode archive content in base64
+      ansible.builtin.set_fact:
+        base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
+      when: has_changes | default(true)
 
-- name: Archive NestJS application excluding Myk8sAnsible
-  ansible.builtin.archive:
-    path: /opt/nestjs
-    exclude_path: /opt/nestjs/myportal
-    dest: /tmp/nestjs-app-archive.tar.gz
-    format: gz
-  when: true 
-
-- name: Encode archive content in base64
-  ansible.builtin.set_fact:
-    base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
-  when: has_changes | default(true)
-
-- name: Display encoded archive content
-  debug:
-    msg: '{{ base64_content }}'
-  when: has_changes | default(true)
+    - name: Display encoded archive content
+      debug:
+        msg: '{{ base64_content }}'
+      when: has_changes | default(true)
