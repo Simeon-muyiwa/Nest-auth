@@ -9,7 +9,7 @@
 - name: Fail if cloning or updating the repository failed
   fail:
     msg: 'Failed to clone or update the repository.'
-  when: repo_clone.failed
+  when: repo_clone is failed
 
 - name: Pull latest changes from the main branch
   command: >
@@ -31,7 +31,7 @@
 
 - name: Determine if there are changes in the main branch
   set_fact:
-    has_changes: "{{ git_status.stdout != '' }}"
+    has_changes: "{{ git_status.stdout | length > 0 }}"
 
 - name: Check if myportal folder exists
   ansible.builtin.stat:
@@ -43,6 +43,8 @@
     path: /Myk8sAnsible/myportal
     state: directory
     mode: '0755'
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
 
 - name: Synchronize Myk8sAnsible folder to the correct location
   synchronize:
@@ -52,6 +54,15 @@
     rsync_path: "sudo rsync"
   register: rsync_result
 
+- name: Check if rsync was successful
+  debug:
+    msg: "Rsync completed successfully."
+  when: rsync_result is defined and rsync_result.rc == 0
+
+- name: Report rsync failure
+  debug:
+    msg: "Rsync failed with error: {{ rsync_result.stderr }}"
+  when: rsync_result is defined and rsync_result.rc != 0
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
@@ -77,7 +88,7 @@
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
   when: has_changes
 
-# - name: Display encoded archive content
-#   ansible.builtin.debug:
-#     msg: '{{ base64_content }}'
-#   when: has_changes
+- name: Display encoded archive content
+  debug:
+    msg: '{{ base64_content }}'
+  when: has_changes
