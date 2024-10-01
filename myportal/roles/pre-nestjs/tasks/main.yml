@@ -5,6 +5,7 @@
     dest: '{{ service_path }}'
     version: main
     update: yes
+    force: yes
   register: repo_clone
   delegate_to: localhost
 
@@ -28,11 +29,13 @@
     state: directory
 
 - name: Synchronize Myk8sAnsible folder if it exists
-  synchronize:
+  rsync:
     src: /opt/nestjs/myportal/
     dest: /Myk8sAnsible/myportal/
     delete: yes
-  register: synchronize_result
+    archive: yes
+    exclude: /opt/nestjs/myportal/*
+  register: rsync_result
   when: stat.stat.exists
   delegate_to: localhost
 
