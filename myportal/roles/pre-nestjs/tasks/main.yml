@@ -77,7 +77,7 @@
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
   when: has_changes
 
-- name: Display encoded archive content
-  ansible.builtin.debug:
-    msg: '{{ base64_content }}'
-  when: has_changes
+# - name: Display encoded archive content
+#   ansible.builtin.debug:
+#     msg: '{{ base64_content }}'
+#   when: has_changes
