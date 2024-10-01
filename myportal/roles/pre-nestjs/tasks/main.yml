@@ -38,21 +38,31 @@
   ansible.builtin.stat:
     path: /opt/nestjs/myportal
   register: stat
-
 - name: Ensure destination directory exists
   ansible.builtin.file:
     path: /Myk8sAnsible/myportal
     state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
 
 - name: Synchronize Myk8sAnsible folder to the correct location
-  command: >
-    rsync --delay-updates -F --compress --delete-after --archive
-    /opt/nestjs/ ../../
+  synchronize:
+    src: /opt/nestjs/
+    dest: /Myk8sAnsible/myportal
+    rsync_opts: "-vvv --delete-after --exclude=.git"
+    rsync_path: "sudo rsync"
+  register: rsync_result
 
 - name: Check if rsync was successful
   debug:
     msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
   when: rsync_result is defined and rsync_result.rc == 0
+
+- name: Report rsync failure
+  debug:
+    msg: "Rsync failed with error: {{ rsync_result.stderr }}"
+  when: rsync_result is defined and rsync_result.rc != 0
 
 - name: Report rsync failure
   debug:
