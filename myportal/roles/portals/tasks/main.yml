@@ -21,11 +21,11 @@
     dest: "/myk8sansible/myportal/config/samples/{{ item.namespace }}_{{ item.mytenantname }}.yaml"
   loop: "{{ lookup('template', 'set-tenants_data.j2') | from_yaml }}"
 
-- name: Apply MyPortal CRD YAML to Kubernetes cluster
-  community.kubernetes.k8s:
-    definition: "{{ lookup('file', '/myk8sansible/myportal/config/samples/' + item.file_name) | from_yaml }}"
-    state: present
-  loop:
-    - file_name: "{{ item.namespace }}_{{ item.mytenantname }}.yaml"
-  loop_control:
-    label: "{{ item.file_name }}"
+# - name: Apply MyPortal CRD YAML to Kubernetes cluster
+#   community.kubernetes.k8s:
+#     definition: "{{ lookup('file', '/myk8sansible/myportal/config/samples/' + item.file_name) | from_yaml }}"
+#     state: present
+#   loop:
+#     - file_name: "{{ item.namespace }}_{{ item.mytenantname }}.yaml"
+#   loop_control:
+#     label: "{{ item.file_name }}"
