@@ -5,18 +5,34 @@
     dest: '{{ service_path }}'
     version: main
     update: yes
-    force: yes
   register: repo_clone
-  delegate_to: localhost
-
-- name: Debug Git clone result
-  debug:
-    var: repo_clone
 
 - name: Fail if cloning or updating the repository failed
   fail:
     msg: 'Failed to clone or update the repository.'
   when: repo_clone.failed
+
+- name: Pull latest changes from the main branch
+  command: >
+    git -C '{{ service_path }}' pull origin main
+  register: git_pull
+  changed_when: true
+
+- name: Check if pulling changes was successful
+  fail:
+    msg: 'Failed to pull changes from the repository.'
+  when: git_pull.rc != 0
+
+- name: Check for changes in the repository
+  command: >
+    git -C '{{ service_path }}' status --porcelain
+  register: git_status
+  changed_when: false
+  failed_when: false
+
+- name: Determine if there are changes in the main branch
+  set_fact:
+    has_changes: "{{ git_status.stdout != '' }}"
 
 - name: Check if myportal folder exists
   ansible.builtin.stat:
@@ -28,25 +44,31 @@
     path: /Myk8sAnsible/myportal
     state: directory
 
-- name: Synchronize Myk8sAnsible folder if it exists
-  rsync:
-    src: /opt/nestjs/myportal/
-    dest: /Myk8sAnsible/myportal/
-    delete: yes
-    archive: yes
-    exclude: /opt/nestjs/myportal/*
-  register: rsync_result
-  when: stat.stat.exists
-  delegate_to: localhost
+- name: Synchronize Myk8sAnsible folder to the correct location
+  command: >
+    rsync --delay-updates -F --compress --delete-after --archive
+    /opt/nestjs/ ../../
 
-- name: Debug synchronization result
+- name: Check if rsync was successful
   debug:
-    var: synchronize_result
+    msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
+  when: rsync_result is defined and rsync_result.rc == 0
+
+- name: Report rsync failure
+  debug:
+    msg: "Rsync failed with error: {{ rsync_result.stderr }}"
+  when: rsync_result is defined and rsync_result.rc != 0
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
     path: /tmp/nestjs-app-archive.tar.gz
   register: archive_stat
+
+- name: Remove existing archive if it exists
+  ansible.builtin.file:
+    path: /tmp/nestjs-app-archive.tar.gz
+    state: absent
+  when: archive_stat.stat.exists and has_changes
 
 - name: Archive NestJS application excluding Myk8sAnsible
   archive:
@@ -54,21 +76,14 @@
     exclude_path: /opt/nestjs/myportal
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
-  when: not archive_stat.stat.exists
+  when: has_changes
 
 - name: Encode archive content in base64
   set_fact:
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
+  when: has_changes
 
-# - name: Create ConfigMap manifest from template
-#   ansible.builtin.template:
-#     src: configmap_template.yaml.j2
-#     dest: /tmp/configmap.yaml
-#   vars:
-#     base64_content: '{{ base64_content }}'
-#     portalname: '{{ portalname }}'
-#     namespace: '{{ namespace }}'
-
-# - name: Display decoded ConfigMap content
-#   ansible.builtin.debug:
-#     msg: '{{ base64_content }}'
+- name: Display encoded archive content
+  ansible.builtin.debug:
+    msg: '{{ base64_content }}'
+  when: has_changes
