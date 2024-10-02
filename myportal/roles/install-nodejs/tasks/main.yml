@@ -1,11 +1,8 @@
 ---
     - name: Install Node.js prerequisites
       apt:
-        name:
-          - apt-transport-https
-          - gcc
-          - g++
-          - make
+        update_cache: yes
+        name: curl
         state: present
 
     - name: Add Node.js GPG key
@@ -14,23 +11,11 @@
         state: present
 
     - name: Add Node.js repository
-      apt_repository:
-        repo: "deb https://deb.nodesource.com/nodejs_{{ NODEJS_VERSION }} {{ ansible_distribution_release }} main"
-        state: present
-        update_cache: yes
+      shell: curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+      args:
+        warn: false
 
     - name: Install Node.js
       apt:
         name: nodejs
         state: present
-
-    - name: Install npm
-      apt:
-        name: npm
-        state: present
-
-    - name: Clean up old repositories
-      apt_repository:
-        repo: '*'
-        state: absent
-      when: ansible_facts['apt'] is defined
