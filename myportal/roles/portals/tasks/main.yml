@@ -1,24 +1,27 @@
 ---
-- name: Create Kubernetes namespace for each tenant
-  community.kubernetes.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: Namespace
-      metadata:
-        name: "{{ item.namespace }}"
-  loop: "{{ lookup('file', '/tmp/mytenants.yaml') | from_yaml }}"
-  register: namespace_creation_results
+    - name: Debug variables
+      debug:
+        var: mytenants
 
-- name: Log namespace creation results
-  debug:
-    var: namespace_creation_results
+    - name: Render mytenants YAML
+      template:
+        src: mytenants.j2
+        dest: "/tmp/mytenants.yaml"
+        vars:
+          tenant: "{{ item }}"
+      loop: "{{ mytenants | from_yaml }}"
 
-# - name: Apply MyPortal CRD YAML to Kubernetes cluster
-#   community.kubernetes.k8s:
-#     definition: "{{ lookup('file', '/myk8sansible/myportal/config/samples/' + item.file_name) | from_yaml }}"
-#     state: present
-#   loop:
-#     - file_name: "{{ item.namespace }}_{{ item.mytenantname }}.yaml"
-#   loop_control:
-#     label: "{{ item.file_name }}"
+    - name: Create Kubernetes namespace for each tenant
+      community.kubernetes.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ item.namespace }}"
+      loop: "{{ lookup('file', '/tmp/mytenants.yaml') | from_yaml }}"
+      register: namespace_creation_results
+
+    - name: Log namespace creation results
+      debug:
+        var: namespace_creation_results
