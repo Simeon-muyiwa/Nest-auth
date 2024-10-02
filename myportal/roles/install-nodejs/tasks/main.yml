@@ -1,31 +1,36 @@
-
 ---
-- name: Add Nodesource repository
-  apt_repository:
-    repo: "{{ nodesource_repo }}{{ node_version }}"
-    state: present
+    - name: Install Node.js prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - gcc
+          - g++
+          - make
+        state: present
 
-- name: Update apt cache
-  apt:
-    update_cache: yes
+    - name: Add Node.js GPG key
+      apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
 
-- name: Run Nodesource installer
-  shell: curl -fsSL {{ nodesource_repo }}setup_{{ node_version }} | sudo bash -
-  register: result
-  failed_when: result.rc != 0
+    - name: Add Node.js repository
+      apt_repository:
+        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
+        state: present
+        update_cache: yes
 
-- name: Install Node.js and related tools
-  apt:
-    name:
-      - curl
-      - nodejs
-      - npm
-      - pnpm
-      - yarn
-    state: present
+    - name: Install Node.js
+      apt:
+        name: nodejs
+        state: present
 
-- name: Clean up
-  apt:
-    upgrade: dist
-    autoclean: yes
-    autoremove: yes
+    - name: Install npm
+      apt:
+        name: npm
+        state: present
+
+    - name: Clean up old repositories
+      apt_repository:
+        repo: '*'
+        state: absent
+      when: ansible_facts['apt'] is defined
