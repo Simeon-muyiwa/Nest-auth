@@ -11,4 +11,6 @@ spec:
     replicacount: {{ portal.replicacount }}
   {% endfor %}
   mytenantname: {{ tenant.mytenantname | default('default_value') }}
+
+---
 {% endfor %}
