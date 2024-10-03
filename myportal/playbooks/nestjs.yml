@@ -6,4 +6,4 @@
     - pre-nestjs
     - install-nodejs
     - portals
-    - redis
+    - postgresql
