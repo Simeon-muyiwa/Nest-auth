@@ -22,7 +22,11 @@
         name: "{{ tenant.namespace }}-c"
   loop: "{{ mytenants }}"
   loop_control:
-    label: "{{ tenant.namespace }}"
+    loop_var: item
+  vars:
+    namespace: "{{ item.namespace }}"
+    portals: "{{ item.portals }}"
+    mytenantname: "{{ item.mytenantname }}"
   register: namespace_creation_results
 
 - name: Log namespace creation results
