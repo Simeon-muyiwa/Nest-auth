@@ -14,8 +14,8 @@
 
     - name: Generate configuration files for each tenant
       template:
-        src: tenant_template.j2
-        dest: "/tmp/{{ item.namespace }}_config.yaml"
+        src: mytenants.j2
+        dest: "/tmp/{{ item.namespace }}_mytenants.yaml"
       loop: "{{ mytenants }}"
       loop_control:
         loop_var: item
