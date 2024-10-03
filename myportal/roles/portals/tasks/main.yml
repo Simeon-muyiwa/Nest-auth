@@ -19,14 +19,10 @@
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: "{{ tenant.namespace }}-c"
+        name: "{{ item.namespace }}"
   loop: "{{ mytenants }}"
   loop_control:
     loop_var: item
-  vars:
-    namespace: "{{ item.namespace }}"
-    portals: "{{ item.portals }}"
-    mytenantname: "{{ item.mytenantname }}"
   register: namespace_creation_results
 
 - name: Log namespace creation results
