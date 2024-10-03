@@ -1,7 +1,7 @@
 ---
 - name: Create PostgreSQL ConfigMap
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'postgresql-configmap.yml') | from_yaml }}"
+    definition: "{{ lookup('template', 'postgresqlconfigmap.yml') | from_yaml }}"
     state: present
 
 - name: Create PostgreSQL Secret
