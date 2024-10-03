@@ -1,3 +1,4 @@
+{% for tenant in mytenants %}
 apiVersion: portal.mycourse1.com/v1
 kind: MyPortal
 metadata:
@@ -10,3 +11,4 @@ spec:
     replicacount: {{ portal.replicacount }}
   {% endfor %}
   mytenantname: {{ tenant.mytenantname | default('default_value') }}
+{% endfor %}
