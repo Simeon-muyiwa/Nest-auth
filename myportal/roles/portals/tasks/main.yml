@@ -1,25 +1,42 @@
 ---
-    - set_fact:
-        mytenants:
-          - namespace: portal1
-            portals:
-              - name: 'nestjs-auth'
-                replicacount: 1
-            mytenantname: first_tenant
-          - namespace: portal2
-            portals:
-              - name: 'another-auth'
-                replicacount: 2
-            mytenantname: second_tenant
+- set_fact:
+    mytenants:
+      - namespace: portal1
+        portals:
+          - name: 'nestjs-auth'
+            replicacount: 1
+        mytenantname: first_tenant
+      - namespace: portal2
+        portals:
+          - name: 'another-auth'
+            replicacount: 2
+        mytenantname: second_tenant
 
-    - name: Generate configuration files for each tenant
-      template:
-        src: mytenants.j2
-        dest: "/tmp/{{ item.namespace }}_mytenants.yaml"
-      loop: "{{ mytenants }}"
-      loop_control:
-        loop_var: item
-      vars:
-        namespace: "{{ item.namespace }}"
-        portals: "{{ item.portals }}"
-        mytenantname: "{{ item.mytenantname }}"
+- name: Create Kubernetes namespace for each tenant
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ tenant.namespace }}-c"
+  loop: "{{ mytenants }}"
+  loop_control:
+    label: "{{ tenant.namespace }}"
+  register: namespace_creation_results
+
+- name: Log namespace creation results
+  debug:
+    var: namespace_creation_results
+
+- name: Generate configuration files for each tenant
+  template:
+    src: mytenants.j2
+    dest: "/tmp/{{ item.namespace }}_mytenants.yaml"
+  loop: "{{ mytenants }}"
+  loop_control:
+    loop_var: item
+  vars:
+    namespace: "{{ item.namespace }}"
+    portals: "{{ item.portals }}"
+    mytenantname: "{{ item.mytenantname }}"
