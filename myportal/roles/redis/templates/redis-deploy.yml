@@ -1,10 +1,10 @@
-
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis
+  namespace: "{{ ansible_operator_meta.namespace | default('default') }}"
 spec:
-  serviceName: "redis"
+  serviceName: 'redis'
   replicas: 1
   selector:
     matchLabels:
@@ -25,14 +25,14 @@ spec:
               mountPath: /data
           env:
             - name: REDIS_HOST
-              value: "redis"
+              value: 'redis'
             - name: REDIS_PORT
-              value: "6379"
+              value: '6379'
   volumeClaimTemplates:
     - metadata:
         name: redis-data
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ['ReadWriteOnce']
         resources:
           requests:
             storage: 1Gi
