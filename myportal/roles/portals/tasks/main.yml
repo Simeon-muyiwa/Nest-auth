@@ -1,11 +1,11 @@
 ---
-- name: Render mytenants YAML
+- name: Render mytenants YAML for each tenant
   template:
     src: mytenants.j2
-    dest: "/tmp/mytenants.yaml"
+    dest: "/tmp/{{ item.namespace }}_mytenants.yaml"  # Unique file per tenant
     vars:
       tenant: "{{ item }}"
-  loop: "{{ mytenants | from_yaml }}"
+  loop: "{{ mytenants }}"
 
 - name: Create Kubernetes namespace for each tenant
   community.kubernetes.k8s:
@@ -15,14 +15,14 @@
       kind: Namespace
       metadata:
         name: "{{ item.namespace }}"
-  loop: "{{ lookup('file', '/tmp/mytenants.yaml') | from_yaml }}"
-  register: namespace_creation_results
+  loop: "{{ mytenants }}"  # Loop over the original mytenants variable
 
 - name: Log namespace creation results
   debug:
     var: namespace_creation_results
 
-- name: Clean up temporary file
+- name: Clean up temporary files
   file:
-    path: "/tmp/mytenants.yaml"
+    path: "/tmp/{{ item.namespace }}_mytenants.yaml"
     state: absent
+  loop: "{{ mytenants }}"

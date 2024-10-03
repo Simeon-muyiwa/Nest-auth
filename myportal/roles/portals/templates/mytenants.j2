@@ -9,4 +9,4 @@ spec:
   - name: '{{ portal.name }}'
     replicacount: {{ portal.replicacount }}
   {% endfor %}
-  mytenantname: {{ tenant.mytenantname }}
+  mytenantname: {{ tenant.mytenantname | default('default_value') }}
