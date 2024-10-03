@@ -1,28 +1,16 @@
 ---
+- name: Set facts for mytenants
+  set_fact:
+    mytenants: "{{ lookup('file', 'mytenants.yml') | from_yaml }}"
+
+- name: Debug mytenants variable
+  debug:
+    var: mytenants
+
 - name: Render mytenants YAML for each tenant
   template:
     src: mytenants.j2
     dest: "/tmp/{{ item.namespace }}_mytenants.yaml"  # Unique file per tenant
     vars:
       tenant: "{{ item }}"
-  loop: "{{ mytenants }}"
-
-- name: Create Kubernetes namespace for each tenant
-  community.kubernetes.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: Namespace
-      metadata:
-        name: "{{ item.namespace }}"
-  loop: "{{ mytenants }}"  # Loop over the original mytenants variable
-
-- name: Log namespace creation results
-  debug:
-    var: namespace_creation_results
-
-- name: Clean up temporary files
-  file:
-    path: "/tmp/{{ item.namespace }}_mytenants.yaml"
-    state: absent
   loop: "{{ mytenants }}"
