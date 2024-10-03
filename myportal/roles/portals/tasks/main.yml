@@ -17,10 +17,10 @@
   debug:
     var: mytenants
 
-- name: Render mytenants YAML for each tenant
+- name: Render tenant configuration
   template:
-    src: mytenants.yml
-    dest: "/tmp/{{ item.namespace }}_mytenants.yml"  # Unique file per tenant
-    vars:
-      tenant: "{{ item }}"
+    src: mytenants.j2
+    dest: /tmp/{{ item.namespace }}_mytenants.yaml
   loop: "{{ mytenants }}"
+  vars:
+    tenant: "{{ item }}"
