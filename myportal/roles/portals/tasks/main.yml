@@ -19,8 +19,8 @@
 
 - name: Render mytenants YAML for each tenant
   template:
-    src: mytenants.j2
-    dest: "/tmp/{{ item.namespace }}_mytenants.yaml"  # Unique file per tenant
+    src: mytenants.yml
+    dest: "/tmp/{{ item.namespace }}_mytenants.yml"  # Unique file per tenant
     vars:
       tenant: "{{ item }}"
   loop: "{{ mytenants }}"
