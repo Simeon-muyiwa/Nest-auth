@@ -1,4 +1,4 @@
-mytenants:
+{# mytenants:
   - namespace: 'portal1'
     portals:
       - name: 'nestjs-auth'
@@ -6,4 +6,4 @@ mytenants:
   - namespace: 'portal2'
     portals:
       - name: 'another-auth'
-        replicacount: 2
+        replicacount: 2 #}
