@@ -1,7 +1,17 @@
 ---
 - name: Set facts for mytenants
   set_fact:
-    mytenants: "{{ lookup('template', 'mytenants.j2') | from_yaml }}"
+    mytenants: 
+      - namespace: "portal1"
+        portals:
+          - name: "nestjs-auth"
+            replicacount: 1
+        mytenantname: "first_tenant"
+      - namespace: "portal2"
+        portals:
+          - name: "another-auth"
+            replicacount: 2
+        mytenantname: "second_tenant"
 
 - name: Debug mytenants variable
   debug:
