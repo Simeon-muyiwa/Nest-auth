@@ -1,5 +1,4 @@
 ---
----
 - name: Create Redis Deployment
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'redis-deploy.yml') | from_yaml }}"
