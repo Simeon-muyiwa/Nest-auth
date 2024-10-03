@@ -1,26 +1,25 @@
 ---
-- name: Set facts for mytenants
-  set_fact:
-    mytenants: 
-      - namespace: "portal1"
-        portals:
-          - name: "nestjs-auth"
-            replicacount: 1
-        mytenantname: "first_tenant"
-      - namespace: "portal2"
-        portals:
-          - name: "another-auth"
-            replicacount: 2
-        mytenantname: "second_tenant"
+    - set_fact:
+        mytenants:
+          - namespace: portal1
+            portals:
+              - name: 'nestjs-auth'
+                replicacount: 1
+            mytenantname: first_tenant
+          - namespace: portal2
+            portals:
+              - name: 'another-auth'
+                replicacount: 2
+            mytenantname: second_tenant
 
-- name: Debug mytenants variable
-  debug:
-    var: mytenants
-
-- name: Render tenant configuration
-  template:
-    src: mytenants.j2
-    dest: "/tmp/{{ item.namespace }}_mytenants.yaml"
-  loop: "{{ mytenants }}"
-  loop_control:
-    label: "{{ item.namespace }}"
+    - name: Generate configuration files for each tenant
+      template:
+        src: tenant_template.j2
+        dest: "/tmp/{{ item.namespace }}_config.yaml"
+      loop: "{{ mytenants }}"
+      loop_control:
+        loop_var: item
+      vars:
+        namespace: "{{ item.namespace }}"
+        portals: "{{ item.portals }}"
+        mytenantname: "{{ item.mytenantname }}"

@@ -1,16 +1,12 @@
-{% for tenant in mytenants %}
 apiVersion: portal.mycourse1.com/v1
 kind: MyPortal
 metadata:
-  name: {{ tenant.namespace }}
-  namespace: {{ tenant.namespace }}
+  name: {{ namespace }}
+  namespace: {{ namespace }}
 spec:
   myportals:
-  {% for portal in tenant.portals %}
+  {% for portal in portals %}
   - name: '{{ portal.name }}'
     replicacount: {{ portal.replicacount }}
   {% endfor %}
-  mytenantname: {{ tenant.mytenantname | default('default_value') }}
-
----
-{% endfor %}
+  mytenantname: {{ mytenantname | default('default_value') }}
