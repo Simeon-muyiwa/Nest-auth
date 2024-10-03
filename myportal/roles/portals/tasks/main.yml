@@ -24,5 +24,3 @@
   loop: "{{ mytenants }}"
   loop_control:
     label: "{{ item.namespace }}"
-  vars:
-    tenant: "{{ item }}"
