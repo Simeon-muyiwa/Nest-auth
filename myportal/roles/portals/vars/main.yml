@@ -1,5 +1,5 @@
- mytenants:
-      - namespace: portal1
-        portals:
-          - name: nestjs-auth
-            replicacount: 1
+mytenants:
+  - namespace: portal1
+    portals:
+      - name: nestjs-auth
+        replicacount: 1
