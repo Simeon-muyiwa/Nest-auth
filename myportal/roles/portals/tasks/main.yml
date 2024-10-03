@@ -20,7 +20,4 @@
 - name: Render tenant configurations
   template:
     src: mytenants.j2
-    dest: "/tmp/{{ item.namespace }}_mytenant.yaml"
-  loop: "{{ mytenants }}"
-  loop_control:
-    label: "{{ item.namespace }}"
+    dest: "/tmp/mytenants.yaml"
