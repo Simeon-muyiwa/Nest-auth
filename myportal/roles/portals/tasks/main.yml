@@ -1,7 +1,7 @@
 ---
 - name: Set facts for mytenants
   set_fact:
-    mytenants: "{{ lookup('file', 'mytenants.yml') | from_yaml }}"
+    mytenants: "{{ lookup('template', 'mytenants.j2') | from_yaml }}"
 
 - name: Debug mytenants variable
   debug:
