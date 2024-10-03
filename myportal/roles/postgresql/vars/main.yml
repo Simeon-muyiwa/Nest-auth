@@ -1,1 +1,1 @@
-namespace: postgresql
+namespace: "{{ ansible_operator_meta.namespace | default('default') }}"
