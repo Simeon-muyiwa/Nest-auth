@@ -1,8 +1,8 @@
-{% for tenant in tenant %}
+{% for tenant in mytenants %}
 apiVersion: portal.mycourse1.com/v1
 kind: MyPortal
 metadata:
-  name: {{ tenant.mytenantname }}
+  name: {{ tenant.namespace }}
   namespace: {{ tenant.namespace }}
 spec:
   myportals:
