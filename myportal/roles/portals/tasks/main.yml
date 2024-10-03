@@ -17,10 +17,12 @@
   debug:
     var: mytenants
 
-- name: Render tenant configuration
+- name: Render tenant configurations
   template:
     src: mytenants.j2
-    dest: "/tmp/{{ item.mytenantname }}_mytenants.yaml"
-  loop: "{{ mytenants }}"
+    dest: "/tmp/{{ item.tenant_namespace }}_mytenants.yaml"
+  loop:
+    - tenant_namespace: "{{ tenant.namespace }}"
+      tenant: "{{ tenant }}"
   vars:
-    tenant: "{{ item }}"
+    tenant: "{{ item.tenant }}"
