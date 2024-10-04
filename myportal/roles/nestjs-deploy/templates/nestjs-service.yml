@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: { { namespace } } # Removed spaces
-  name: { { portalname } } # Removed spaces
+  namespace: { { namespace } }
+  name: { { portalname } }
   labels:
-    app: { { portalname } } # Removed spaces
+    app: { { portalname } }
 spec:
   selector:
-    app: { { portalname } } # Removed spaces
+    app: { { portalname } }
   ports:
     - protocol: TCP
       port: 80
       targetPort: 3000
-  type: ClusterIP # Specify the service type if needed, defaults to ClusterIP
+  type: ClusterIP
