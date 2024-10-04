@@ -1,15 +1,14 @@
+- name: Install service dependencies
+  community.general.npm:
+    path: "{{ service_path }}"
+    state: present
 
-    - name: Install service dependencies
-      npm:
-        chdir: "{{ service_path }}"
-        state: present
+- name: Build the service
+  community.general.npm:
+    path: "{{ service_path }}"
+    run_script: build
 
-    - name: Build the service
-      npm:
-        chdir: "{{ service_path }}"
-        run_script: build
-
-    - name: Start the service
-      ansible.builtin.command: npm run start --prefix "{{ service_path }}"
-      async: 180
-      poll: 0
+- name: Start the service
+  ansible.builtin.command: npm run start --prefix "{{ service_path }}"
+  async: 180
+  poll: 0
