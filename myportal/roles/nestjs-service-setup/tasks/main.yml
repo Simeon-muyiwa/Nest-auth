@@ -3,10 +3,10 @@
     path: "{{ service_path }}"
     state: present
 
-- name: Build the service
-  community.general.npm:
-    path: "{{ service_path }}"
-    run_script: build
+- name: Build the NestJS service
+  command: npm run build
+  args:
+    chdir: /opt/nestjs
 
 - name: Start the service
   ansible.builtin.command: npm run start --prefix "{{ service_path }}"
