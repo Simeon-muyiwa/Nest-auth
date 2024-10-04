@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: { { namespace } }
-  name: { { portalname } }
+  namespace: { { namespace } } # Removed spaces
+  name: { { portalname } } # Removed spaces
   labels:
-    app: { { portalname } }
+    app: { { portalname } } # Removed spaces
 spec:
   selector:
-    app: { { portalname } }
+    app: { { portalname } } # Removed spaces
   ports:
     - protocol: TCP
       port: 80
