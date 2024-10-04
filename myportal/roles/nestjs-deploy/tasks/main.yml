@@ -1,4 +1,8 @@
 # Deploying ConfigMap, Secret, Deployment, Service, Ingress for each portal
+- name: Set default value for base64_content
+  set_fact:
+    base64_content: ""  # Defaulting to an empty string to avoid 'undefined' error
+
 - name: Encode archive content in base64
   set_fact:
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
@@ -7,7 +11,7 @@
 - name: Debug base64_content
   debug:
     msg: "Base64 Content: {{ base64_content }}"
-  when: base64_content is defined
+  when: base64_content != ""
 
 - name: Deploy ConfigMap for each portal
   community.kubernetes.k8s:
@@ -18,6 +22,7 @@
     loop_var: item
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
+  when: base64_content != ""  # Proceed only if base64_content has been set
 
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
