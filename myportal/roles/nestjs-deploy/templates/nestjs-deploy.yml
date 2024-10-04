@@ -25,9 +25,9 @@ spec:
               cp /etc/secrets/postgresql-secret.env /root/nestjs/.env.postgres
           volumeMounts:
             - name: jwt-secrets
-              mountPath: /etc/secrets
+              mountPath: /etc/jwt-secrets  # Changed mount path for uniqueness
             - name: postgresql-secret
-              mountPath: /etc/secrets
+              mountPath: /etc/postgresql-secret  # Changed mount path for uniqueness
             - name: app-volume
               mountPath: /root/nestjs
           securityContext:
@@ -67,10 +67,10 @@ spec:
             - name: app-volume
               mountPath: /root
             - name: jwt-secrets
-              mountPath: /root/nestjs/.env.jwt
+              mountPath: /etc/secrets/.env.jwt  # Change to point to a file in the secrets directory
               subPath: .env.jwt
             - name: postgresql-secret
-              mountPath: /root/nestjs/.env.postgres
+              mountPath: /etc/secrets/.env.postgres  # Change to point to a file in the secrets directory
               subPath: .env.postgres
           resources:
             requests:
