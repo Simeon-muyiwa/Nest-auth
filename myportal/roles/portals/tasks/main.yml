@@ -6,11 +6,7 @@
           - name: 'nestjs-auth'
             replicacount: 1
         mytenantname: first_tenant
-      - namespace: portal2
-        portals:
-          - name: 'another-auth'
-            replicacount: 2
-        mytenantname: second_tenant
+     
 
 - name: Create Kubernetes namespace for each tenant
   community.kubernetes.k8s:
