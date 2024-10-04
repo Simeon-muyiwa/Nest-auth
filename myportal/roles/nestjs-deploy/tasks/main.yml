@@ -58,6 +58,7 @@
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
 
+
 - name: Create nestjs ingress for each portal
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(namespace=tenant.namespace)) | from_yaml }}"
