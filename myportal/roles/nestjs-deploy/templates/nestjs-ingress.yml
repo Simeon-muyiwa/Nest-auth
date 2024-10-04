@@ -1,13 +1,13 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ mytenantname }}
+  name: {{ portalname}}
   labels:
-    app: {{ mytenantname }} # Adding labels for better identification
+    app: {{portalname }} # Adding labels for better identification
   namespace: {{ namespace }}
 spec:
   rules:
-    - host: {{ mytenantname }} # Ensure this is a valid hostname
+    - host: {{ portalname}} # Ensure this is a valid hostname
       http:
         paths:
           - path: /
