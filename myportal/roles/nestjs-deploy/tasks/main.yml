@@ -26,17 +26,16 @@
 
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-secret-env.yml', template_vars=dict(portalname=item.name, 
-     namespace=tenant.namespace, 
-     jwt_token_secret=item.jwt_token_secret, 
-     jwt_access_token_ttl=item.jwt_access_token_ttl, 
-     jwt_refresh_token_ttl=item.jwt_refresh_token_ttl)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-secret-env.yml') | from_yaml }}"
     state: present
   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
   loop_control:
-    loop_var: item
+    loop_var: portal
   vars:
-    tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
+    namespace: "{{ mytenants | selectattr('portals', 'search', portal.name) | first.namespace }}"
+    jwt_token_secret: "{{ portal.jwt_token_secret }}"
+    jwt_access_token_ttl: "{{ portal.jwt_access_token_ttl }}"
+    jwt_refresh_token_ttl: "{{ portal.jwt_refresh_token_ttl }}"
 
 - name: Create nestjs deployments/replicasets and pods for each portal
   community.kubernetes.k8s:
