@@ -33,9 +33,9 @@
     loop_var: portal
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', portal) | first }}"
-    jwt_token_secret: "{{ portal.jwt_token_secret }}"
-    jwt_access_token_ttl: "{{ portal.jwt_access_token_ttl }}"
-    jwt_refresh_token_ttl: "{{ portal.jwt_refresh_token_ttl }}"
+    jwt_token_secret: "{{ portal.jwt_token_secret | default('your_default_value') }}"  # Add a default value
+    jwt_access_token_ttl: "{{ portal.jwt_access_token_ttl | default(3600) }}"  # Example default TTL
+    jwt_refresh_token_ttl: "{{ portal.jwt_refresh_token_ttl | default(86400) }}"  # Example default TTL
     namespace: "{{ tenant.namespace if tenant is not none else 'default' }}"
 
 - name: Create nestjs deployments/replicasets and pods for each portal
