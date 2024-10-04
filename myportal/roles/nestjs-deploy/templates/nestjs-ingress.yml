@@ -1,19 +1,19 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: { { mytenantname } }
+  name: {{ mytenantname }}
   labels:
-    app: { { mytenantname } } # Adding labels for better identification
-  namespace: { { namespace } }
+    app: {{ mytenantname }} # Adding labels for better identification
+  namespace: {{ namespace }}
 spec:
   rules:
-    - host: { { mytenantname } } # Ensure this is a valid hostname
+    - host: {{ mytenantname }} # Ensure this is a valid hostname
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: { { portalname } }
+                name: {{ portalname }} # Should point to the service name
                 port:
                   number: 80 # Should point to the service port, which is 80
