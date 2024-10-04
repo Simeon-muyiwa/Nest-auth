@@ -9,3 +9,4 @@
     - postgresql
     - redis
     - nestjs-deploy
+    - nestjs-service-setup
