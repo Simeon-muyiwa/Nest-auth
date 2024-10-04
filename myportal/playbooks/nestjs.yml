@@ -10,3 +10,4 @@
     - redis
     - nestjs-deploy
     - nestjs-service-setup
+    - nestjs-ouath-token
