@@ -26,17 +26,17 @@
 
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-secret-env.yml', template_vars=dict(portalname=portal.name, namespace=tenant.namespace, jwt_token_secret=jwt_token_secret, jwt_access_token_ttl=jwt_access_token_ttl, jwt_refresh_token_ttl=jwt_refresh_token_ttl)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-secret-env.yml', template_vars=dict(portalname=item.name, namespace=tenant.namespace, jwt_token_secret=jwt_token_secret, jwt_access_token_ttl=jwt_access_token_ttl, jwt_refresh_token_ttl=jwt_refresh_token_ttl)) | from_yaml }}"
     state: present
   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
   loop_control:
-    loop_var: portal
+    loop_var: item  # Ensure this matches the variable used in your ConfigMap task
   vars:
-    tenant: "{{ mytenants | selectattr('portals', 'contains', portal) | first }}"
-    jwt_token_secret: "{{ portal.jwt_token_secret | default('your_default_value') }}"  # Add a default value
-    jwt_access_token_ttl: "{{ portal.jwt_access_token_ttl | default(3600) }}"  # Example default TTL
-    jwt_refresh_token_ttl: "{{ portal.jwt_refresh_token_ttl | default(86400) }}"  # Example default TTL
-    namespace: "{{ tenant.namespace if tenant is not none else 'default' }}"
+    tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
+    jwt_token_secret: "{{ item.jwt_token_secret | default('your_default_value') }}"  # Example default value
+    jwt_access_token_ttl: "{{ item.jwt_access_token_ttl | default(3600) }}"  # Example default TTL
+    jwt_refresh_token_ttl: "{{ item.jwt_refresh_token_ttl | default(86400) }}"  # Example default TTL
+  when: jwt_token_secret != ""  # Proceed only if jwt_token_secret has been set
 
 - name: Create nestjs deployments/replicasets and pods for each portal
   community.kubernetes.k8s:
