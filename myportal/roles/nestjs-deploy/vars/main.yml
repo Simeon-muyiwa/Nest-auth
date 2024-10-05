@@ -1,5 +1,5 @@
 mytenants:
-  - namespace: "tenant1"
+  - namespace: "portal1"
     portals:
       - name: "portal1"
         jwt_token_secret: "secret1"
