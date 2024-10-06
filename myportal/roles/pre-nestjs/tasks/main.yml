@@ -83,6 +83,12 @@
     base64_content: "{{ lookup('pipe', 'base64 -w 0 /tmp/nestjs-app-archive.tar.gz') }}"
   when: has_changes
 
+- name: Write base64 content to a file
+  copy:
+    content: "{{ base64_content }}"
+    dest: /tmp/base64_nestjs_app_archive.txt
+  when: has_changes
+  
 - name: Display encoded archive content
   ansible.builtin.debug:
     msg: '{{ base64_content }}'
