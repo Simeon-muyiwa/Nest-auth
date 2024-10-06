@@ -1,18 +1,27 @@
-# Deploying ConfigMap, Secret, Deployment, Service, Ingress for each portal
+
+# Set default value for base64_content
 - name: Set default value for base64_content
   set_fact:
     base64_content: ""  # Defaulting to an empty string to avoid 'undefined' error
+
+# Check if changes are present before encoding
+- name: Check if there are changes
+  debug:
+    msg: "Changes detected, proceeding to encode."
+  when: has_changes
 
 - name: Encode archive content in base64
   set_fact:
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
   when: has_changes
 
+# Debug the encoded content
 - name: Debug base64_content
   debug:
     msg: "Base64 Content: {{ base64_content }}"
   when: base64_content != ""
 
+# Deploy ConfigMap for each portal
 - name: Deploy ConfigMap for each portal
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-configmap.yml', template_vars=dict(portalname=item.name, namespace=tenant.namespace, base64_content=base64_content)) | from_yaml }}"
@@ -22,8 +31,7 @@
     loop_var: item
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
-  when: base64_content != ""  # Proceed only if base64_content has been set
-
+  when: base64_content != "" and tenant is defined  # Proceed only if base64_content has been set and tenant is defined
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-secret-env.yml', template_vars=dict(portalname=item.name, namespace=tenant.namespace, jwt_token_secret=jwt_token_secret, jwt_access_token_ttl=jwt_access_token_ttl, jwt_refresh_token_ttl=jwt_refresh_token_ttl)) | from_yaml }}"

@@ -5,4 +5,4 @@ metadata:
   namespace: {{ namespace }}
 data:
   nestjs-app-archive.tar.gz: |
-    {{ base64_content }}
+    {{ base64_content | b64enc }}
