@@ -1,8 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nestjs-auth-cm
+  name: portal1
   namespace: portal1
-data:
-  nestjs-app-archive.tar.gz: |
-    {{ base64_content }}
+binaryData:
+  nestjs-app-archive.tar.gz: {{ base64_content }}
