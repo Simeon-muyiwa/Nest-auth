@@ -80,7 +80,7 @@
 
 - name: Encode archive content in base64
   set_fact:
-    base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
+    base64_content: "{{ lookup('pipe', 'base64 -w 0 /tmp/nestjs-app-archive.tar.gz') }}"
   when: has_changes
 
 - name: Display encoded archive content
