@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ portalname }}runner
+  name: {{ portalname }}
   namespace: {{ namespace }}
 spec:
   replicas: {{ replicacount }}
@@ -35,7 +35,7 @@ spec:
             runAsGroup: 1000
 
       containers:
-        - name: {{ portalname }}-c
+        - name: {{ portalname }}
           image: ubuntu:latest
           command:
             - /bin/sh
@@ -92,7 +92,7 @@ spec:
       volumes:
         - name: app-volume
           configMap: 
-            name: {{ portalname }}-cm
+            name: {{ portalname }}
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
