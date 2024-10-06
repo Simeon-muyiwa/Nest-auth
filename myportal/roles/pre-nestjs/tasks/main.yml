@@ -35,10 +35,15 @@
   set_fact:
     has_changes: "{{ git_status.stdout != '' }}"
 
-- name: Check if myportal folder exists
+- name: Check if source directory exists
   ansible.builtin.stat:
-    path: /opt/nestjs/myportal
-  register: stat
+    path: /opt/nestjs/Myk8sansible/myportal
+  register: source_dir
+
+- name: Fail if source directory does not exist
+  fail:
+    msg: "Source directory /opt/nestjs/Myk8sansible/myportal does not exist."
+  when: not source_dir.stat.exists
 
 - name: Ensure destination directory exists
   ansible.builtin.file:
@@ -49,7 +54,7 @@
   command: >
     rsync --delay-updates -F --compress --delete-after --archive
     /opt/nestjs/Myk8sansible/myportal/ /Myk8sAnsible/myportal/
-  register: rsync_result
+  when: source_dir.stat.exists
 
 - name: Check if rsync was successful
   debug:
