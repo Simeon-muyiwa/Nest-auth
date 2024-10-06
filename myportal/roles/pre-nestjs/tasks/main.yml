@@ -48,7 +48,7 @@
 - name: Synchronize Myk8sAnsible folder to the correct location
   command: >
     rsync --delay-updates -F --compress --delete-after --archive
-    /opt/nestjs/Myk8sansible/myportal
+    /opt/nestjs/Myk8sansible/myportal/ /Myk8sAnsible/myportal/
   register: rsync_result
 
 - name: Check if rsync was successful
@@ -77,24 +77,23 @@
     path: /opt/nestjs
     exclude_path: /opt/nestjs/myportal
     dest: /tmp/nestjs-app-archive.tar.gz
-    format: gz
   when: has_changes
 
 - name: Encode archive content in base64
   set_fact:
     base64_content: "{{ lookup('pipe', 'base64 -w 0 /tmp/nestjs-app-archive.tar.gz') }}"
-  when: has_changes
+  when: has_changes and archive_stat.stat.exists
 
 - name: Write base64 content to a file
   copy:
     content: "{{ base64_content }}"
     dest: /tmp/base64_nestjs_app_archive.txt
-  when: has_changes
+  when: has_changes and base64_content is defined
 
 - name: Display encoded archive content
   ansible.builtin.debug:
     msg: '{{ base64_content }}'
-  when: has_changes
+  when: has_changes and base64_content is defined
 
 - name: Update Kubernetes ConfigMap
   k8s:
@@ -107,4 +106,4 @@
         namespace: portal1
       data:
         nestjs-app-archive.tar.gz: "{{ base64_content }}"
-  when: has_changes
+  when: has_changes and base64_content is defined
