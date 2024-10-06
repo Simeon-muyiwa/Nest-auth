@@ -48,7 +48,7 @@
 - name: Synchronize Myk8sAnsible folder to the correct location
   command: >
     rsync --delay-updates -F --compress --delete-after --archive
-    /opt/nestjs/Myk8sAnsible/myportal
+    /opt/nestjs/Myk8sansible/myportal
   register: rsync_result
 
 - name: Check if rsync was successful
