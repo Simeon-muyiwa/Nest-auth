@@ -92,7 +92,7 @@ spec:
       volumes:
         - name: app-volume
           configMap: 
-            name: nestjs-auth-cm
+            name: portal1
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
