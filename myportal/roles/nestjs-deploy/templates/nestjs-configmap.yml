@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ portalname }}
-  namespace: "{{ ansible_operator_meta.namespace | default('default') }}"
+  namespace: portal1
 data:
   nestjs-app-archive.tar.gz: |
     {{ base64_content }}
