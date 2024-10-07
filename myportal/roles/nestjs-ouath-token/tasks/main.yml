@@ -3,7 +3,7 @@
 # tasks:
   - name: Sign Up and Obtain Tokens
     ansible.builtin.uri:
-      url: http://localhost/authentication/sign-up
+      url: http://first-tenant/authentication/sign-up
       method: POST
       body:
         username: "{{ signup_username }}"
