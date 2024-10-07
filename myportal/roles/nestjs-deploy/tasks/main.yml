@@ -1,10 +1,7 @@
+# Read file and encode to base64 using lookup
 - name: Read file and encode to base64
-  slurp:
-    src: path/to/your/file/nestjs-app-archive.tar.gz
-  register: slurped_content
-
-- set_fact:
-    base64_content: "{{ slurped_content.content | b64decode }}"
+  set_fact:
+    base64_content: "{{ lookup('file', 'nestjs-configmap.yml') | b64encode }}"
 
 # Deploy ConfigMap for each portal
 - name: Deploy ConfigMap for each portal
@@ -22,7 +19,6 @@
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
   when: (base64_content | default('')) != "" and tenant is defined
-
 
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
