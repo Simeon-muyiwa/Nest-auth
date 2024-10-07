@@ -6,7 +6,6 @@
           - name: 'nestjs-auth'
             replicacount: 1
         mytenantname: first_tenant
-     
 
 - name: Create Kubernetes namespace for each tenant
   community.kubernetes.k8s:
@@ -36,3 +35,14 @@
     namespace: "{{ item.namespace }}"
     portals: "{{ item.portals }}"
     mytenantname: "{{ item.mytenantname }}"
+
+- name: Apply MyPortal CRD YAML to Kubernetes cluster
+  community.kubernetes.k8s:
+    definition: "{{ lookup('file', '/myk8sansible/myportal/config/samples/' + item.file_name) | from_yaml }}"
+    state: present
+  loop: "{{ mytenants }}"
+  loop_control:
+    loop_var: item
+  vars:
+    file_name: "{{ item.namespace }}_{{ item.mytenantname }}.yaml"
+
