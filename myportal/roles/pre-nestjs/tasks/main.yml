@@ -1,57 +1,82 @@
 ---
-    - name: Clone or update the NestJS repository
-      git:
-        repo: '{{ repo_path }}'
-        dest: '{{ service_path }}'
-        version: main
-        update: yes
-      register: repo_clone
-      failed_when: "'fatal:' in repo_clone.stderr | default('', true) or repo_clone.rc != 0"
-      changed_when: repo_clone.changed
+- name: Clone or update the NestJS repository
+  git:
+    repo: '{{ repo_path }}'
+    dest: '{{ service_path }}'
+    version: main
+    update: yes
+  register: repo_clone
 
-    - name: Check if Myk8sAnsible folder exists
-      ansible.builtin.stat:
-        path: /opt/nestjs/Myk8sAnsible
-      register: stat
+- name: Fail if cloning or updating the repository failed
+  fail:
+    msg: 'Failed to clone or update the repository.'
+  when: repo_clone.failed
 
-    - name: Ensure destination directory exists
-      ansible.builtin.file:
-        path: /Myk8sAnsible/myportal
-        state: directory
+- name: Pull latest changes from the main branch
+  command: >
+    git -C '{{ service_path }}' pull origin main
+  register: git_pull
+  changed_when: true
 
-    - name: Synchronize Myk8sAnsible folder if it exists
-      synchronize:
-        src: /opt/nestjs/Myk8sAnsible/myportal/
-        dest: /Myk8sAnsible/myportal/
-        delete: yes
-      when: stat.stat.exists
+- name: Check if pulling changes was successful
+  fail:
+    msg: 'Failed to pull changes from the repository.'
+  when: git_pull.rc != 0
 
-    - name: Check if the archive already exists
-      ansible.builtin.stat:
-        path: /tmp/nestjs-app-archive.tar.gz
-      register: archive_stat
+- name: Check for changes in the repository
+  command: >
+    git -C '{{ service_path }}' status --porcelain
+  register: git_status
+  changed_when: false
+  failed_when: false
 
-    - name: Archive NestJS application excluding Myk8sAnsible
-      archive:
-        path: /opt/nestjs
-        exclude_path: /opt/nestjs/Myk8sAnsible
-        dest: /tmp/nestjs-app-archive.tar.gz
-        format: gz
-      when: not archive_stat.stat.exists
+- name: Determine if there are changes in the main branch
+  set_fact:
+    has_changes: "{{ git_status.stdout != '' }}"
 
-    - name: Encode archive content in base64
-      set_fact:
-        base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
+- name: Check if myportal folder exists
+  ansible.builtin.stat:
+    path: /opt/nestjs/myportal
+  register: stat
 
-    - name: Create ConfigMap manifest from template
-      ansible.builtin.template:
-        src: configmap_template.yaml.j2
-        dest: /tmp/configmap.yaml
-      vars:
-        base64_content: '{{ base64_content }}'
-        portalname: '{{ portalname }}'
-        namespace: '{{ namespace }}'
+- name: Ensure destination directory exists
+  ansible.builtin.file:
+    path: /Myk8sAnsible/myportal
+    state: directory
 
-    - name: Display decoded ConfigMap content
-      ansible.builtin.debug:
-        msg: "{{ base64_content | b64decode }}"
+- name: Synchronize Myk8sAnsible folder if it exists
+  synchronize:
+    src: /opt/nestjs/Myk8sAnsible/myportal/
+    dest: /Myk8sAnsible/myportal/
+    delete: yes
+  when: stat.stat.exists
+
+- name: Check if the archive already exists
+  ansible.builtin.stat:
+    path: /tmp/nestjs-app-archive.tar.gz
+  register: archive_stat
+
+- name: Archive NestJS application excluding Myk8sAnsible
+  archive:
+    path: /opt/nestjs
+    exclude_path: /opt/nestjs/Myk8sAnsible
+    dest: /tmp/nestjs-app-archive.tar.gz
+    format: gz
+  when: not archive_stat.stat.exists
+
+- name: Encode archive content in base64
+  set_fact:
+    base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
+
+- name: Create ConfigMap manifest from template
+  ansible.builtin.template:
+    src: configmap_template.yaml.j2
+    dest: /tmp/configmap.yaml
+  vars:
+    base64_content: '{{ base64_content }}'
+    portalname: '{{ portalname }}'
+    namespace: '{{ namespace }}'
+
+- name: Display decoded ConfigMap content
+  ansible.builtin.debug:
+    msg: "{{ base64_content | b64decode }}"
