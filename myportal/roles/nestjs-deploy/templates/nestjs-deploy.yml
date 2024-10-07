@@ -7,11 +7,11 @@ spec:
   replicas: {{ replicacount }}
   selector:
     matchLabels:
-      app: {{ portalname }}
+      app: portal1
   template:
     metadata:
       labels:
-        app: {{ portalname }}
+        app: portal1
     spec:
       initContainers:
         - name: init-secrets
@@ -88,7 +88,7 @@ spec:
       volumes:
         - name: app-volume
           configMap: 
-            name: {{ portalname }}  # Reference the ConfigMap by portalname
+            name: portal1  # Reference the ConfigMap by portalname
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
