@@ -45,11 +45,11 @@
     path: /opt/nestjs/myportal
   register: stat
 
+---
 - name: Ensure destination directory exists
   ansible.builtin.file:
     path: /Myk8sAnsible/myportal
     state: directory
-    create: yes
   register: dir_check
   changed_when: dir_check.changed
 
