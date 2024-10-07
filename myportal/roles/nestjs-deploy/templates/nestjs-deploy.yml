@@ -88,7 +88,7 @@ spec:
       volumes:
         - name: app-volume
           configMap: 
-            name:   # Reference the ConfigMap by portalname
+            name: {{ portalname }}  # Reference the ConfigMap by portalname
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
