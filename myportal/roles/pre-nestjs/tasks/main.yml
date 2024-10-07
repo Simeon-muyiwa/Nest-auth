@@ -44,7 +44,7 @@
   ansible.builtin.file:
     path: /Myk8sAnsible/myportal
     state: directory
-  create: yes
+    create: yes
 
 - name: Synchronize Myk8sAnsible folder to the correct location
   command: >
