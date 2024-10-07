@@ -6,6 +6,7 @@
     version: main
     update: yes
   register: repo_clone
+  changed_when: repo_clone.changed
 
 - name: Fail if cloning or updating the repository failed
   fail:
@@ -16,7 +17,7 @@
   command: >
     git -C '{{ service_path }}' pull origin main
   register: git_pull
-  changed_when: true
+  changed_when: git_pull.rc == 0
 
 - name: Check if pulling changes was successful
   fail:
@@ -43,21 +44,19 @@
   ansible.builtin.file:
     path: /Myk8sAnsible/myportal
     state: directory
+  create: yes
 
 - name: Synchronize Myk8sAnsible folder to the correct location
   command: >
     rsync --delay-updates -F --compress --delete-after --archive
     /opt/nestjs/ ../../
-
-- name: Check if rsync was successful
-  debug:
-    msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
-  when: rsync_result is defined and rsync_result.rc == 0
+  register: rsync_result
+  changed_when: rsync_result.rc == 0
 
 - name: Report rsync failure
   debug:
     msg: "Rsync failed with error: {{ rsync_result.stderr }}"
-  when: rsync_result is defined and rsync_result.rc != 0
+  when: rsync_result.rc != 0
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
