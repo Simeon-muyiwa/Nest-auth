@@ -1,3 +1,6 @@
+from jinja2 import template
+
+template = """"
 apiVersion: portal.mycourse1.com/v1
 kind: MyPortal
 metadata:
@@ -9,4 +12,5 @@ spec:
     - name: "{{ portal.name }}"
       replicacount: {{ portal.replicacount }}
     {% endfor %}
-  mytenantname: "{{ mytenantname | default('default_value') }}"
+mytenantname: "{{ mytenantname | default('default_value') }}"
+""""
