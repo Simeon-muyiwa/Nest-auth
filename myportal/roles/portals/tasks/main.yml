@@ -26,7 +26,7 @@
 
 - name: Generate MyPortal YAML files for each tenant
   copy:
-    dest: "/myk8sansible/myportal/config/sample/{{ item.namespace }}_mytenants.yaml"
+    dest: "/myk8sansible/myportal/config/samples/{{ item.namespace }}_mytenants.yaml"
     content: |
       apiVersion: myportal/v1
       kind: MyPortal
@@ -44,7 +44,7 @@
 
 - name: Apply MyPortal CRD YAML to Kubernetes cluster
   community.kubernetes.k8s:
-    definition: "{{ lookup('file', '/myk8sansible/myportal/config/sample/' + item.namespace + '_mytenants.yaml') | from_yaml }}"
+    definition: "{{ lookup('file', '/myk8sansible/myportal/config/samples/' + item.namespace + '_mytenants.yaml') | from_yaml }}"
     state: present
   loop: "{{ mytenants }}"
   loop_control:
