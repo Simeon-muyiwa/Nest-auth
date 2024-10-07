@@ -1,14 +1,10 @@
 apiVersion: portal.mycourse1.com/v1
 kind: MyPortal
 metadata:
-  name: "{{ item.mytenantname }}"  # Ensure this is compliant
-  namespace: "{{ item.namespace }}"
+  name: "first-tenant"
+  namespace: "portal1"
 spec:
   myportals:
-    {% for portal in item.portals %}
-    - 
-      
-      name: "{{ portal.name }}"
-      replicacount: {{ portal.replicacount }}
-    {% endfor %}
- mytenantname: "{{ item.mytenantname }}"
+    - name: "nestjs-auth"
+      replicacount: 1
+  mytenantname: "first-tenant"
