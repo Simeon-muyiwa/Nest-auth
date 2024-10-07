@@ -1,10 +1,13 @@
-apiVersion: myportal/v1
+apiVersion: portal.mycourse1.com/v1
 kind: MyPortal
 metadata:
   name: "{{ mytenantname }}"
+  namespace: "{{ item.namespace }}"
 spec:
-  portals:
+  myportals:
     {% for portal in portals %}
-    - name: "{{ portal.name }}"
+    - 
+      name: "{{ portal.name }}"
       replicacount: {{ portal.replicacount }}
     {% endfor %}
+  mytenantname: "{{ mytenantname }}"
