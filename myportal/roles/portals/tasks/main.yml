@@ -37,7 +37,7 @@
 
 - name: Apply MyPortal CRD YAML to Kubernetes cluster
   community.kubernetes.k8s:
-    definition: "{{ lookup('file', '/myk8sansible/myportal/config/samples/' + item.namespace + '_' + item.mytenantname + '.yaml') | from_yaml }}"
+    definition: "{{ lookup('file', '/myk8sansible/myportal/config/samples/' + item.namespace + '_mytenants.yaml') | from_yaml }}"
     state: present
   loop: "{{ mytenants }}"
   loop_control:
