@@ -26,7 +26,7 @@
 
 - name: Generate configuration files for each tenant
   template:
-    src: mytenants.j2.yml
+    src: mytenants.yml
     dest: "/myk8sansible/myportal/config/samples/{{ item.namespace }}_mytenants.yaml"
   loop: "{{ mytenants }}"
   loop_control:
