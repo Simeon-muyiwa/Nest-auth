@@ -1,4 +1,3 @@
-
 ---
 - name: Clone or update the NestJS repository
   ansible.builtin.git:
