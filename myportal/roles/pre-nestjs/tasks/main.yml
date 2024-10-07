@@ -1,42 +1,37 @@
 ---
 - name: Clone or update the NestJS repository
-  ansible.builtin.git:
+  git:
     repo: '{{ repo_path }}'
     dest: '{{ service_path }}'
     version: main
     update: yes
   register: repo_clone
-  changed_when: repo_clone.changed
 
 - name: Fail if cloning or updating the repository failed
-  ansible.builtin.fail:
+  fail:
     msg: 'Failed to clone or update the repository.'
-  when: repo_clone is failed
+  when: repo_clone.failed
 
 - name: Pull latest changes from the main branch
-  ansible.builtin.command:
-    cmd: |
-      git -C '{{ service_path }}' pull origin main
-    creates: '{{ service_path }}/HEAD'
+  command: >
+    git -C '{{ service_path }}' pull origin main
   register: git_pull
-  changed_when: git_pull.rc == 0
+  changed_when: true
 
 - name: Check if pulling changes was successful
-  ansible.builtin.fail:
+  fail:
     msg: 'Failed to pull changes from the repository.'
   when: git_pull.rc != 0
 
 - name: Check for changes in the repository
-  ansible.builtin.command:
-    cmd: |
-      git -C '{{ service_path }}' status --porcelain
-    creates: '{{ service_path }}/HEAD'
+  command: >
+    git -C '{{ service_path }}' status --porcelain
   register: git_status
   changed_when: false
   failed_when: false
 
 - name: Determine if there are changes in the main branch
-  ansible.builtin.set_fact:
+  set_fact:
     has_changes: "{{ git_status.stdout != '' }}"
 
 - name: Check if myportal folder exists
@@ -44,32 +39,25 @@
     path: /opt/nestjs/myportal
   register: stat
 
----
 - name: Ensure destination directory exists
   ansible.builtin.file:
     path: /Myk8sAnsible/myportal
     state: directory
-  register: dir_check
-  changed_when: dir_check.changed
-
-- name: Fail if directory creation failed
-  ansible.builtin.fail:
-    msg: 'Failed to create the directory.'
-  when: dir_check is failed
 
 - name: Synchronize Myk8sAnsible folder to the correct location
-  ansible.builtin.command:
-    cmd: |
-      rsync --delay-updates -F --compress --delete-after --archive
-      /opt/nestjs/ ../../
-    creates: /Myk8sAnsible/myportal
-  register: rsync_result
-  changed_when: rsync_result.rc == 0
+  command: >
+    rsync --delay-updates -F --compress --delete-after --archive
+    /opt/nestjs/ ../../
+
+- name: Check if rsync was successful
+  debug:
+    msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
+  when: rsync_result is defined and rsync_result.rc == 0
 
 - name: Report rsync failure
-  ansible.builtin.debug:
+  debug:
     msg: "Rsync failed with error: {{ rsync_result.stderr }}"
-  when: rsync_result.rc != 0
+  when: rsync_result is defined and rsync_result.rc != 0
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
@@ -83,7 +71,7 @@
   when: archive_stat.stat.exists and has_changes
 
 - name: Archive NestJS application excluding Myk8sAnsible
-  ansible.builtin.archive:
+  archive:
     path: /opt/nestjs
     exclude_path: /opt/nestjs/myportal
     dest: /tmp/nestjs-app-archive.tar.gz
@@ -91,7 +79,7 @@
   when: has_changes
 
 - name: Encode archive content in base64
-  ansible.builtin.set_fact:
+  set_fact:
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
   when: has_changes
 
