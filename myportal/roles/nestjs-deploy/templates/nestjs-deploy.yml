@@ -42,7 +42,7 @@ spec:
               set -e  # Exit on error
               tar xzf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs
               cd /root/nestjs
-              ansible-playbook playbooks/nestjs-playbook.yml || { echo "Ansible playbook failed"; exit 1; }
+              ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
               value: "redis"
@@ -88,7 +88,7 @@ spec:
       volumes:
         - name: app-volume
           configMap: 
-            name: portal1  # Reference the ConfigMap by portalname
+            name:   # Reference the ConfigMap by portalname
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
