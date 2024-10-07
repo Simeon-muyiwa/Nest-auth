@@ -10,7 +10,7 @@ spec:
   - host: first-tenant
     http:
       paths:
-      - path: /nestjs-auth(/|$)(.*)
+      - path: /nestjs-auth/*
         pathType: Prefix
         backend:
           service:
