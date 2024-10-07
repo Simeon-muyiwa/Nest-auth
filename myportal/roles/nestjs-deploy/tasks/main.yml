@@ -1,19 +1,4 @@
-# Set default value for base64_content
-- name: Set default value for base64_content
-  set_fact:
-    base64_content: ""  # Default to an empty string
 
-# Check if changes are present before encoding
-- name: Encode archive content in base64 if changes detected
-  set_fact:
-    base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
-  when: has_changes
-
-# Debug the encoded content if it's not empty
-- name: Debug base64_content
-  debug:
-    msg: "Base64 Content: {{ base64_content }}"
-  when: base64_content != ""
 
 # Deploy ConfigMap for each portal
 - name: Deploy ConfigMap for each portal
