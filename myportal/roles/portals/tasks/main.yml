@@ -24,20 +24,27 @@
   debug:
     var: namespace_creation_results
 
-- name: Generate configuration files for each tenant
-  template:
-    src: mytenants.yml
-    dest: "/myk8sansible/myportal/config/samples/{{ item.namespace }}_mytenants.yaml"
+- name: Generate MyPortal YAML files for each tenant
+  copy:
+    dest: "/myk8sansible/myportal/config/sample/{{ item.namespace }}_mytenants.yaml"
+    content: |
+      apiVersion: myportal/v1
+      kind: MyPortal
+      metadata:
+        name: "{{ item.mytenantname }}"
+      spec:
+        portals:
+          {% for portal in item.portals %}
+          - name: "{{ portal.name }}"
+            replicacount: {{ portal.replicacount }}
+          {% endfor %}
   loop: "{{ mytenants }}"
   loop_control:
     loop_var: item
-  vars:
-    portals: "{{ item.portals }}"
-    mytenantname: "{{ item.mytenantname }}"
 
 - name: Apply MyPortal CRD YAML to Kubernetes cluster
   community.kubernetes.k8s:
-    definition: "{{ lookup('file', '/myk8sansible/myportal/config/samples/' + item.namespace + '_mytenants.yaml') | from_yaml }}"
+    definition: "{{ lookup('file', '/myk8sansible/myportal/config/sample/' + item.namespace + '_mytenants.yaml') | from_yaml }}"
     state: present
   loop: "{{ mytenants }}"
   loop_control:
