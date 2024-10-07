@@ -48,17 +48,19 @@
   command: >
     rsync --delay-updates -F --compress --delete-after --archive
     /opt/nestjs/ ../../
+  register: rsync_result
 
 - name: Check if rsync was successful
   debug:
     msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
-  when: rsync_result is defined and rsync_result.rc == 0
+  when: rsync_result.rc == 0
 
 - name: Report rsync failure
   debug:
     msg: "Rsync failed with error: {{ rsync_result.stderr }}"
-  when: rsync_result is defined and rsync_result.rc != 0
+  when: rsync_result.rc != 0
 
+# Check if the archive already exists
 - name: Check if the archive already exists
   ansible.builtin.stat:
     path: /tmp/nestjs-app-archive.tar.gz
@@ -77,6 +79,16 @@
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
   when: has_changes
+
+- name: Check if archive was created
+  ansible.builtin.stat:
+    path: /tmp/nestjs-app-archive.tar.gz
+  register: archive_check
+
+- name: Fail if archive creation failed
+  fail:
+    msg: "The archive was not created."
+  when: not archive_check.stat.exists
 
 - name: Encode archive content in base64
   set_fact:
