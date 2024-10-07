@@ -4,4 +4,4 @@ metadata:
   name: portal1
   namespace: portal1
 binaryData:
-  nestjs-app-archive.tar.gz: {{ base64_content }}
+  nestjs-app-archive.tar.gz: SGVsbG8sIFdvcmxkIQ==
