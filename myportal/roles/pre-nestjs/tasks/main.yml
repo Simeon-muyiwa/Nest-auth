@@ -45,20 +45,25 @@
     state: directory
 
 - name: Synchronize Myk8sAnsible folder to the correct location
-  command: >
-        rsync --delay-updates -F --compress --delete-after --archive
-        /opt/nestjs/ /Myk8sAnsible/myportal/
-  register: rsync_result
+  synchronize:
+    mode: push
+    src: /opt/nestjs/
+    dest: /Myk8sAnsible/myportal/
+    delete: yes
+    rsync_opts:
+      - --compress
+      - --delay-updates
+  register: sync_result
 
-- name: Check if rsync was successful
+- name: Check if synchronize was successful
   debug:
-    msg: "Rsync completed successfully: {{ rsync_result.stdout }}"
-  when: rsync_result.rc == 0
+    msg: "Synchronize completed successfully: {{ sync_result }}"
+  when: sync_result.rc == 0
 
-- name: Report rsync failure
+- name: Report synchronize failure
   debug:
-    msg: "Rsync failed with error: {{ rsync_result.stderr }}"
-  when: rsync_result.rc != 0
+    msg: "Synchronize failed with error: {{ sync_result.stderr }}"
+  when: sync_result.rc != 0
 
 # Check if the archive already exists
 - name: Check if the archive already exists
