@@ -1,0 +1,10 @@
+apiVersion: myportal/v1
+kind: MyPortal
+metadata:
+  name: "{{ mytenantname }}"
+spec:
+  portals:
+    {% for portal in portals %}
+    - name: "{{ portal.name }}"
+      replicacount: {{ portal.replicacount }}
+    {% endfor %}
