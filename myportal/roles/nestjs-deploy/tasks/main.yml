@@ -1,14 +1,14 @@
 # Read file and encode to base64 using lookup
 - name: Read file and encode to base64
   set_fact:
-    base64_content: "{{ lookup('file', 'nestjs-configmap.yml') | b64encode }}"
+    base64_content: "{{ lookup('file', 'templates/nestjs-configmap.yml') | b64encode }}"
 
 # Deploy ConfigMap for each portal
 - name: Deploy ConfigMap for each portal
   community.kubernetes.k8s:
     definition: >-
       {{
-        lookup('template', 'nestjs-configmap.yml',
+        lookup('template', 'templates/nestjs-configmap.yml',
                template_vars=dict(portalname=item.name, namespace=tenant.namespace, base64_content=base64_content)) 
         | from_yaml
       }}
