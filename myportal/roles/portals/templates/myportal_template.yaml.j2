@@ -1,13 +1,14 @@
 apiVersion: portal.mycourse1.com/v1
 kind: MyPortal
 metadata:
-  name: "{{ item.mytenantname }}"  # Accessing mytenantname from the current loop item
+  name: "{{ item.mytenantname }}"  # Ensure this is compliant
   namespace: "{{ item.namespace }}"
 spec:
   myportals:
-    {% for portal in item.portals %}  # Looping through portals in the current tenant item
+    {% for portal in item.portals %}
     - 
+      
       name: "{{ portal.name }}"
       replicacount: {{ portal.replicacount }}
     {% endfor %}
-  mytenantname: "{{ item.mytenantname }}"  # Again accessing myt
+ mytenantname: "{{ item.mytenantname }}"
