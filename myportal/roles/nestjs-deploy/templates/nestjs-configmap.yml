@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: portal1
-  namespace: portal1
+  name: {{ portalname }}
+  namespace: {{ namespace }}
 binaryData:
-  nestjs-app-archive.tar.gz: SGVsbG8sIFdvcmxkIQ==
+  nestjs-app-archive.tar.gz: {{ base64_content | default('') }}
