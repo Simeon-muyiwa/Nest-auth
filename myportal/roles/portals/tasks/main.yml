@@ -24,15 +24,11 @@
   debug:
     var: namespace_creation_results
 
-- name: Generate configuration files for each tenant
+- name: Generate configuration file for portal1
   template:
     src: mytenants.j2
-    dest: "/myk8sansible/myportal/config/samples/{{ item.namespace }}_mytenants.yaml"
-  loop: "{{ mytenants }}"
-  loop_control:
-    loop_var: item
+    dest: "/myk8sansible/myportal/config/samples/portal1_mytenants.yaml"
   vars:
-    namespace: "{{ item.namespace }}"
     portals: "{{ item.portals }}"
     mytenantname: "{{ item.mytenantname }}"
 
