@@ -49,8 +49,8 @@ spec:
           args:
             - -c
             - |
-              set -e  # Exit on error
-              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs  # Adjust extraction path
+              set -e
+              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs
               cd /root/nestjs
               ansible-playbook playbooks/nestjs-playbook.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
@@ -97,8 +97,8 @@ spec:
 
       volumes:
         - name: app-volume
-          configMap: 
-            name: {{ portalname }}  # Reference the ConfigMap by portalname
+          persistentVolumeClaim: 
+            claimName: app-pvc  # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
