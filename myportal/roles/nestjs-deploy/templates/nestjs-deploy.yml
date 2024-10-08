@@ -76,7 +76,7 @@ spec:
                 name: postgresql-secret
               prefix: POSTGRES_
           volumeMounts:
-            - name: app-volume
+            - name: "{{ portalname }}-pvc"
               mountPath: /root/nestjs  # Main application directory
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt  # Corrected to appropriate path
