@@ -104,7 +104,7 @@ spec:
       volumes:
         - name: app-volume
           persistentVolumeClaim:
-            claimName: {{ portalname }} # Reference the PVC instead of ConfigMap
+            claimName: "{{ portalname }}-pvc"# Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
