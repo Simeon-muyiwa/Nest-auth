@@ -41,15 +41,15 @@
   set_fact:
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
 
-- name: Create ConfigMap manifest from template
-  ansible.builtin.template:
-    src: /myk8sansible/myportal/roles/nestjs-deploy/templates/nestjs-configmap.yml
-    dest: /tmp/configmap.yml
-  vars:
-    base64_content: '{{ base64_content }}'
-    portalname: '{{ portalname }}'
-    namespace: '{{ namespace }}'
+# - name: Create ConfigMap manifest from template
+#   ansible.builtin.template:
+#     src: /myk8sansible/myportal/roles/nestjs-deploy/templates/nestjs-configmap.yml
+#     dest: /tmp/configmap.yml
+#   vars:
+#     base64_content: '{{ base64_content }}'
+#     portalname: '{{ portalname }}'
+#     namespace: '{{ namespace }}'
 
-- name: Display decoded ConfigMap content
-  ansible.builtin.debug:
-    msg: "{{ base64_content }}"
+# - name: Display decoded ConfigMap content
+#   ansible.builtin.debug:
+#     msg: "{{ base64_content }}"
