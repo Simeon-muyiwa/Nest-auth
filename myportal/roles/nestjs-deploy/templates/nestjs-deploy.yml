@@ -41,7 +41,7 @@ spec:
               mountPath: /etc/jwt-secrets
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
-            - name: app-volume
+            - name: init-volume  # Changed from app-volume to init-volume
               mountPath: /root/nestjs/init  # Use a separate directory for initialization
 
       containers:
@@ -79,8 +79,8 @@ spec:
                 name: postgresql-secret
               prefix: POSTGRES_
           volumeMounts:
-            - name: app-volume  # Main application directory
-              mountPath: /root/nestjs
+            - name: init-volume  # Changed from app-volume to init-volume
+              mountPath: /root/nestjs  # Main application directory
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
@@ -107,7 +107,7 @@ spec:
             failureThreshold: 3
 
       volumes:
-        - name: app-volume
+        - name: init-volume
           persistentVolumeClaim:
             claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
