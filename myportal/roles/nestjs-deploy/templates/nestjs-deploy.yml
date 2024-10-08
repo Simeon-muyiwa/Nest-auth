@@ -21,12 +21,14 @@ spec:
             - -c
             - |
               set -e  # Exit on error
+              # Copy JWT secret
               if [ -f /etc/jwt-secrets/jwt-secrets.env ]; then
                 cp /etc/jwt-secrets/jwt-secrets.env /root/nestjs/.env.jwt
               else
                 echo "Error: /etc/jwt-secrets/jwt-secrets.env not found."
                 exit 1
               fi
+              # Copy PostgreSQL secret
               if [ -f /etc/postgresql-secret/postgresql-secret.env ]; then
                 cp /etc/postgresql-secret/postgresql-secret.env /root/nestjs/.env.postgres
               else
@@ -50,8 +52,10 @@ spec:
             - -c
             - |
               set -e
+              # Extract application archive
               tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs
               cd /root/nestjs
+              # Run Ansible playbook
               ansible-playbook playbooks/nestjs-playbook.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
@@ -78,6 +82,8 @@ spec:
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret/.env.postgres
               subPath: .env.postgres
+            - name: data-volume  # Mounting /data
+              mountPath: /data
           resources:
             requests:
               memory: '128Mi'
@@ -105,3 +111,5 @@ spec:
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
+        - name: data-volume  # Define the data volume
+          emptyDir: {}  # You can change this to a PersistentVolumeClaim if needed
