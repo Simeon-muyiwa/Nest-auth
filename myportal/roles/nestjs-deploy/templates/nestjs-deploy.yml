@@ -13,6 +13,10 @@ spec:
       labels:
         app: {{ portalname }}
     spec:
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+        readOnlyRootFilesystem: false
       initContainers:
         - name: init-secrets
           image: busybox
@@ -53,6 +57,7 @@ spec:
             - -c
             - |
               set -e
+              chown -R 1000:1000 /root/nestjs
               echo "Contents of /root/nestjs:"
               ls -l /root/nestjs
               if [ ! -f /root/nestjs/nestjs-app-archive.tar.gz ]; then
@@ -62,15 +67,6 @@ spec:
               tar xzf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
               cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
-          env:
-            - name: REDIS_HOST
-              value: 'redis'
-            - name: REDIS_PORT
-              value: '6379'
-            - name: JWT_TOKEN_AUDIENCE
-              value: '{{ portalname }}.default.svc.cluster.local'
-            - name: JWT_TOKEN_ISSUER
-              value: '{{ portalname }}.default.svc.cluster.local'
           envFrom:
             - secretRef:
                 name: jwt-secrets
@@ -96,9 +92,6 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
-          securityContext:
-            runAsUser: 1000
-            fsGroup: 1000
           readinessProbe:
             httpGet:
               path: /health
