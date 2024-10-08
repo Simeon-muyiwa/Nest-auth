@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ portalname }}
-  namespace: {{ namespace }}
+  name: { { portalname } }
+  namespace: { { namespace } }
 spec:
-  replicas: {{ replicacount }}
+  replicas: { { replicacount } }
   selector:
     matchLabels:
-      app: {{ portalname }}
+      app: { { portalname } }
   template:
     metadata:
       labels:
-        app: {{ portalname }}
+        app: { { portalname } }
     spec:
       initContainers:
         - name: init-secrets
@@ -41,10 +41,10 @@ spec:
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
             - name: app-volume
-              mountPath: /root/nestjs/init  # Use a separate directory for initialization
+              mountPath: /root/nestjs/init # Use a separate directory for initialization
 
       containers:
-        - name: {{ portalname }}
+        - name: { { portalname } }
           image: ubuntu:latest
           command:
             - /bin/sh
@@ -59,13 +59,13 @@ spec:
               ansible-playbook playbooks/nestjs-playbook.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
-              value: "redis"
+              value: 'redis'
             - name: REDIS_PORT
-              value: "6379"
+              value: '6379'
             - name: JWT_TOKEN_AUDIENCE
-              value: "{{ portalname }}.default.svc.cluster.local" 
+              value: '{{ portalname }}.default.svc.cluster.local'
             - name: JWT_TOKEN_ISSUER
-              value: "{{ portalname }}.default.svc.cluster.local"
+              value: '{{ portalname }}.default.svc.cluster.local'
           envFrom:
             - secretRef:
                 name: jwt-secrets
@@ -75,14 +75,14 @@ spec:
               prefix: POSTGRES_
           volumeMounts:
             - name: app-volume
-              mountPath: /root/nestjs  # Main application directory
+              mountPath: /root/nestjs # Main application directory
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets/.env.jwt
               subPath: .env.jwt
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret/.env.postgres
               subPath: .env.postgres
-            - name: data-volume  # Mounting /data
+            - name: data-volume # Mounting /data
               mountPath: /data
           resources:
             requests:
@@ -103,13 +103,13 @@ spec:
 
       volumes:
         - name: app-volume
-          persistentVolumeClaim: 
-            claimName: app-pvc  # Reference the PVC instead of ConfigMap
+          persistentVolumeClaim:
+            claimName: { { portalname } } # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume  # Define the data volume
-          emptyDir: {}  # You can change this to a PersistentVolumeClaim if needed
+        - name: data-volume # Define the data volume
+          emptyDir: {} # You can change this to a PersistentVolumeClaim if needed
