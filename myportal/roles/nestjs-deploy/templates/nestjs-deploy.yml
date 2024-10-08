@@ -20,7 +20,7 @@ spec:
             - sh
             - -c
             - |
-              set -e  # Exit on error
+              set -e
               # Check and copy JWT secrets
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
@@ -32,7 +32,7 @@ spec:
               done
 
               # Create a tarball of the necessary files
-              tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
+              tar czf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
 
               # Log success
               echo "JWT secrets copied and tarball created successfully."
@@ -41,8 +41,8 @@ spec:
               mountPath: /etc/jwt-secrets
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
-            - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs/init  # Use a separate directory for initialization
+            - name: init-volume
+              mountPath: /root/nestjs
 
       containers:
         - name: {{ portalname }}
@@ -53,13 +53,13 @@ spec:
             - -c
             - |
               set -e
-              echo "Contents of /root/nestjs/init:"
-              ls -l /root/nestjs/init
-              if [ ! -f /root/nestjs/init/nestjs-app-archive.tar.gz ]; then
-                echo "Error: Tarball not found at /root/nestjs/init/nestjs-app-archive.tar.gz"
+              echo "Contents of /root/nestjs:"
+              ls -l /root/nestjs
+              if [ ! -f /root/nestjs/nestjs-app-archive.tar.gz ]; then
+                echo "Error: Tarball not found at /root/nestjs/nestjs-app-archive.tar.gz"
                 exit 1
               fi
-              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
+              tar xzf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
               cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
@@ -79,15 +79,15 @@ spec:
                 name: postgresql-secret
               prefix: POSTGRES_
           volumeMounts:
-            - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs  # Main application directory
+            - name: init-volume
+              mountPath: /root/nestjs
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
-            - name: data-volume  # Mounting /data
+            - name: data-volume
               mountPath: /data
           resources:
             requests:
@@ -109,12 +109,12 @@ spec:
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
+            claimName: "{{ portalname }}-pvc"
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume  # Define the data volume
+        - name: data-volume
           emptyDir: {}
