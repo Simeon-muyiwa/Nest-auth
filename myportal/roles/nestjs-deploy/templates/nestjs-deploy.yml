@@ -54,7 +54,7 @@ spec:
               tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs
               cd /root/nestjs
               # Run Ansible playbook
-              ansible-playbook playbooks/nestjs-playbook.yml || { echo "Ansible playbook failed"; exit 1; }
+              ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
               value: 'redis'
