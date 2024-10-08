@@ -1,19 +1,12 @@
-# Read file and encode to base64 using lookup
-- name: Read file and encode to base64
-  set_fact:
-    base64_content: "{{ lookup('template', 'nestjs-configmap.yml') | b64encode }}"
+---
+# tasks/main.yml
 
-- name: Debug base64_content
-  debug:
-    var: base64_content
-
-# Deploy ConfigMap for each portal
-- name: Deploy ConfigMap for each portal
+- name: Create Persistent Volume for each portal
   community.kubernetes.k8s:
     definition: >-
       {{
-        lookup('template', 'nestjs-configmap.yml',
-               template_vars=dict(portalname=item.name, namespace=tenant.namespace, base64_content=base64_content)) 
+        lookup('template', 'nestjs-pvc.yml',
+               template_vars=dict(portalname=item.name, namespace=tenant.namespace))
         | from_yaml
       }}
     state: present
@@ -22,7 +15,23 @@
     loop_var: item
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
-  when: (base64_content | default('')) != "" and tenant is defined
+  when: tenant is defined
+
+- name: Create Persistent Volume Claim for each portal
+  community.kubernetes.k8s:
+    definition: >-
+      {{
+        lookup('template', 'nestjs-pvc.yml',
+               template_vars=dict(portalname=item.name, namespace=tenant.namespace))
+        | from_yaml
+      }}
+    state: present
+  loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
+  loop_control:
+    loop_var: item
+  vars:
+    tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
+  when: tenant is defined
 
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
@@ -30,13 +39,13 @@
     state: present
   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
   loop_control:
-    loop_var: item  # Ensure this matches the variable used in your ConfigMap task
+    loop_var: item
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
-    jwt_token_secret: "{{ item.jwt_token_secret | default('your_default_value') }}"  # Example default value
-    jwt_access_token_ttl: "{{ item.jwt_access_token_ttl | default(3600) }}"  # Example default TTL
-    jwt_refresh_token_ttl: "{{ item.jwt_refresh_token_ttl | default(86400) }}"  # Example default TTL
-  when: jwt_token_secret != ""  # Proceed only if jwt_token_secret has been set
+    jwt_token_secret: "{{ item.jwt_token_secret | default('your_default_value') }}"
+    jwt_access_token_ttl: "{{ item.jwt_access_token_ttl | default(3600) }}"
+    jwt_refresh_token_ttl: "{{ item.jwt_refresh_token_ttl | default(86400) }}"
+  when: jwt_token_secret != ""
 
 - name: Create nestjs deployments/replicasets and pods for each portal
   community.kubernetes.k8s:
@@ -58,7 +67,6 @@
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
 
-
 - name: Create nestjs ingress for each portal
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(namespace=tenant.namespace)) | from_yaml }}"
@@ -68,4 +76,3 @@
     loop_var: item
   vars:
     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
-

@@ -8,13 +8,13 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: /myk8sansible/myportal/roles/nestjs-deploy/templates/nestjs-configmap.yml   # Change this to your desired path on the host
+    path: /myk8sansible/myportal/roles/nestjs-deploy/templates/nestjs-pvc.yml # Change this to your desired path on the host
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: app-pvc
-  namespace: {{ namespace }}  # Ensure it matches your deployment namespace
+  namespace: { { namespace } } # Ensure it matches your deployment namespace
 spec:
   accessModes:
     - ReadWriteMany
