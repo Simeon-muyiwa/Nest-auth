@@ -96,6 +96,9 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
+          securityContext:
+            runAsUser: 1000
+            fsGroup: 1000
           readinessProbe:
             httpGet:
               path: /health
