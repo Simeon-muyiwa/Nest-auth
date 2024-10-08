@@ -39,7 +39,7 @@ spec:
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
             - name: app-volume
-              mountPath: /root/nestjs/init # Use a separate directory for initialization
+              mountPath: /root/nestjs/init  # Use a separate directory for initialization
 
       containers:
         - name: {{ portalname }}
@@ -50,10 +50,14 @@ spec:
             - -c
             - |
               set -e
-              # Extract application archive
+              echo "Contents of /root/nestjs/init:"
+              ls -l /root/nestjs/init
+              if [ ! -f /root/nestjs/init/nestjs-app-archive.tar.gz ]; then
+                echo "Error: Tarball not found at /root/nestjs/init/nestjs-app-archive.tar.gz"
+                exit 1
+              fi
               tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs
               cd /root/nestjs
-              # Run Ansible playbook
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
@@ -73,14 +77,14 @@ spec:
               prefix: POSTGRES_
           volumeMounts:
             - name: app-volume
-              mountPath: /root/nestjs # Main application directory
+              mountPath: /root/nestjs  # Main application directory
             - name: jwt-secrets
-              mountPath: /root/nestjs/.env.jwt # Corrected to appropriate path
+              mountPath: /root/nestjs/.env.jwt  # Corrected to appropriate path
               subPath: jwt-secrets.env
             - name: postgresql-secret
-              mountPath: /root/nestjs/.env.postgres # Corrected to appropriate path
+              mountPath: /root/nestjs/.env.postgres  # Corrected to appropriate path
               subPath: postgresql-secret.env
-            - name: data-volume # Mounting /data
+            - name: data-volume  # Mounting /data
               mountPath: /data
           resources:
             requests:
@@ -102,12 +106,12 @@ spec:
       volumes:
         - name: app-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc" # Reference the PVC instead of ConfigMap
+            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume # Define the data volume
-          emptyDir: {} # You can change this to a specific volume type as needed
+        - name: data-volume  # Define the data volume
+          emptyDir: {}  
