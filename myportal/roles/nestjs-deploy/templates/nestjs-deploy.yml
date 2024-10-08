@@ -25,7 +25,10 @@ spec:
             - -c
             - |
               set -e
-              # Check and copy JWT secrets
+              # Change ownership of the directory
+              chown -R 1000:1000 /root/nestjs
+              
+              # Copy JWT secrets
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
                   cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
