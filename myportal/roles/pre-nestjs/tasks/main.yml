@@ -43,8 +43,8 @@
 
 - name: Create ConfigMap manifest from template
   ansible.builtin.template:
-    src: configmap_template.yaml.j2
-    dest: /tmp/configmap.yaml
+    src: 'templates/nestjs-configmap.yml'
+    dest: /tmp/configmap.yml
   vars:
     base64_content: '{{ base64_content }}'
     portalname: '{{ portalname }}'

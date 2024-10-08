@@ -21,15 +21,25 @@ spec:
             - -c
             - |
               set -e  # Exit on error
-              cp /etc/jwt-secrets/jwt-secrets.env /root/nestjs/.env.jwt
-              cp /etc/postgresql-secret/postgresql-secret.env /root/nestjs/.env.postgres
+              if [ -f /etc/jwt-secrets/jwt-secrets.env ]; then
+                cp /etc/jwt-secrets/jwt-secrets.env /root/nestjs/.env.jwt
+              else
+                echo "Error: /etc/jwt-secrets/jwt-secrets.env not found."
+                exit 1
+              fi
+              if [ -f /etc/postgresql-secret/postgresql-secret.env ]; then
+                cp /etc/postgresql-secret/postgresql-secret.env /root/nestjs/.env.postgres
+              else
+                echo "Error: /etc/postgresql-secret/postgresql-secret.env not found."
+                exit 1
+              fi
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
             - name: app-volume
-              mountPath: /root/nestjs
+              mountPath: /root/nestjs/init  # Use a separate directory for initialization
 
       containers:
         - name: {{ portalname }}
@@ -40,7 +50,7 @@ spec:
             - -c
             - |
               set -e  # Exit on error
-              tar xzf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs
+              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs  # Adjust extraction path
               cd /root/nestjs
               ansible-playbook playbooks/nestjs-playbook.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
@@ -61,7 +71,7 @@ spec:
               prefix: POSTGRES_
           volumeMounts:
             - name: app-volume
-              mountPath: /root/nestjs  # Ensure this matches your path
+              mountPath: /root/nestjs  # Main application directory
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets/.env.jwt
               subPath: .env.jwt
@@ -88,7 +98,7 @@ spec:
       volumes:
         - name: app-volume
           configMap: 
-            name: portal1  # Reference the ConfigMap by portalname
+            name: {{ portalname }}  # Reference the ConfigMap by portalname
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
