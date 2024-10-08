@@ -77,11 +77,11 @@ spec:
             - name: app-volume
               mountPath: /root/nestjs # Main application directory
             - name: jwt-secrets
-              mountPath: /etc/jwt-secrets/.env.jwt
-              subPath: .env.jwt
+              mountPath: /root/nestjs/.env.jwt # Corrected to appropriate path
+              subPath: jwt-secrets.env
             - name: postgresql-secret
-              mountPath: /etc/postgresql-secret/.env.postgres
-              subPath: .env.postgres
+              mountPath: /root/nestjs/.env.postgres # Corrected to appropriate path
+              subPath: postgresql-secret.env
             - name: data-volume # Mounting /data
               mountPath: /data
           resources:
@@ -104,7 +104,7 @@ spec:
       volumes:
         - name: app-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"# Reference the PVC instead of ConfigMap
+            claimName: "{{ portalname }}-pvc" # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
@@ -112,4 +112,4 @@ spec:
           secret:
             secretName: postgresql-secret
         - name: data-volume # Define the data volume
-          emptyDir: {} # You can change this to a
+          emptyDir: {} # You can change this to a specific volume type as needed
