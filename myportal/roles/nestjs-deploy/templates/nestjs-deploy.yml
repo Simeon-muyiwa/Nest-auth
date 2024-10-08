@@ -21,20 +21,18 @@ spec:
             - -c
             - |
               set -e  # Exit on error
-              # Copy JWT secret
-              if [ -f /etc/jwt-secrets/jwt-secrets.env ]; then
-                cp /etc/jwt-secrets/jwt-secrets.env /root/nestjs/.env.jwt
-              else
-                echo "Error: /etc/jwt-secrets/jwt-secrets.env not found."
-                exit 1
-              fi
-              # Copy PostgreSQL secret
-              if [ -f /etc/postgresql-secret/postgresql-secret.env ]; then
-                cp /etc/postgresql-secret/postgresql-secret.env /root/nestjs/.env.postgres
-              else
-                echo "Error: /etc/postgresql-secret/postgresql-secret.env not found."
-                exit 1
-              fi
+              # Check and copy JWT secrets
+              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+                if [ -f /etc/jwt-secrets/$key ]; then
+                  cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
+                else
+                  echo "Error: /etc/jwt-secrets/$key not found."
+                  exit 1
+                fi
+              done
+
+              # Log success
+              echo "JWT secrets copied successfully."
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
