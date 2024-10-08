@@ -76,13 +76,13 @@ spec:
                 name: postgresql-secret
               prefix: POSTGRES_
           volumeMounts:
-            - name: "{{ portalname }}-pvc"
-              mountPath: /root/nestjs  # Main application directory
+            - name: app-volume  # Main application directory
+              mountPath: /root/nestjs
             - name: jwt-secrets
-              mountPath: /root/nestjs/.env.jwt  # Corrected to appropriate path
+              mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
             - name: postgresql-secret
-              mountPath: /root/nestjs/.env.postgres  # Corrected to appropriate path
+              mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
             - name: data-volume  # Mounting /data
               mountPath: /data
@@ -114,4 +114,4 @@ spec:
           secret:
             secretName: postgresql-secret
         - name: data-volume  # Define the data volume
-          emptyDir: {}  
+          emptyDir: {}
