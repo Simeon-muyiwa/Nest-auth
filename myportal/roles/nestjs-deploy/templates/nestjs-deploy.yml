@@ -31,8 +31,11 @@ spec:
                 fi
               done
 
+              # Create a tarball of the necessary files
+              tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
+
               # Log success
-              echo "JWT secrets copied successfully."
+              echo "JWT secrets copied and tarball created successfully."
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
@@ -56,7 +59,7 @@ spec:
                 echo "Error: Tarball not found at /root/nestjs/init/nestjs-app-archive.tar.gz"
                 exit 1
               fi
-              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs
+              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
               cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
