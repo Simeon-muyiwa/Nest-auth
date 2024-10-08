@@ -1,3 +1,4 @@
+
 ---
 - name: Clone or update the NestJS repository
   git:
@@ -7,62 +8,34 @@
     update: yes
   register: repo_clone
 
-- name: Fail if cloning or updating the repository failed
-  fail:
-    msg: 'Failed to clone or update the repository.'
-  when: repo_clone.failed
-
-- name: Pull latest changes from the main branch
-  command: >
-    git -C '{{ service_path }}' pull origin main
-  register: git_pull
-  changed_when: true
-
-- name: Check if pulling changes was successful
-  fail:
-    msg: 'Failed to pull changes from the repository.'
-  when: git_pull.rc != 0
-
-- name: Check for changes in the repository
-  command: >
-    git -C '{{ service_path }}' status --porcelain
-  register: git_status
-  changed_when: false
-  failed_when: false
-
-- name: Determine if there are changes in the main branch
-  set_fact:
-    has_changes: "{{ git_status.stdout != '' }}"
-
-- name: Check if myportal folder exists
-  ansible.builtin.stat:
-    path: /opt/nestjs/myportal
-  register: stat
-
-- name: Ensure destination directory exists
+- name: Ensure destination directory exists in Minikube env
   ansible.builtin.file:
-    path: /Myk8sAnsible/myportal
+    path: myk8sansible/myportal  # Adjusted path to reflect your setup
     state: directory
 
-- name: Synchronize Myk8sAnsible folder if it exists
-  synchronize:
-    src: /opt/nestjs/Myk8sAnsible/myportal/
-    dest: /Myk8sAnsible/myportal/
+- name: Synchronize MyK8sAnsible folder if it exists
+  ansible.builtin.synchronize:
+    src: /opt/nestjs/MyK8sAnsible/myportal/  # Ensure this points to the correct source
+    dest: myk8sansible/myportal/               # Ensure this points to the correct destination
     delete: yes
-  when: stat.stat.exists
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
     path: /tmp/nestjs-app-archive.tar.gz
   register: archive_stat
 
-- name: Archive NestJS application excluding Myk8sAnsible
-  archive:
+- name: Remove existing archive if it exists
+  ansible.builtin.file:
+    path: /tmp/nestjs-app-archive.tar.gz
+    state: absent
+  when: archive_stat.stat.exists
+
+- name: Archive NestJS application excluding MyK8sAnsible
+  ansible.builtin.archive:
     path: /opt/nestjs
-    exclude_path: /opt/nestjs/Myk8sAnsible
+    exclude_path: /opt/nestjs/MyK8sAnsible
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
-  when: not archive_stat.stat.exists
 
 - name: Encode archive content in base64
   set_fact:
@@ -79,4 +52,4 @@
 
 - name: Display decoded ConfigMap content
   ansible.builtin.debug:
-    msg: "{{ base64_content | b64decode }}"
+    msg: "{{ base64_content }}"

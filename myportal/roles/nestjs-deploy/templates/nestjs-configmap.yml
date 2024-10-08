@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: portal1
   namespace: {{ namespace }}
-binaryData:
+data:
   nestjs-app-archive.tar.gz: {{ base64_content | default('') }}
