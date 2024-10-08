@@ -1,23 +1,23 @@
-
 ---
 - name: Clone or update the NestJS repository
   git:
     repo: '{{ repo_path }}'
-    dest: '{{ service_path }}'
+    dest: /opt/nestjs/MyK8sAnsible/myportal  # This is where the repo will be cloned
     version: main
     update: yes
   register: repo_clone
 
 - name: Ensure destination directory exists in Minikube env
   ansible.builtin.file:
-    path: myk8sansible/myportal  # Adjusted path to reflect your setup
+    path: /path/to/myk8sansible/myportal  # Adjusted path to reflect your setup
     state: directory
 
-- name: Synchronize MyK8sAnsible folder if it exists
+- name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
   ansible.builtin.synchronize:
-    src: /opt/nestjs/MyK8sAnsible/myportal/  # Ensure this points to the correct source
-    dest: myk8sansible/myportal/               # Ensure this points to the correct destination
+    src: /opt/nestjs/MyK8sAnsible/myportal/  # Source directory for synchronization
+    dest: /path/to/myk8sansible/myportal/      # Destination directory for synchronization
     delete: yes
+  when: repo_clone.changed  # Only run if the repository was updated
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
@@ -33,7 +33,7 @@
 - name: Archive NestJS application excluding MyK8sAnsible
   ansible.builtin.archive:
     path: /opt/nestjs
-    exclude_path: /opt/nestjs/MyK8sAnsible
+    exclude_path: /opt/nestjs/MyK8sAnsible  # Exclude the MyK8sAnsible directory
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
 
