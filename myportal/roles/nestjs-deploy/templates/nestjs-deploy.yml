@@ -13,6 +13,9 @@ spec:
       labels:
         app: {{ portalname }}
     spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
       initContainers:
         - name: init-secrets
           image: busybox
@@ -36,13 +39,15 @@ spec:
 
               # Log success
               echo "JWT secrets copied and tarball created successfully."
-          volumeMounts:
-            - name: jwt-secrets
-              mountPath: /etc/jwt-secrets
-            - name: postgresql-secret
-              mountPath: /etc/postgresql-secret
-            - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs/init  # Use a separate directory for initialization
+
+              # Change ownership of the entire /root/nestjs directory
+              chown -R 1000:1000 /root/nestjs
+
+              # Change ownership of specific files
+              chown -R 1000:1000 /root/nestjs/.env.jwt
+              chown -R 1000:1000 /root/nestjs/.env.postgres
+              chown -R 1000:1000 /root/nestjs/init/nestjs-app-archive.tar.gz
+              chown -R 1000:1000 /root/nestjs/init
 
       containers:
         - name: {{ portalname }}
@@ -88,16 +93,24 @@ spec:
                 name: postgresql-secret
               prefix: POSTGRES_
           volumeMounts:
-            - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs  # Main application directory
+            - name: init-volume
+              mountPath: /root/nestjs/init
+              securityContext:
+                fsGroup: 1000
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
+              securityContext:
+                fsGroup: 1000
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
-            - name: data-volume  # Mounting /data
+              securityContext:
+                fsGroup: 1000
+            - name: data-volume
               mountPath: /data
+              securityContext:
+                fsGroup: 1000
           resources:
             requests:
               memory: '128Mi'
@@ -118,12 +131,12 @@ spec:
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
+            claimName: "{{ portalname }}-pvc"
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume  # Define the data volume
+        - name: data-volume
           emptyDir: {}
