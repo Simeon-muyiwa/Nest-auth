@@ -40,6 +40,8 @@ spec:
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
+            - name: postgresql-secret
+              mountPath: /etc/postgresql-secret
             - name: init-volume
               mountPath: /tmp/nestjs  # Updated to a writable path
 
