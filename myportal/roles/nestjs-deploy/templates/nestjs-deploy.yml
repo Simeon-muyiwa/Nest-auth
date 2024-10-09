@@ -2,9 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ portalname }}
-  namespace: {{ namespace }}
 spec:
-  replicas: {{ replicacount }}
+  replicas: 1
   selector:
     matchLabels:
       app: {{ portalname }}
@@ -41,8 +40,12 @@ spec:
               mountPath: /etc/jwt-secrets
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
-            - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs/init  # Use a separate directory for initialization
+            - name: init-volume
+              mountPath: /root/nestjs/init  
+          securityContext:
+            runAsUser: 1000  # Adjust UID as needed
+            runAsGroup: 3000  # Adjust GID as needed
+            fsGroup: 2000     # Group ID for mounted volumes
 
       containers:
         - name: {{ portalname }}
@@ -88,15 +91,15 @@ spec:
                 name: postgresql-secret
               prefix: POSTGRES_
           volumeMounts:
-            - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs  # Main application directory
+            - name: init-volume
+              mountPath: /root/nestjs
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
-            - name: data-volume  # Mounting /data
+            - name: data-volume
               mountPath: /data
           resources:
             requests:
@@ -105,25 +108,20 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 3000
-            initialDelaySeconds: 15
-            periodSeconds: 5
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 3
+          securityContext:
+            runAsUser: 1000  # Adjust UID as needed
+            runAsGroup: 3000  # Adjust GID as needed
+            fsGroup: 2000     # Group ID for mounted volumes
 
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
+            claimName: "{{ portalname }}-pvc"  
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume  # Define the data volume
+        - name: data-volume
           emptyDir: {}
