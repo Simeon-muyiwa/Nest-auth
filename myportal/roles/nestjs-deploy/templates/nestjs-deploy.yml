@@ -16,7 +16,7 @@ spec:
       initContainers:
         - name: init-secrets
           image: busybox
-          command:
+          command: 
             - sh
             - -c
             - |
@@ -30,23 +30,18 @@ spec:
                   exit 1
                 fi
               done
-
-              # Create a tarball of the necessary files
+              # Create a tarball of necessary files
               tar czf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
-
-              # Log success
               echo "JWT secrets copied and tarball created successfully."
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
-            - name: postgresql-secret
-              mountPath: /etc/postgresql-secret
             - name: init-volume
               mountPath: /root/nestjs
 
       containers:
         - name: {{ portalname }}
-          image: ubuntu:latest
+          image: node:14 # Use a more specific image if appropriate
           command:
             - /bin/sh
           args:
@@ -105,7 +100,7 @@ spec:
             timeoutSeconds: 2
             successThreshold: 1
             failureThreshold: 3
-
+            
       volumes:
         - name: init-volume
           persistentVolumeClaim:
