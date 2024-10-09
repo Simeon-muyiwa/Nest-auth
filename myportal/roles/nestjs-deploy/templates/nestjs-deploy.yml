@@ -13,59 +13,65 @@ spec:
       labels:
         app: {{ portalname }}
     spec:
+      
       initContainers:
         - name: init-secrets
           image: busybox
-          command: 
+          command:
             - sh
             - -c
             - |
               set -e
-              # Check and copy JWT secrets
+              mkdir -p /tmp/nestjs/.env.jwt
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
-                  cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
+                  ln -sf /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/
+                  echo "Created symbolic link for $key"
                 else
-                  echo "Error: /etc/jwt-secrets/$key not found."
-                  exit 1
+                  echo "Warning: /etc/jwt-secrets/$key not found, skipping."
                 fi
               done
-              # Create a tarball of necessary files
-              tar czf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
+              
+              # Create the tarball
+              tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
+              
+              # Move the tarball to the expected location
+              mv /tmp/nestjs/nestjs-app-archive.tar.gz /root/nestjs/ || { echo "Failed to move tarball"; exit 1; }
+              
               echo "JWT secrets copied and tarball created successfully."
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
+            - name: postgresql-secret
+              mountPath: /etc/postgresql-secret
             - name: init-volume
-              mountPath: /root/nestjs
+              mountPath: /tmp/nestjs
 
       containers:
-        - name: {{ portalname }}
-          image: node:14 # Use a more specific image if appropriate
+        - name: your-container-name
+          image: ubuntu:latest
           command:
             - /bin/sh
           args:
             - -c
             - |
               set -e
+              # Ensure ownership is correct
+              chown -R 1000:1000 /root/nestjs
               echo "Contents of /root/nestjs:"
               ls -l /root/nestjs
+              
+              # Check for the tarball
               if [ ! -f /root/nestjs/nestjs-app-archive.tar.gz ]; then
                 echo "Error: Tarball not found at /root/nestjs/nestjs-app-archive.tar.gz"
                 exit 1
               fi
+
+              # Extract the tarball
               tar xzf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
+              
               cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
-          env:
-            - name: REDIS_HOST
-              value: 'redis'
-            - name: REDIS_PORT
-              value: '6379'
-            - name: JWT_TOKEN_AUDIENCE
-              value: '{{ portalname }}.default.svc.cluster.local'
-            - name: JWT_TOKEN_ISSUER
-              value: '{{ portalname }}.default.svc.cluster.local'
           envFrom:
             - secretRef:
                 name: jwt-secrets
@@ -91,16 +97,8 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 3000
-            initialDelaySeconds: 15
-            periodSeconds: 5
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 3
-            
+          
+
       volumes:
         - name: init-volume
           persistentVolumeClaim:
@@ -113,3 +111,4 @@ spec:
             secretName: postgresql-secret
         - name: data-volume
           emptyDir: {}
+
