@@ -13,7 +13,6 @@ spec:
       labels:
         app: {{ portalname }}
     spec:
-      
       initContainers:
         - name: init-secrets
           image: busybox
@@ -23,6 +22,8 @@ spec:
             - |
               set -e
               mkdir -p /tmp/nestjs
+              echo "Contents of /etc/jwt-secrets:"
+              ls -l /etc/jwt-secrets/
 
               # Check if the jwt-secret.env.yml file exists
               if [ -f /etc/jwt-secrets/jwt-secret.env.yml ]; then
