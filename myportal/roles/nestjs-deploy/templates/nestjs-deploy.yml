@@ -21,25 +21,20 @@ spec:
             - -c
             - |
               set -e
-              mkdir -p /tmp/nestjs
-              echo "Contents of /etc/jwt-secrets:"
-              ls -l /etc/jwt-secrets/
+              # Check and copy JWT secrets
+              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+                if [ -f /etc/jwt-secrets/$key ]; then
+                  cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
+                else
+                  echo "Error: /etc/jwt-secrets/$key not found."
+                  exit 1
+                fi
+              done
 
-              # Check if the jwt-secret.env.yml file exists
-              if [ -f /etc/jwt-secrets/jwt-secret.env.yml ]; then
-                cp /etc/jwt-secrets/jwt-secret.env.yml /tmp/nestjs/.env.jwt
-                echo "Copied jwt-secret.env.yml to /tmp/nestjs/.env.jwt"
-              else
-                echo "Warning: /etc/jwt-secrets/jwt-secret.env.yml not found, skipping."
-                exit 1
-              fi
-              
-              # Create the tarball
-              tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
-              
-              # Move the tarball to the expected location
-              mv /tmp/nestjs/nestjs-app-archive.tar.gz /root/nestjs/ || { echo "Failed to move tarball"; exit 1; }
-              
+              # Create a tarball of the necessary files
+              tar czf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
+
+              # Log success
               echo "JWT secrets copied and tarball created successfully."
           volumeMounts:
             - name: jwt-secrets
@@ -47,10 +42,10 @@ spec:
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
             - name: init-volume
-              mountPath: /tmp/nestjs
+              mountPath: /root/nestjs
 
       containers:
-        - name: your-container-name
+        - name: {{ portalname }}
           image: ubuntu:latest
           command:
             - /bin/sh
@@ -58,22 +53,24 @@ spec:
             - -c
             - |
               set -e
-              # Ensure ownership is correct
-              chown -R 1000:1000 /root/nestjs
               echo "Contents of /root/nestjs:"
               ls -l /root/nestjs
-              
-              # Check for the tarball
               if [ ! -f /root/nestjs/nestjs-app-archive.tar.gz ]; then
                 echo "Error: Tarball not found at /root/nestjs/nestjs-app-archive.tar.gz"
                 exit 1
               fi
-
-              # Extract the tarball
               tar xzf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
-              
               cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
+          env:
+            - name: REDIS_HOST
+              value: 'redis'
+            - name: REDIS_PORT
+              value: '6379'
+            - name: JWT_TOKEN_AUDIENCE
+              value: '{{ portalname }}.default.svc.cluster.local'
+            - name: JWT_TOKEN_ISSUER
+              value: '{{ portalname }}.default.svc.cluster.local'
           envFrom:
             - secretRef:
                 name: jwt-secrets
@@ -86,7 +83,7 @@ spec:
               mountPath: /root/nestjs
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
-              subPath: jwt-secrets.env.yml
+              subPath: jwt-secrets.env
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
@@ -99,6 +96,15 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
 
       volumes:
         - name: init-volume
