@@ -20,24 +20,21 @@ spec:
       initContainers:
       - name: init-secrets
         image: busybox
-        command:
-          - sh
-          - -c
-          - |
-            set -e
-            mkdir -p /tmp/nestjs/.env.jwt
-            for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
-              if [ -f /etc/jwt-secrets/$key ]; then
-                ln -sf /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/
-                echo "Created symbolic link for $key"
-              else
-                echo "Error: /etc/jwt-secrets/$key not found."
-                exit 1
-              fi
-            done
-            tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
-            mv /tmp/nestjs/nestjs-app-archive.tar.gz /tmp/nestjs/ || { echo "Failed to move tarball"; exit 1; }
-            echo "JWT secrets copied and tarball created successfully."
+command:
+  - sh
+  - -c
+  - |
+    set -e
+    mkdir -p /tmp/nestjs/.env.jwt
+    for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+      if [ -e /etc/jwt-secrets/$key ]; then
+        ln -sf /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/$key || { echo "Failed to link $key"; exit 1; }
+      else
+        echo "Error: /etc/jwt-secrets/$key not found."
+        exit 1
+      fi
+    done
+    echo "JWT secrets linked successfully."
         volumeMounts:
           - name: jwt-secrets
             mountPath: /etc/jwt-secrets
