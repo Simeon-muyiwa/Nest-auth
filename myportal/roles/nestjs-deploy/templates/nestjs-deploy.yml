@@ -25,12 +25,12 @@ spec:
               echo "Contents of /etc/jwt-secrets:"
               ls -l /etc/jwt-secrets/
 
-              # Check if the jwt-secret.env.yml file exists
-              if [ -f /etc/jwt-secrets/jwt-secret.env.yml ]; then
-                cp /etc/jwt-secrets/jwt-secret.env.yml /tmp/nestjs/.env.jwt
-                echo "Copied jwt-secret.env.yml to /tmp/nestjs/.env.jwt"
+              # Check if the jwt-secrets.env.yml file exists
+              if [ -f /etc/jwt-secrets/jwt-secrets.env.yml ]; then
+                cp /etc/jwt-secrets/jwt-secrets.env.yml /tmp/nestjs/.env.jwt
+                echo "Copied jwt-secrets.env.yml to /tmp/nestjs/.env.jwt"
               else
-                echo "Warning: /etc/jwt-secrets/jwt-secret.env.yml not found, skipping."
+                echo "Warning: /etc/jwt-secrets/jwt-secrets.env.yml not found, skipping."
                 exit 1
               fi
               
@@ -86,7 +86,7 @@ spec:
               mountPath: /root/nestjs
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
-              subPath: jwt-secret.env.yml
+              subPath: jwt-secrets.env.yml
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
