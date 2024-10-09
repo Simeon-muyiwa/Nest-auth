@@ -23,7 +23,7 @@ spec:
             - sh
             - -c
             - |
-              set -e  # Exit on error
+              set -e
               # Check and copy JWT secrets
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
@@ -48,6 +48,9 @@ spec:
               chown -R 1000:1000 /root/nestjs/.env.postgres
               chown -R 1000:1000 /root/nestjs/init/nestjs-app-archive.tar.gz
               chown -R 1000:1000 /root/nestjs/init
+
+              # Attempt to remount the filesystem as read-write
+              mount -o remount,rw /
 
       containers:
         - name: {{ portalname }}
