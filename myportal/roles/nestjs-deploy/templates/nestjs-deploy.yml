@@ -22,21 +22,16 @@ spec:
             - -c
             - |
               set -e
-              mkdir -p /tmp/nestjs/.env.jwt
-              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
-                if [ -f /etc/jwt-secrets/$key ]; then
-                  # Remove existing link if it exists
-                  if [ -L /tmp/nestjs/.env.jwt/$key ]; then
-                    echo "Removing existing symbolic link for $key"
-                    rm /tmp/nestjs/.env.jwt/$key
-                  fi
+              mkdir -p /tmp/nestjs
 
-                  ln -s /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/
-                  echo "Created symbolic link for $key"
-                else
-                  echo "Warning: /etc/jwt-secrets/$key not found, skipping."
-                fi
-              done
+              # Check if the jwt-secret.env.yml file exists
+              if [ -f /etc/jwt-secrets/jwt-secret.env.yml ]; then
+                cp /etc/jwt-secrets/jwt-secret.env.yml /tmp/nestjs/.env.jwt
+                echo "Copied jwt-secret.env.yml to /tmp/nestjs/.env.jwt"
+              else
+                echo "Warning: /etc/jwt-secrets/jwt-secret.env.yml not found, skipping."
+                exit 1
+              fi
               
               # Create the tarball
               tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
@@ -90,7 +85,7 @@ spec:
               mountPath: /root/nestjs
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
-              subPath: jwt-secrets.env
+              subPath: jwt-secret.env.yml
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
