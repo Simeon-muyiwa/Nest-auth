@@ -13,10 +13,7 @@ spec:
       labels:
         app: {{ portalname }}
     spec:
-      securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
-        readOnlyRootFilesystem: false
+      
       initContainers:
         - name: init-secrets
           image: busybox
@@ -28,7 +25,13 @@ spec:
               mkdir -p /tmp/nestjs/.env.jwt
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
-                  ln -sf /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/
+                  # Remove existing link if it exists
+                  if [ -L /tmp/nestjs/.env.jwt/$key ]; then
+                    echo "Removing existing symbolic link for $key"
+                    rm /tmp/nestjs/.env.jwt/$key
+                  fi
+
+                  ln -s /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/
                   echo "Created symbolic link for $key"
                 else
                   echo "Warning: /etc/jwt-secrets/$key not found, skipping."
@@ -100,15 +103,6 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 3000
-            initialDelaySeconds: 15
-            periodSeconds: 5
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 3
 
       volumes:
         - name: init-volume
