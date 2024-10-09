@@ -13,7 +13,6 @@ spec:
       labels:
         app: {{ portalname }}
     spec:
-      
       initContainers:
         - name: init-secrets
           image: busybox
@@ -21,34 +20,32 @@ spec:
             - sh
             - -c
             - |
-              set -e
-              mkdir -p /tmp/nestjs/.env.jwt
+              set -e  # Exit on error
+              # Check and copy JWT secrets
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
-                  ln -sf /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/
-                  echo "Created symbolic link for $key"
+                  cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
                 else
-                  echo "Warning: /etc/jwt-secrets/$key not found, skipping."
+                  echo "Error: /etc/jwt-secrets/$key not found."
+                  exit 1
                 fi
               done
-              
-              # Create the tarball
-              tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
-              
-              # Move the tarball to the expected location
-              mv /tmp/nestjs/nestjs-app-archive.tar.gz /root/nestjs/ || { echo "Failed to move tarball"; exit 1; }
-              
+
+              # Create a tarball of the necessary files
+              tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
+
+              # Log success
               echo "JWT secrets copied and tarball created successfully."
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
-            - name: init-volume
-              mountPath: /tmp/nestjs
+            - name: init-volume  # Changed from app-volume to init-volume
+              mountPath: /root/nestjs/init  # Use a separate directory for initialization
 
       containers:
-        - name: your-container-name
+        - name: {{ portalname }}
           image: ubuntu:latest
           command:
             - /bin/sh
@@ -56,22 +53,24 @@ spec:
             - -c
             - |
               set -e
-              # Ensure ownership is correct
-              chown -R 1000:1000 /root/nestjs
-              echo "Contents of /root/nestjs:"
-              ls -l /root/nestjs
-              
-              # Check for the tarball
-              if [ ! -f /root/nestjs/nestjs-app-archive.tar.gz ]; then
-                echo "Error: Tarball not found at /root/nestjs/nestjs-app-archive.tar.gz"
+              echo "Contents of /root/nestjs/init:"
+              ls -l /root/nestjs/init
+              if [ ! -f /root/nestjs/init/nestjs-app-archive.tar.gz ]; then
+                echo "Error: Tarball not found at /root/nestjs/init/nestjs-app-archive.tar.gz"
                 exit 1
               fi
-
-              # Extract the tarball
-              tar xzf /root/nestjs/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
-              
+              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
               cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
+          env:
+            - name: REDIS_HOST
+              value: 'redis'
+            - name: REDIS_PORT
+              value: '6379'
+            - name: JWT_TOKEN_AUDIENCE
+              value: '{{ portalname }}.default.svc.cluster.local'
+            - name: JWT_TOKEN_ISSUER
+              value: '{{ portalname }}.default.svc.cluster.local'
           envFrom:
             - secretRef:
                 name: jwt-secrets
@@ -80,15 +79,15 @@ spec:
                 name: postgresql-secret
               prefix: POSTGRES_
           volumeMounts:
-            - name: init-volume
-              mountPath: /root/nestjs
+            - name: init-volume  # Changed from app-volume to init-volume
+              mountPath: /root/nestjs  # Main application directory
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
-            - name: data-volume
+            - name: data-volume  # Mounting /data
               mountPath: /data
           resources:
             requests:
@@ -97,18 +96,25 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
-          
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
 
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"
+            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume
+        - name: data-volume  # Define the data volume
           emptyDir: {}
-
