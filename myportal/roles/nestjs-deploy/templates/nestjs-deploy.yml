@@ -21,14 +21,11 @@ spec:
         - name: init-secrets
           image: busybox
           command:
-            - bash
+            - sh
             - -c
             - |
               set -e
-              # Change ownership of the directory
-               
-              
-              # Copy JWT secrets
+              # Check and copy JWT secrets
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
                   cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
@@ -55,7 +52,7 @@ spec:
         - name: {{ portalname }}
           image: ubuntu:latest
           command:
-            - /bin/bash
+            - /bin/sh
           args:
             - -c
             - |
