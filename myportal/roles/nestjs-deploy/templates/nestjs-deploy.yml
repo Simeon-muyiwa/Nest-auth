@@ -53,12 +53,21 @@ spec:
             - -c
             - |
               set -e
+              echo "Creating init directory..."
+              mkdir -p /root/nestjs/init
+
+              echo "Creating tarball..."
+              tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
+
               echo "Contents of /root/nestjs/init:"
               ls -l /root/nestjs/init
+
               if [ ! -f /root/nestjs/init/nestjs-app-archive.tar.gz ]; then
                 echo "Error: Tarball not found at /root/nestjs/init/nestjs-app-archive.tar.gz"
                 exit 1
               fi
+
+              echo "Extracting tarball..."
               tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
               cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
