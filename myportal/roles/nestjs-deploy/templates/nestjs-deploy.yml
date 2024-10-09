@@ -17,37 +17,40 @@ spec:
         runAsUser: 1000
         fsGroup: 1000
         readOnlyRootFilesystem: false
-      initContainers:
-        - name: init-secrets
-          image: busybox
-          command:
-            - sh
-            - -c
-            - |
-              set -e
-              mkdir -p /tmp/nestjs
-              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
-                if [ -f /etc/jwt-secrets/$key ]; then
-                  if [ ! -f /tmp/nestjs/.env.jwt ]; then
-                    cp /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt
-                  else
-                    echo "Warning: /tmp/nestjs/.env.jwt already exists. Skipping copy."
-                  fi
-                else
-                  echo "Error: /etc/jwt-secrets/$key not found."
-                  exit 1
-                fi
-              done
-              tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
-              mv /tmp/nestjs/nestjs-app-archive.tar.gz /tmp/nestjs/ || { echo "Failed to move tarball"; exit 1; }
-              echo "JWT secrets copied and tarball created successfully."
-          volumeMounts:
-            - name: jwt-secrets
-              mountPath: /etc/jwt-secrets
-            - name: postgresql-secret
-              mountPath: /etc/postgresql-secret
-            - name: init-volume
-              mountPath: /tmp/nestjs  # Updated to a writable path
+initContainers:
+- name: init-secrets
+  image: busybox
+  command:
+    - sh
+    - -c
+    - |
+      set -e
+      mkdir -p /tmp/nestjs
+      for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+        if [ -f /etc/jwt-secrets/$key ]; then
+          if [ ! -d "/tmp/nestjs/.env.jwt" ]; then
+            mkdir -p /tmp/nestjs/.env.jwt
+            cp /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/$key
+          elif [ "$(ls -A /tmp/nestjs/.env.jwt)" != "$key" ]; then
+            echo "Warning: /tmp/nestjs/.env.jwt/$key already exists. Skipping copy."
+          else
+            cp /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/$key
+          fi
+        else
+          echo "Error: /etc/jwt-secrets/$key not found."
+          exit 1
+        fi
+      done
+      tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
+      mv /tmp/nestjs/nestjs-app-archive.tar.gz /tmp/nestjs/ || { echo "Failed to move tarball"; exit 1; }
+      echo "JWT secrets copied and tarball created successfully."
+  volumeMounts:
+    - name: jwt-secrets
+      mountPath: /etc/jwt-secrets
+    - name: postgresql-secret
+      mountPath: /etc/postgresql-secret
+    - name: init-volume
+      mountPath: /tmp/nestjs  # Updated to a writable path
 
       containers:
         - name: {{ portalname }}
