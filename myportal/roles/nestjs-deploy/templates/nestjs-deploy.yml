@@ -24,6 +24,12 @@ spec:
             - -c
             - |
               set -e
+              # Check if /etc/jwt-secrets exists
+              if [ ! -d /etc/jwt-secrets ]; then
+                echo "/etc/jwt-secrets does not exist. Creating it."
+                mkdir -p /etc/jwt-secrets
+              fi
+
               # Copy JWT secrets
               for key in $(ls /etc/jwt-secrets); do
                 cp "/etc/jwt-secrets/$key" "/root/nestjs/.env.jwt"
