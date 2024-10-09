@@ -24,14 +24,9 @@ spec:
             - -c
             - |
               set -e
-              # Check and copy JWT secrets
-              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
-                if [ -f /etc/jwt-secrets/$key ]; then
-                  cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
-                else
-                  echo "Error: /etc/jwt-secrets/$key not found."
-                  exit 1
-                fi
+              # Copy JWT secrets
+              for key in $(ls /etc/jwt-secrets); do
+                cp "/etc/jwt-secrets/$key" "/root/nestjs/.env.jwt"
               done
 
               # Create a tarball of the necessary files
