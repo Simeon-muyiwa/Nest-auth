@@ -13,9 +13,6 @@ spec:
       labels:
         app: {{ portalname }}
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
       initContainers:
         - name: init-secrets
           image: busybox
@@ -23,16 +20,15 @@ spec:
             - sh
             - -c
             - |
-              set -e
-              # Check if /etc/jwt-secrets exists
-              if [ ! -d /etc/jwt-secrets ]; then
-                echo "/etc/jwt-secrets does not exist. Creating it."
-                mkdir -p /etc/jwt-secrets
-              fi
-
-              # Copy JWT secrets
-              for key in $(ls /etc/jwt-secrets); do
-                cp "/etc/jwt-secrets/$key" "/root/nestjs/.env.jwt"
+              set -e  # Exit on error
+              # Check and copy JWT secrets
+              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+                if [ -f /etc/jwt-secrets/$key ]; then
+                  cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
+                else
+                  echo "Error: /etc/jwt-secrets/$key not found."
+                  exit 1
+                fi
               done
 
               # Create a tarball of the necessary files
@@ -40,18 +36,13 @@ spec:
 
               # Log success
               echo "JWT secrets copied and tarball created successfully."
-
-              # Change ownership of the entire /root/nestjs directory
-              chown -R 1000:1000 /root/nestjs
-
-              # Change ownership of specific files
-              chown -R 1000:1000 /root/nestjs/.env.jwt
-              chown -R 1000:1000 /root/nestjs/.env.postgres
-              chown -R 1000:1000 /root/nestjs/init/nestjs-app-archive.tar.gz
-              chown -R 1000:1000 /root/nestjs/init
-
-              # Attempt to remount the filesystem as read-write
-              mount -o remount,rw /
+          volumeMounts:
+            - name: jwt-secrets
+              mountPath: /etc/jwt-secrets
+            - name: postgresql-secret
+              mountPath: /etc/postgresql-secret
+            - name: init-volume  # Changed from app-volume to init-volume
+              mountPath: /root/nestjs/init  # Use a separate directory for initialization
 
       containers:
         - name: {{ portalname }}
@@ -97,24 +88,16 @@ spec:
                 name: postgresql-secret
               prefix: POSTGRES_
           volumeMounts:
-            - name: init-volume
-              mountPath: /root/nestjs/init
-              securityContext:
-                fsGroup: 1000
+            - name: init-volume  # Changed from app-volume to init-volume
+              mountPath: /root/nestjs  # Main application directory
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
-              securityContext:
-                fsGroup: 1000
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
-              securityContext:
-                fsGroup: 1000
-            - name: data-volume
+            - name: data-volume  # Mounting /data
               mountPath: /data
-              securityContext:
-                fsGroup: 1000
           resources:
             requests:
               memory: '128Mi'
@@ -135,12 +118,12 @@ spec:
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"
+            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume
+        - name: data-volume  # Define the data volume
           emptyDir: {}
