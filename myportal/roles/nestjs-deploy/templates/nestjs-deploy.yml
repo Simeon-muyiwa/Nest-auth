@@ -13,41 +13,38 @@ spec:
       labels:
         app: {{ portalname }}
     spec:
-      initContainers:
-        - name: init-secrets
-          image: busybox
-          command:
-            - sh
-            - -c
-            - |
-              set -e
-              mkdir -p /tmp/nestjs
-              echo "Contents of /etc/jwt-secrets:"
-              ls -l /etc/jwt-secrets/
-
-              # Check if the jwt-secrets.env.yml file exists
-              if [ -f /etc/jwt-secrets/jwt-secrets.env.yml ]; then
-                cp /etc/jwt-secrets/jwt-secrets.env.yml /tmp/nestjs/.env.jwt
-                echo "Copied jwt-secrets.env.yml to /tmp/nestjs/.env.jwt"
-              else
-                echo "Warning: /etc/jwt-secrets/jwt-secrets.env.yml not found, skipping."
-                exit 1
-              fi
-              
-              # Create the tarball
-              tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
-              
-              # Move the tarball to the expected location
-              mv /tmp/nestjs/nestjs-app-archive.tar.gz /root/nestjs/ || { echo "Failed to move tarball"; exit 1; }
-              
-              echo "JWT secrets copied and tarball created successfully."
-          volumeMounts:
-            - name: jwt-secrets
-              mountPath: /etc/jwt-secrets
-            - name: postgresql-secret
-              mountPath: /etc/postgresql-secret
-            - name: init-volume
-              mountPath: /tmp/nestjs
+initContainers:
+- name: init-secrets
+  image: busybox
+  command:
+    - sh
+    - -c
+    - |
+      set -e
+      mkdir -p /tmp/nestjs/.env.jwt
+      for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+        if [ -f /etc/jwt-secrets/$key ]; then
+          if [ ! -L "/tmp/nestjs/.env.jwt/$key" ]; then
+            ln -sf /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/
+            echo "Created symbolic link for $key"
+          else
+            echo "Symbolic link for $key already exists"
+          fi
+        else
+          echo "Error: /etc/jwt-secrets/$key not found."
+          exit 1
+        fi
+      done
+      tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
+      mv /tmp/nestjs/nestjs-app-archive.tar.gz /tmp/nestjs/ || { echo "Failed to move tarball"; exit 1; }
+      echo "JWT secrets copied and tarball created successfully."
+  volumeMounts:
+    - name: jwt-secrets
+      mountPath: /etc/jwt-secrets
+    - name: postgresql-secret
+      mountPath: /etc/postgresql-secret
+    - name: init-volume
+      mountPath: /tmp/nestjs
 
       containers:
         - name: your-container-name
