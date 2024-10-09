@@ -29,7 +29,7 @@ spec:
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
                   if [ ! -f /tmp/nestjs/.env.jwt ]; then
-                    cp /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt
+                    cp -f /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt
                   else
                     echo "Warning: /tmp/nestjs/.env.jwt already exists. Skipping copy."
                   fi
