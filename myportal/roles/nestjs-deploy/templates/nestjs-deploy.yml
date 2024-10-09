@@ -114,18 +114,16 @@ spec:
             timeoutSeconds: 2
             successThreshold: 1
             failureThreshold: 3
-      securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
+
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"
+            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume
+        - name: data-volume  # Define the data volume
           emptyDir: {}
