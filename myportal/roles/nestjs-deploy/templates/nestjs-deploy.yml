@@ -25,9 +25,7 @@ spec:
             - -c
             - |
               set -e
-              # Create temporary directory
               mkdir -p /tmp/nestjs
-              # Check and copy JWT secrets
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
                   cp /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt
@@ -36,22 +34,14 @@ spec:
                   exit 1
                 fi
               done
-
-              # Create a tarball of the necessary files
               tar czf /tmp/nestjs/nestjs-app-archive.tar.gz -C /tmp/nestjs . || { echo "Failed to create tarball"; exit 1; }
-
-              # Move the tarball to the target directory
-              mv /tmp/nestjs/nestjs-app-archive.tar.gz /root/nestjs/ || { echo "Failed to move tarball"; exit 1; }
-
-              # Log success
+              mv /tmp/nestjs/nestjs-app-archive.tar.gz /tmp/nestjs/ || { echo "Failed to move tarball"; exit 1; }
               echo "JWT secrets copied and tarball created successfully."
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
-            - name: postgresql-secret
-              mountPath: /etc/postgresql-secret
             - name: init-volume
-              mountPath: /root/nestjs
+              mountPath: /tmp/nestjs  # Updated to a writable path
 
       containers:
         - name: {{ portalname }}
