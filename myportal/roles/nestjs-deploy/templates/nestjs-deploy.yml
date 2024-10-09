@@ -30,7 +30,7 @@ initContainers:
         if [ -f /etc/jwt-secrets/$key ]; then
           if [ ! -d "/tmp/nestjs/.env.jwt" ]; then
             mkdir -p /tmp/nestjs/.env.jwt
-            cp /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/$key
+            cp /etc/jwt-secrets/$key /tmp/nestjs/.env.jwt/
           elif [ "$(ls -A /tmp/nestjs/.env.jwt)" != "$key" ]; then
             echo "Warning: /tmp/nestjs/.env.jwt/$key already exists. Skipping copy."
           else
@@ -50,7 +50,7 @@ initContainers:
     - name: postgresql-secret
       mountPath: /etc/postgresql-secret
     - name: init-volume
-      mountPath: /tmp/nestjs  # Updated to a writable path
+      mountPath: /tmp/nestjs
 
       containers:
         - name: {{ portalname }}
