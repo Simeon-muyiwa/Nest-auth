@@ -98,6 +98,7 @@ spec:
               subPath: postgresql-secret.env
             - name: data-volume  # Mounting /data
               mountPath: /data
+              readOnly: false
           resources:
             requests:
               memory: '128Mi'
