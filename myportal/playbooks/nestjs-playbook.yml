@@ -27,7 +27,7 @@
 - name: Configure NestJS Application
   hosts: localhost
   roles:
-    - install-node
+    - install-nodejs
     - pre-nestjs
     - nestjs
     - service_setup
