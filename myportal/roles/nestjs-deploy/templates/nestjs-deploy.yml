@@ -34,6 +34,8 @@ spec:
               # Create a tarball of the necessary files
               tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
 
+              chmod -R 775 /root/nestjs || { echo "Failed to set permission"; exit;}
+
               # Log success
               echo "JWT secrets copied and tarball created successfully."
           volumeMounts:
@@ -68,8 +70,8 @@ spec:
               fi
 
               echo "Extracting tarball..."
-              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs || { echo "Failed to extract tarball"; exit 1; }
-              cd /root/nestjs
+              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs  || { echo "Failed to extract tarball"; exit 1; }
+               cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
