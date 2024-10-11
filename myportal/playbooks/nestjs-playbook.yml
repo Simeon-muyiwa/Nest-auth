@@ -7,7 +7,7 @@
 - name: Setup PostgreSQL
   hosts: localhost
   tasks:
-    - import_playbook: postgresql-playbook.yml
+    - import_playbook: postgres-playbook.yml
 
 - name: Ensure PostgreSQL is running
   service:
