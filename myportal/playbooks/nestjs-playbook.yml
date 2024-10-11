@@ -29,6 +29,6 @@
   roles:
     - install-nodejs
     - pre-nestjs
-    - nestjs
-    - service_setup
-    - auth_token
+    - nestjs-deploy
+    - nestjs-service-setup
+    - nestjs-auth-token
