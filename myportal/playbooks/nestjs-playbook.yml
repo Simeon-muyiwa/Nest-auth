@@ -31,4 +31,4 @@
     - pre-nestjs
     - nestjs-deploy
     - nestjs-service-setup
-    - nestjs-auth-token
+    - nestjs-ouath-token
