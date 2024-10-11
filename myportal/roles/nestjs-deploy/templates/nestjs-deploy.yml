@@ -91,7 +91,7 @@ spec:
               prefix: POSTGRES_
           volumeMounts:
             - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs  # Main application directory
+              mountPath: /root/nestjs/init  # Main application directory
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
