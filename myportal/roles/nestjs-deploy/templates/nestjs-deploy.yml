@@ -78,7 +78,7 @@ spec:
               # echo "Extracting tarball..."
               # tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs  || { echo "Failed to extract tarball"; exit 1; }
               #  cd /root/nestjs
-              ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
+              ansible-playbook nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
               value: 'redis'
