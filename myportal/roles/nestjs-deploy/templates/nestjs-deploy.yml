@@ -34,7 +34,8 @@ spec:
               # Create a tarball of the necessary files
               tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
 
-              chmod -R 775 /root/nestjs || { echo "Failed to set permission"; exit;}
+              # Extract the tarball and change ownership
+              tar -xvf /root/nestjs/init/nestjs-app-archive.tar.gz -C /data && chown -R 1000:1000 /data || { echo "Extraction or ownership change failed"; exit 1;}
 
               # Log success
               echo "JWT secrets copied and tarball created successfully."
@@ -45,6 +46,8 @@ spec:
               mountPath: /etc/postgresql-secret
             - name: init-volume  # Changed from app-volume to init-volume
               mountPath: /root/nestjs/init  # Use a separate directory for initialization
+            - name: data-volume
+              mountPath: /data
 
       containers:
         - name: {{ portalname }}
@@ -55,23 +58,26 @@ spec:
             - -c
             - |
               set -e
-              echo "Creating init directory..."
-              mkdir -p /root/nestjs/init
+              #  Ensure the main container process data correctly
+              cd /data || { echo "Failed to change directly to /data"; exit 1;}
+              echo "Running application..."
+              # echo "Creating init directory..."
+              # mkdir -p /root/nestjs/init
 
-              echo "Creating tarball..."
-              tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
+              # echo "Creating tarball..."
+              # tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
 
-              echo "Contents of /root/nestjs/init:"
-              ls -l /root/nestjs/init
+              # echo "Contents of /root/nestjs/init:"
+              # ls -l /root/nestjs/init
 
-              if [ ! -f /root/nestjs/init/nestjs-app-archive.tar.gz ]; then
-                echo "Error: Tarball not found at /root/nestjs/init/nestjs-app-archive.tar.gz"
-                exit 1
-              fi
+              # if [ ! -f /root/nestjs/init/nestjs-app-archive.tar.gz ]; then
+              #   echo "Error: Tarball not found at /root/nestjs/init/nestjs-app-archive.tar.gz"
+              #   exit 1
+              # fi
 
-              echo "Extracting tarball..."
-              tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs  || { echo "Failed to extract tarball"; exit 1; }
-               cd /root/nestjs
+              # echo "Extracting tarball..."
+              # tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs  || { echo "Failed to extract tarball"; exit 1; }
+              #  cd /root/nestjs
               ansible-playbook playbooks/nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
           env:
             - name: REDIS_HOST
