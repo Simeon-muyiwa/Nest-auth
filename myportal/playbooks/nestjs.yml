@@ -1,11 +1,10 @@
 ---
 - name: Deploy NestJS application
   hosts: localhost
-  become: yes
+  
   roles:
     - pre-nestjs
     - install-nodejs
-    - portals
     - postgresql
     - redis
     - nestjs-deploy
