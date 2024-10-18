@@ -1,41 +1,26 @@
-- name: Install service dependencies
-  npm:
-    path: "{{ service_path }}"
-    state: present
+---
+    - name: Install service dependencies
+      npm:
+        path: "{{ service_path }}"
+        state: present
 
-- name: Build the NestJS service
-  command: npm run build
-  args:
-    chdir: "{{ service_path }}"
-  register: build_result
+    - name: Build the NestJS service
+      command: npm run build
+      args:
+        chdir: "{{ service_path }}"
+      register: build_result
 
-- name: Verify build success
-  fail:
-    msg: "Build failed!"
-  when: build_result.rc != 0
+    - name: Ensure build was successful
+      fail:
+        msg: "Build failed with error code: {{ build_result.rc }}"
+      when: build_result.rc != 0
 
-- name: Start the service
-  command: npm run start
-  args:
-    chdir: "{{ service_path }}"
-  async: 180  # Allow the command to run for up to 3 minutes
-  poll: 0  # Don't wait for the command to complete
-  register: start_service
+    - name: Start the NestJS service
+      command: npm run start
+      args:
+        chdir: "{{ service_path }}"
+      register: start_result
 
-- name: Wait for the service to start
-  async_status:
-    jid: "{{ start_service.ansible_job_id }}"
-  register: job_result
-  until: job_result.finished
-  retries: 10  # Number of retries
-  delay: 10    # Delay between retries in seconds
-
-- name: Check if the service started successfully
-  fail:
-    msg: "Service failed to start."
-  when: job_result.rc != 0
-
-- name: Confirm service started successfully
-  debug:
-    msg: "Service started successfully."
-  when: job_result.rc == 0
+    - name: Show result of service start
+      debug:
+        var: start_result
