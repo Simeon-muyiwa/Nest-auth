@@ -9,6 +9,11 @@
   apt:
     autoclean: yes
 
+- name: Install curl if not present
+  apt:
+    name: curl
+    state: present
+
 - name: Add GPG key for Node.js
   apt_key:
     url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
