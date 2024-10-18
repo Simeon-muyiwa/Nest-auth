@@ -23,7 +23,7 @@
     state: present
     update_cache: yes
   vars:
-    node_version: "20"  # Set version manually
+    node_version: "20"  # Updated Node.js version
 
 - name: Install build dependencies
   apt:
@@ -32,10 +32,24 @@
       - libssl-dev
     state: present
 
-- name: Install Node.js and npm
+- name: Check for Node.js installation
+  command: node -v
+  register: node_installed
+  ignore_errors: true
+
+- name: Install Node.js
   apt:
-    name:
-      - nodejs
-      - npm
+    name: nodejs
     state: present
-    install_recommends: yes
+  when: node_installed.rc != 0
+
+# Note: npm is bundled with Node.js; typically, no separate installation is needed.
+- name: Check for npm installation
+  command: npm -v
+  register: npm_installed
+  ignore_errors: true
+
+# Only install npm if the version installed with Node.js is not sufficient
+- name: Upgrade npm if necessary
+  command: npm install -g npm@latest
+  when: npm_installed.rc == 0
