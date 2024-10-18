@@ -21,8 +21,9 @@
 
 - name: Add Node.js repository
   apt_repository:
-    repo: 'deb https://deb.nodesource.com/node_20.x $(lsb_release -cs) main'
+    repo: "deb https://deb.nodesource.com/node_20.x focal main"  # Replace 'focal' with your codename
     state: present
+    update_cache: true
 
 - name: Install Node.js and npm
   apt:
