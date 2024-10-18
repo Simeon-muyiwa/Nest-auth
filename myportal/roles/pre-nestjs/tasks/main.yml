@@ -20,7 +20,7 @@
 
 - name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
   ansible.builtin.synchronize:
-    src: /opt/nestjs/MyK8sAnsible/myportal/  # Source directory for synchronization
+    src: /opt/nestjs/myportal/  # Source directory for synchronization
     dest: /myk8sansible/myportal/      # Destination directory for synchronization
     delete: yes
   when: repo_clone.changed  # Only run if the repository was updated
@@ -39,7 +39,7 @@
 - name: Archive NestJS application excluding MyK8sAnsible
   ansible.builtin.archive:
     path: /opt/nestjs
-    exclude_path: /opt/nestjs/MyK8sAnsible  # Exclude the MyK8sAnsible directory
+    exclude_path: /opt/nestjs/myportal  # Exclude the MyK8sAnsible directory
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
 
