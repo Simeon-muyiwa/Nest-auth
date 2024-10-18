@@ -1,9 +1,3 @@
----
-- name: Full Deployment of NestJS Application
-  hosts: localhost
-  roles:
-    - portals
-
 - name: Setup PostgreSQL
   hosts: localhost
   tasks:
@@ -11,6 +5,10 @@
       service:
         name: postgresql
         state: started
+      register: pg_service
+      until: pg_service is succeeded
+      retries: 5
+      delay: 5
 
 - import_playbook: postgres-playbook.yml
 
