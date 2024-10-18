@@ -10,7 +10,6 @@
           - curl
           - git
           - npm
-          - buns
         state: present
 
     - name: Add Node.js GPG key
