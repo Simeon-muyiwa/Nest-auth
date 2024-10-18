@@ -23,7 +23,7 @@
     state: present
     update_cache: yes
   vars:
-    node_version: "{{ lookup('url', 'https://deb.nodesource.com/distros.json') | from_json | json_query('distros[?distro==`ubuntu`].version') | first }}"
+    node_version: "20"  # Set version manually
 
 - name: Install build dependencies
   apt:
