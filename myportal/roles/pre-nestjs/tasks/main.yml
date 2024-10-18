@@ -11,6 +11,8 @@
   ansible.builtin.stat:
     path: /myk8sansible/myportal  # Adjusted path to reflect your setup
   register: myk8sansible_dir
+  when: repo_clone.changed  # Only run if the repository was updated
+
 
 - name: Fail if the destination directory does not exists 
   ansible.builtin.fail:
@@ -22,7 +24,7 @@
     src: /opt/nestjs/myportal/  # Source directory for synchronization
     dest: /myk8sansible/myportal/      # Destination directory for synchronization
     delete: yes
-  when: repo_clone.changed  # Only run if the repository was updated
+ 
 
 - name: Check if the archive already exists
   ansible.builtin.stat:
