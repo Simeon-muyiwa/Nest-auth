@@ -1,3 +1,5 @@
+
+---
 - name: Update and upgrade APT packages
   apt:
     update_cache: yes
@@ -12,16 +14,16 @@
     name: curl
     state: present
 
-- name: Import GPG key for Node.js
+- name: Add GPG key for Node.js
   apt_key:
     url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
     state: present
 
-- name: Add the Node.js repository
+- name: Add Node.js repository
   apt_repository:
-    repo: "deb https://deb.nodesource.com/node {{ lookup('pipe', 'curl -sL https://deb.nodesource.com/dists/focal/xenial | grep -oP \"(?<=version=)[^ ]+\"') }}"
+    repo: "deb https://deb.nodesource.com/node {{ lookup('url', 'https://deb.nodesource.com/distros.json') | regex_search('Ubuntu\\s+Focal\\s+(\\d+)') | capture }}"
     state: present
-    update_cache: true
+    update_cache: yes
 
 - name: Install build dependencies
   apt:
