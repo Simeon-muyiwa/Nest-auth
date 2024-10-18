@@ -5,7 +5,6 @@
     dest: '{{ service_path }}' # This is where the repo will be cloned
     version: main
     update: yes
-    force: true
   register: repo_clone
 
 - name: Check if  destination directory exists in Minikube env
