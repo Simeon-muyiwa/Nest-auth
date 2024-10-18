@@ -39,11 +39,11 @@
     format: gz
   when: repo_clone.changed
 
-- name: Remove service_path
-  file:
-    path: '{{ service_path }}'
-    state: absent
-  when: repo_clone.changed
+# - name: Remove service_path
+#   file:
+#     path: '{{ service_path }}'
+#     state: absent
+#   when: repo_clone.changed
 
 - name: Encode archive content in base64
   set_fact:
