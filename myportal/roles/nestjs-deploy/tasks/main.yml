@@ -72,7 +72,7 @@
     var: deploy_result
 - name: Create nestjs services for each portal
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(portalname=item.name, namespace=tenant.namespace)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(portalname=item.name, replicacount=item.replicacount, namespace=tenant.namespace)) | from_yaml }}"
     state: present
   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
   loop_control:
