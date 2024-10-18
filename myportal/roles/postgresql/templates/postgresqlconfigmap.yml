@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgresql-configmap
-  namespace: "{{ ansible_operator_meta.namespace | default('default') }}"
+  namespace: {{ portalname }}
 data:
   POSTGRES_DB: postgres
   POSTGRES_HOST: postgres
