@@ -1,29 +1,28 @@
-
 ---
-    - name: Update the apt package index
-      apt:
-        update_cache: yes
 
-    - name: Install required packages
-      apt:
-        name:
-          - curl
-          - git
-        state: present
+- name: Update and upgrade APT packages
+  apt:
+    update_cache: yes
+    upgrade: dist
 
-    - name: Add Node.js GPG key
-      apt_key:
-        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-        state: present
+- name: Clean up APT cache
+  apt:
+    autoclean: yes
 
-    - name: Add Node.js repository
-      shell: curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-      args:
-        warn: false
+- name: Add GPG key for Node.js
+  apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    state: present
 
-    - name: Install Node.js and npm
-      apt:
-        name:
-          - nodejs
-          - npm  # Ensure npm is included as well
-        state: present
+- name: Add Node.js repository
+  command: curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+  args:
+    warn: false
+
+- name: Install Node.js and npm
+  apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+    install_recommends: yes
