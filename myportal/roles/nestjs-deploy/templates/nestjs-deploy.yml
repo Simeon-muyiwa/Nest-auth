@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ portalname }}
-  namespace: {{ namespace }}
+  name: { { portalname } }
+  namespace: { { namespace } }
 spec:
-  replicas: {{ replicacount }}
+  replicas: { { replicacount } }
   selector:
     matchLabels:
-      app: {{ portalname }}
+      app: { { portalname } }
   template:
     metadata:
       labels:
-        app: {{ portalname }}
+        app: { { portalname } }
     spec:
       initContainers:
         - name: init-secrets
@@ -44,13 +44,13 @@ spec:
               mountPath: /etc/jwt-secrets
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
-            - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs/init  # Use a separate directory for initialization
+            - name: init-volume # Changed from app-volume to init-volume
+              mountPath: /root/nestjs/init # Use a separate directory for initialization
             - name: data-volume
               mountPath: /data
 
       containers:
-        - name: {{ portalname }}
+        - name: { { portalname } }
           image: ubuntu:latest
           command:
             - /bin/bash
@@ -61,7 +61,9 @@ spec:
               #  Ensure the main container process data correctly
               cd /data || { echo "Failed to change directly to /data"; exit 1;}
               echo "Running application..."
-                                 
+              npm install || { echo "Failed to install dependencies"; exit 1; } # Install dependencies if needed
+              npm start || { echo "Failed to start application"; exit 1; } # Start the application
+
           env:
             - name: REDIS_HOST
               value: 'redis'
@@ -77,20 +79,20 @@ spec:
               prefix: JWT_
             - secretRef:
                 name: postgresql-secret
-              prefix: POSTGRES_            # Reference the ConfigMap for PostgreSQL configurations
+              prefix: POSTGRES_ # Reference the ConfigMap for PostgreSQL configurations
             - configMapRef:
                 name: postgresql-configmap
 
           volumeMounts:
-            - name: init-volume  # Changed from app-volume to init-volume
-              mountPath: /root/nestjs/init  # Main application directory
+            - name: init-volume # Changed from app-volume to init-volume
+              mountPath: /root/nestjs/init # Main application directory
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
-            - name: data-volume  # Mounting /data
+            - name: data-volume # Mounting /data
               mountPath: /data
               readOnly: false
           resources:
@@ -100,16 +102,16 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
-          
+
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
+            claimName: '{{ portalname }}-pvc' # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume  # Define the data volume
+        - name: data-volume # Define the data volume
           emptyDir: {}
