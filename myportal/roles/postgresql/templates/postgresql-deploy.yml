@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: {{ namespace }}
+  namespace: { { namespace } }
 spec:
-  serviceName: "postgres"
+  serviceName: 'postgres'
   replicas: 1
   selector:
     matchLabels:
@@ -19,6 +19,9 @@ spec:
           image: postgres:latest
           ports:
             - containerPort: 5432
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
           env:
             - name: POSTGRES_DB
               valueFrom:
@@ -35,28 +38,21 @@ spec:
                 configMapKeyRef:
                   name: postgresql-configmap
                   key: POSTGRES_PORT
-            - name: POSTGRES_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-secret
-                  key: POSTGRES_USERNAME
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgresql-secret
                   key: POSTGRES_PASSWORD
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-      volumes:
-        - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc  # Ensure you have a PVC defined for this
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: POSTGRES_USERNAME
   volumeClaimTemplates:
     - metadata:
-        name: postgres-pvc
+        name: postgres-storage
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ['ReadWriteOnce']
         resources:
           requests:
-            storage: 1Gi  # Adjust storage size as needed
+            storage: 1Gi
