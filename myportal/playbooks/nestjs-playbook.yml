@@ -28,12 +28,12 @@
 
     - name: Inform about PostgreSQL setup
       debug:
-        msg: 'PostgreSQL successfully set up.'
+        msg: "PostgreSQL successfully set up."
       when: postgresql_check.rc == 0
 
     - name: Inform about missing PostgreSQL service
       debug:
-        msg: 'PostgreSQL service not found. Skipping setup.'
+        msg: "PostgreSQL service not found. Skipping setup."
       when: postgresql_check.rc != 0
 
 - import_playbook: postgres-playbook.yml
@@ -68,12 +68,12 @@
 
     - name: Inform about Redis setup
       debug:
-        msg: 'Redis successfully set up.'
+        msg: "Redis successfully set up."
       when: redis_check.rc == 0
 
     - name: Inform about missing Redis service
       debug:
-        msg: 'Redis service not found. Skipping setup.'
+        msg: "Redis service not found. Skipping setup."
       when: redis_check.rc != 0
 
 - import_playbook: redis-playbook.yml
