@@ -1,9 +1,7 @@
 ---
- # Optional: Use if you need sudo privileges
-
   roles:
-    - role: pre-nestjs
-    - role: install-nodejs
-    - role: postgresql
-    - role: redis
-    - role: nestjs-deploy
+    - install-nodejs
+    - pre-nestjs
+    - nestjs-deploy
+    - nestjs-service-setup
+    - nestjs-oauth-token
