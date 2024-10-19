@@ -1,1 +1,4 @@
-namespace: "{{ ansible_operator_meta.namespace | default('default') }}"
+    postgres_user: "postgres"
+    postgres_password: "pass123"
+    postgres_db: "postgres"
+   
