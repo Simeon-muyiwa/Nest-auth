@@ -1,6 +1,0 @@
-{
-    "ansible.python.interpreterPath": "/opt/homebrew/bin/python3",
-    "yaml.schemas": {
-        "https://json.schemastore.org/yamllint.json": "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myportal/playbooks/nestjs.yml"
-    }
-}
