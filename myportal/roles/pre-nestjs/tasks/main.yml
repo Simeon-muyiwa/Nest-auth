@@ -39,6 +39,13 @@
     format: gz
   when: repo_clone.changed
 
+- name: Copy NestJS application to myk8sansible
+  ansible.builtin.copy:
+    src: /opt/nestjs
+    dest: /myk8sansible
+    remote_src: yes
+  when: repo_clone.changed
+
 # - name: Remove service_path
 #   file:
 #     path: '{{ service_path }}'
