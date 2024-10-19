@@ -1,5 +1,5 @@
 - name: Configure PostgreSQL
   hosts: localhost
-  become: yes # Optional: Add this if you need elevated privileges
+  become: true # Optional: Add this if you need elevated privileges
   roles:
     - postgresql
