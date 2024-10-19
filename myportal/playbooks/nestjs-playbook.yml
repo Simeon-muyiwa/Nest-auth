@@ -85,4 +85,3 @@
     - pre-nestjs
     - nestjs-deploy
     - nestjs-service-setup
-    - nestjs-oauth-token
