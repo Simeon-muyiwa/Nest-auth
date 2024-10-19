@@ -8,5 +8,5 @@
     - postgresql
     - redis
     - nestjs-deploy
-    - portals
+ 
     
