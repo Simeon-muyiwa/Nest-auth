@@ -1,20 +1,29 @@
 ---
-- name: Create PostgreSQL ConfigMap
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'postgresqlconfigmap.yml') | from_yaml }}"
-    state: present
 
-- name: Create PostgreSQL Secret
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'postgresql-secret.yml') | from_yaml }}"
-    state: present
+    - name: Create PostgreSQL ConfigMap
+      community.kubernetes.k8s:
+        definition: "{{ lookup('template', 'postgresqlconfigmap.yml') | from_yaml }}"
+        state: present
 
-- name: Create PostgreSQL Deployment
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'postgresql-deploy.yml') | from_yaml }}"
-    state: present
+    - name: Create PostgreSQL Secret
+      community.kubernetes.k8s:
+        definition: "{{ lookup('template', 'postgresql-secret.yml') | from_yaml }}"
+        state: present
 
-- name: Create PostgreSQL Service
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'postgresql-service.yml') | from_yaml }}"
-    state: present
+    - name: Debug PostgreSQL Deployment Variables
+      debug:
+        msg:
+          - "Postgres User: {{ postgres_user }}"
+          - "Postgres Password: {{ postgres_password }}"
+          - "Postgres DB: {{ postgres_db }}"
+          - "Postgres Image: {{ postgresql_image }}"
+
+    - name: Create PostgreSQL Deployment
+      community.kubernetes.k8s:
+        definition: "{{ lookup('template', 'postgresql-deploy.yml') | from_yaml }}"
+        state: present
+
+    - name: Create PostgreSQL Service
+      community.kubernetes.k8s:
+        definition: "{{ lookup('template', 'postgresql-service.yml') | from_yaml }}"
+        state: present
