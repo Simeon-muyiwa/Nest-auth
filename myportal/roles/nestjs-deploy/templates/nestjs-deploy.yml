@@ -51,7 +51,7 @@ spec:
 
       containers:
         - name: { { portalname } }
-          image: node:slim
+          image: ubuntu:latest
           command:
             - /bin/bash
           args:
