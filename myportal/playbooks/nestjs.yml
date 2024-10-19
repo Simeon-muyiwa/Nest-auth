@@ -1,9 +1,8 @@
 ---
-
-
+- hosts: localhost
   roles:
-    - { role: pre-nestjs }
-    - { role: install-nodejs }
-    - { role: postgresql }
-    - { role: redis }
-    - { role: nestjs-deploy }
+    - pre-nestjs
+    - install-nodejs
+    - postgresql
+    - redis
+    - nestjs-deploy
