@@ -1,11 +1,11 @@
 ---
-# - set_fact:
-#     mytenants:
-#       - namespace: portal1
-#         portals:
-#           - name: 'nestjs-auth'
-#             replicacount: 1
-#         mytenantname: first_tenant
+- set_fact:
+    mytenants:
+      - namespace: portal1
+        portals:
+          - name: 'nestjs-auth'
+            replicacount: 1
+        mytenantname: first_tenant
 
 # - name: Create Kubernetes namespace for each tenant
 #   community.kubernetes.k8s:
