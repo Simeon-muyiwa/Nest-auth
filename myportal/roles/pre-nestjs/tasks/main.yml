@@ -44,7 +44,7 @@
     src: /opt/nestjs
     dest: /myk8sansible
     remote_src: yes
-  when: repo_clone.changed
+  
 
 # - name: Remove service_path
 #   file:
