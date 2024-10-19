@@ -61,8 +61,6 @@ spec:
               #  Ensure the main container process data correctly
               cd /data || { echo "Failed to change directly to /data"; exit 1;}
               echo "Running application..."
-              npm install || { echo "Failed to install dependencies"; exit 1; } # Install dependencies if needed
-              npm start || { echo "Failed to start application"; exit 1; } # Start the application
 
           env:
             - name: REDIS_HOST
