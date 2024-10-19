@@ -20,9 +20,6 @@
 #     loop_var: item
 #   register: namespace_creation_results
 
-# - name: Log namespace creation results
-#   debug:
-#     var: namespace_creation_results
 
 # - name: Apply MyPortal CRD YAML to Kubernetes cluster
 #   community.kubernetes.k8s:
