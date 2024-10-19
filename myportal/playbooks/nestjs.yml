@@ -1,12 +1,9 @@
 ---
-- name: Deploy NestJS application
-  hosts: localhost
+ # Optional: Use if you need sudo privileges
 
   roles:
-    - pre-nestjs
-    - install-nodejs
-    - postgresql
-    - redis
-    - nestjs-deploy
- 
-    
+    - role: pre-nestjs
+    - role: install-nodejs
+    - role: postgresql
+    - role: redis
+    - role: nestjs-deploy
