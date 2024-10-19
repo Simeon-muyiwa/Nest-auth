@@ -9,3 +9,4 @@
     - redis
     - nestjs-deploy
     - portals
+    - nestjs-service-setup
