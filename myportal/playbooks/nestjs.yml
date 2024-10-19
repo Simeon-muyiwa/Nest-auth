@@ -1,9 +1,9 @@
----
-hosts: all
-name: Deploy NestJS application
-roles:
-  - pre-nestjs
-  - install-nodejs
-  - postgresql
-  - redis
-  - nestjs-deploy
+- name: Deploy NestJS application
+  hosts: all
+  become: true
+  roles:
+    - pre-nestjs
+    - install-nodejs
+    - postgresql
+    - redis
+    - nestjs-deploy
