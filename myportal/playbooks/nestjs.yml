@@ -1,7 +1,7 @@
 ---
 - name: Deploy NestJS application
   hosts: localhost
-  
+
   roles:
     - pre-nestjs
     - install-nodejs
@@ -9,4 +9,3 @@
     - redis
     - nestjs-deploy
     - portals
-   
