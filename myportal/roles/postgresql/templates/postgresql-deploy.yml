@@ -4,7 +4,7 @@ metadata:
   name: postgres
   namespace: {{ namespace }}
 spec:
-  serviceName: 'postgres'
+  serviceName: "postgres"
   replicas: 1
   selector:
     matchLabels:
@@ -19,9 +19,6 @@ spec:
           image: postgres:latest
           ports:
             - containerPort: 5432
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
           env:
             - name: POSTGRES_DB
               valueFrom:
@@ -38,21 +35,28 @@ spec:
                 configMapKeyRef:
                   name: postgresql-configmap
                   key: POSTGRES_PORT
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-secret
-                  key: POSTGRES_PASSWORD
             - name: POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: postgresql-secret
                   key: POSTGRES_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc  # Ensure you have a PVC defined for this
   volumeClaimTemplates:
     - metadata:
-        name: postgres-storage
+        name: postgres-pvc
       spec:
-        accessModes: ['ReadWriteOnce']
+        accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 1Gi
+            storage: 1Gi  # Adjust storage size as needed
