@@ -61,25 +61,7 @@ spec:
               #  Ensure the main container process data correctly
               cd /data || { echo "Failed to change directly to /data"; exit 1;}
               echo "Running application..."
-             
-              # echo "Creating init directory..."
-              # mkdir -p /root/nestjs/init
-
-              # echo "Creating tarball..."
-              # tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
-
-              # echo "Contents of /root/nestjs/init:"
-              # ls -l /root/nestjs/init
-
-              # if [ ! -f /root/nestjs/init/nestjs-app-archive.tar.gz ]; then
-              #   echo "Error: Tarball not found at /root/nestjs/init/nestjs-app-archive.tar.gz"
-              #   exit 1
-              # fi
-
-              # echo "Extracting tarball..."
-              # tar xzf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs  || { echo "Failed to extract tarball"; exit 1; }
-              #  cd /root/nestjs
-              # ansible-playbook nestjs.yml || { echo "Ansible playbook failed"; exit 1; }
+                                 
           env:
             - name: REDIS_HOST
               value: 'redis'
@@ -95,7 +77,10 @@ spec:
               prefix: JWT_
             - secretRef:
                 name: postgresql-secret
-              prefix: POSTGRES_
+              prefix: POSTGRES_            # Reference the ConfigMap for PostgreSQL configurations
+            - configMapRef:
+                name: postgresql-configmap
+
           volumeMounts:
             - name: init-volume  # Changed from app-volume to init-volume
               mountPath: /root/nestjs/init  # Main application directory
@@ -115,16 +100,7 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '500m'
-          # readinessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: 3000
-          #   initialDelaySeconds: 15
-          #   periodSeconds: 5
-          #   timeoutSeconds: 2
-          #   successThreshold: 1
-          #   failureThreshold: 3
-
+          
       volumes:
         - name: init-volume
           persistentVolumeClaim:
