@@ -9,4 +9,4 @@ COPY roles/ ${HOME}/roles/
 COPY playbooks/ ${HOME}/playbooks/
 
 # Set the command to run the playbook
-CMD ["ansible-playbook", "/home/ansible/playbooks/nestjs.yml"]
+CMD ["ansible-playbook", "/opt/ansible/playbooks/nestjs.yml"]
