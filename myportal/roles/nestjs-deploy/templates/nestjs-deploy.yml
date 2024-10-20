@@ -67,13 +67,13 @@ spec:
 
           env:
             - name: REDIS_HOST
-              value: 'redis'
+              value: "redis"
             - name: REDIS_PORT
-              value: '6379'
+              value: "6379"
             - name: JWT_TOKEN_AUDIENCE
-              value: '{{ portalname }}.default.svc.cluster.local'
+              value: "{{ portalname }}.default.svc.cluster.local"
             - name: JWT_TOKEN_ISSUER
-              value: '{{ portalname }}.default.svc.cluster.local'
+              value: "{{ portalname }}.default.svc.cluster.local"
           envFrom:
             - secretRef:
                 name: jwt-secrets
@@ -98,16 +98,16 @@ spec:
               readOnly: false
           resources:
             requests:
-              memory: '128Mi'
-              cpu: '250m'
+              memory: "128Mi"
+              cpu: "250m"
             limits:
-              memory: '256Mi'
-              cpu: '500m'
+              memory: "256Mi"
+              cpu: "500m"
 
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: '{{ portalname }}-pvc' # Reference the PVC instead of ConfigMap
+            claimName: "{{ portalname }}-pvc" # Reference the PVC instead of ConfigMap
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
