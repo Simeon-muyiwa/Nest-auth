@@ -1,46 +1,46 @@
-- name: Create Persistent Volume for each portal
-  community.kubernetes.k8s:
-    definition: >-
-      {{
-        lookup('template', 'nestjs-pv.yml',
-               template_vars=dict(portalname=item.name, namespace=tenant.namespace))
-        | from_yaml
-      }}
-    state: present
-  loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
-  loop_control:
-    loop_var: item
-  vars:
-    tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
-  when: tenant is defined
+# - name: Create Persistent Volume for each portal
+#   community.kubernetes.k8s:
+#     definition: >-
+#       {{
+#         lookup('template', 'nestjs-pv.yml',
+#                template_vars=dict(portalname=item.name, namespace=tenant.namespace))
+#         | from_yaml
+#       }}
+#     state: present
+#   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
+#   loop_control:
+#     loop_var: item
+#   vars:
+#     tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
+#   when: tenant is defined
 
-- name: Debug current item and tenant
-  debug:
-    msg:
-      - "Current portal: {{ item.name }}"
-      - "Current tenant: {{ tenant }}"
-  loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
-  loop_control:
-    loop_var: item
-  vars:
-    tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
-  when: tenant is defined
+# - name: Debug current item and tenant
+#   debug:
+#     msg:
+#       - "Current portal: {{ item.name }}"
+#       - "Current tenant: {{ tenant }}"
+#   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
+#   loop_control:
+#     loop_var: item
+#   vars:
+#     tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
+#   when: tenant is defined
 
-- name: Create Persistent Volume Claim for each portal
-  community.kubernetes.k8s:
-    definition: >-
-      {{
-        lookup('template', 'nestjs-pvc.yml',
-               template_vars=dict(portalname=item.name, namespace=tenant.namespace))
-        | from_yaml
-      }}
-    state: present
-  loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
-  loop_control:
-    loop_var: item
-  vars:
-    tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
-  when: tenant is defined
+# - name: Create Persistent Volume Claim for each portal
+#   community.kubernetes.k8s:
+#     definition: >-
+#       {{
+#         lookup('template', 'nestjs-pvc.yml',
+#                template_vars=dict(portalname=item.name, namespace=tenant.namespace))
+#         | from_yaml
+#       }}
+#     state: present
+#   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
+#   loop_control:
+#     loop_var: item
+#   vars:
+#     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
+#   when: tenant is defined
 
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
