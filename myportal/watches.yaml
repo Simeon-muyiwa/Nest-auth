@@ -3,10 +3,5 @@
 - version: v1
   group: portal.mycourse1.com
   kind: MyPortal
-  role:
-    - pre-nestjs
-    - install-nodejs
-    - postgresql
-    - redis
-    - nestjs-deploy
+  role: portals
 #+kubebuilder:scaffold:watch
