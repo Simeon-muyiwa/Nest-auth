@@ -26,4 +26,4 @@ USER ansible
 RUN if [ ! -f "${HOME}/playbooks/nestjs.yml" ]; then echo "Playbook not found"; exit 1; fi
 
 # Set the command to run the playbook
-CMD ["ansible-playbook", "-vvv", "/home/ansible/playbooks/nestjs.yml"]
+CMD ["ansible-playbook", "-vvv", "/playbooks/nestjs.yml"]
