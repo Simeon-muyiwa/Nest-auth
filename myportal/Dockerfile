@@ -14,16 +14,16 @@ RUN ansible-galaxy collection install -r ${HOME}/requirements.yml \
 # Copy other necessary files
 COPY watches.yaml ${HOME}/watches.yaml
 COPY roles/ ${HOME}/roles/
-COPY playbooks/ ${HOME}/playbooks/
+COPY playbooks/ ${HOME}/playbooks/nestjs.yml
 
-# Create ansible.cfg in a writable location
-RUN echo "[defaults]\nroles_path = ${HOME}/roles\nlibrary = /usr/share/ansible/openshift\nlocal_tmp = /tmp/.ansible\nremote_tmp = /tmp/.ansible" > /etc/ansible/ansible.cfg
+# # Create ansible.cfg in a writable location
+# RUN echo "[defaults]\nroles_path = ${HOME}/roles\nlibrary = /usr/share/ansible/openshift\nlocal_tmp = /tmp/.ansible\nremote_tmp = /tmp/.ansible" > /etc/ansible/ansible.cfg
 
-# Optionally, switch back to the original user if required
+# # Optionally, switch back to the original user if required
 USER ansible
 
-# Ensure the playbook exists before attempting to run it
-RUN if [ ! -f "${HOME}/playbooks/nestjs.yml" ]; then echo "Playbook not found"; exit 1; fi
+# # Ensure the playbook exists before attempting to run it
+# RUN if [ ! -f "${HOME}/playbooks/nestjs.yml" ]; then echo "Playbook not found"; exit 1; fi
 
-# Set the command to run the playbook
-CMD ["ansible-playbook", "-vvv", "/playbooks/nestjs.yml"]
+# # Set the command to run the playbook
+# CMD ["ansible-playbook", "-vvv", "/playbooks/nestjs.yml"]
