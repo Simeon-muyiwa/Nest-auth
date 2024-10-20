@@ -6,4 +6,7 @@ RUN ansible-galaxy collection install -r ${HOME}/requirements.yml \
 
 COPY watches.yaml ${HOME}/watches.yaml
 COPY roles/ ${HOME}/roles/
-COPY playbooks/ ${HOME}/playbooks/nestjs.yml
+COPY playbooks/ ${HOME}/playbooks/
+
+# Set the command to run the playbook
+CMD ["ansible-playbook", "/home/ansible/playbooks/nestjs.yml"]
