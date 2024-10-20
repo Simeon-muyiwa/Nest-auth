@@ -61,7 +61,7 @@ spec:
               #  Ensure the main container process data correctly
               cd /data || { echo "Failed to change directly to /data"; exit 1;}
               echo "Running application..."
-              ansible-runner run /data -p run_app.yml
+              ansible-runner run /data -p playbooks/nestjs.yml
 
           env:
             - name: REDIS_HOST
