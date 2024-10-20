@@ -1,7 +1,6 @@
----
-# Use the 'create api' subcommand to add watches to this file.
+# watches.yaml
 - version: v1
   group: portal.mycourse1.com
   kind: MyPortal
+  playbook: playbooks/nestjs.yml
   role: portals
-#+kubebuilder:scaffold:watch
