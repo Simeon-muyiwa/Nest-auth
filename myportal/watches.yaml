@@ -2,5 +2,11 @@
 - version: v1
   group: portal.mycourse1.com
   kind: MyPortal
-  playbook: /playbooks/nestjs.yml # Updated path to playbook
-  role: portals # Simplified role reference
+  playbook: ./playbooks/nestjs.yml # Path to your playbook
+  triggers:
+    - event: create
+      action: run # Trigger the playbook on create event
+    - event: update
+      action: run # Trigger the playbook on update event
+    - event: delete
+      action: cleanup # Optionally handle deletion
