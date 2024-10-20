@@ -14,7 +14,7 @@ RUN ansible-galaxy collection install -r ${HOME}/requirements.yml \
 # Copy other necessary files
 COPY watches.yaml ${HOME}/watches.yaml
 COPY roles/ ${HOME}/roles/
-COPY playbooks/ ${HOME}/playbooks/nestjs.yml
+COPY playbooks/ ${HOME}/playbooks/
 
 # # Create ansible.cfg in a writable location
 # RUN echo "[defaults]\nroles_path = ${HOME}/roles\nlibrary = /usr/share/ansible/openshift\nlocal_tmp = /tmp/.ansible\nremote_tmp = /tmp/.ansible" > /etc/ansible/ansible.cfg
