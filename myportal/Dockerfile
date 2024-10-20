@@ -22,5 +22,8 @@ RUN echo "[defaults]\nroles_path = ${HOME}/roles\nlibrary = /usr/share/ansible/o
 # Optionally, switch back to the original user if required
 USER ansible
 
+# Ensure the playbook exists before attempting to run it
+RUN if [ ! -f "${HOME}/playbooks/nestjs.yml" ]; then echo "Playbook not found"; exit 1; fi
+
 # Set the command to run the playbook
-CMD ["ansible-playbook", "-vvv", "${HOME}/playbooks/nestjs.yml"]
+CMD ["ansible-playbook", "-vvv", "/home/ansible/playbooks/nestjs.yml"]

@@ -2,5 +2,5 @@
 - version: v1
   group: portal.mycourse1.com
   kind: MyPortal
-  playbook: /home/ansible/playbooks/nestjs.yml # Updated path
-  role: /home/ansible/roles/portals
+  playbook: /home/ansible/playbooks/nestjs.yml # Updated path to playbook
+  role: portals # Simplified role reference
