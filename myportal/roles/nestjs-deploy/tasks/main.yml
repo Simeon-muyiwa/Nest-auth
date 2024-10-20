@@ -1,99 +1,41 @@
-# - name: Create Persistent Volume for each portal
-#   community.kubernetes.k8s:
-#     definition: >-
-#       {{
-#         lookup('template', 'nestjs-pv.yml',
-#                template_vars=dict(portalname=item.name, namespace=tenant.namespace))
-#         | from_yaml
-#       }}
-#     state: present
-#   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
-#   loop_control:
-#     loop_var: item
-#   vars:
-#     tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
-#   when: tenant is defined
+- name: Create Persistent Volume for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-pv.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
 
-# - name: Debug current item and tenant
-#   debug:
-#     msg:
-#       - "Current portal: {{ item.name }}"
-#       - "Current tenant: {{ tenant }}"
-#   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
-#   loop_control:
-#     loop_var: item
-#   vars:
-#     tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
-#   when: tenant is defined
-
-# - name: Create Persistent Volume Claim for each portal
-#   community.kubernetes.k8s:
-#     definition: >-
-#       {{
-#         lookup('template', 'nestjs-pvc.yml',
-#                template_vars=dict(portalname=item.name, namespace=tenant.namespace))
-#         | from_yaml
-#       }}
-#     state: present
-#   loop: "{{ mytenants | map(attribute='portals') | list | flatten }}"
-#   loop_control:
-#     loop_var: item
-#   vars:
-#     tenant: "{{ mytenants | selectattr('portals', 'contains', item) | first }}"
-#   when: tenant is defined
+- name: Create Persistent Volume Claim for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-pvc.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
 
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(portalname=item.name, namespace=tenant.namespace, jwt_token_secret=jwt_token_secret, jwt_access_token_ttl=jwt_access_token_ttl, jwt_refresh_token_ttl=jwt_refresh_token_ttl)) | from_yaml }}"
+    definition: "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, jwt_token_secret=item.jwt_token_secret | default('your_default_value'), jwt_access_token_ttl=item.jwt_access_token_ttl | default(3600), jwt_refresh_token_ttl=item.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
     state: present
-  loop: "{{ mytenants | map(attribute='myportals') | list | flatten }}"
-  loop_control:
-    loop_var: item
-  vars:
-    tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
-    jwt_token_secret: "{{ item.jwt_token_secret | default('your_default_value') }}"
-    jwt_access_token_ttl: "{{ item.jwt_access_token_ttl | default(3600) }}"
-    jwt_refresh_token_ttl: "{{ item.jwt_refresh_token_ttl | default(86400) }}"
-  when: jwt_token_secret != ""
+  loop: "{{ myportals }}"
+  when: item.jwt_token_secret is defined and item.jwt_token_secret != ""
 
-- name: Debug mytenants structure
-  debug:
-    msg: "{{ mytenants }}"
-
-- name: Debug portal data
-  debug:
-    msg: "Processing portal: {{ item.name }} in tenant: {{ tenant.mytenantname }}, Replica Count: {{ item.replicacount | default(1) }}"
-  loop: "{{ mytenants | map(attribute='myportals') | list | flatten }}"
-  loop_control:
-    loop_var: item
-  vars:
-    tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
-
-- name: Render the nestjs-deploy.yml template
-  debug:
-    msg: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=tenant.namespace, replicacount=item.replicacount | default(1))) }}"
-  loop: "{{ mytenants | map(attribute='myportals') | list | flatten }}"
-  loop_control:
-    loop_var: item
-  vars:
-    tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
+- name: Create nestjs deployments/replicasets and pods
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'myportaldeploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount | default(1))) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
 
 - name: Create nestjs services for each portal
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(portalname=item.name, replicacount=item.replicacount, namespace=tenant.namespace)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(portalname=item.name, replicacount=item.replicacount | default(1), namespace=ansible_operator_meta.namespace)) | from_yaml }}"
     state: present
-  loop: "{{ mytenants | map(attribute='myportals') | list | flatten }}"
-  loop_control:
-    loop_var: item
-  vars:
-    tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
+  loop: "{{ myportals }}"
 
 - name: Create nestjs ingress for each portal
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(namespace=tenant.namespace)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(namespace=ansible_operator_meta.namespace)) | from_yaml }}"
     state: present
-  loop: "{{ mytenants | map(attribute='myportals') | list | flatten }}"
-  loop_control:
-    loop_var: item
-  vars:
-    tenant: "{{ mytenants | selectattr('myportals', 'contains', item) | first }}"
+  loop: "{{ myportals }}"
+
+- name: Debug current portal
+  debug:
+    msg: "Processing portal: {{ item.name }} in namespace: {{ ansible_operator_meta.namespace }}"
+  loop: "{{ myportals }}"
