@@ -23,3 +23,39 @@
     definition: "{{ lookup('template', 'nestjs-pv.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
+
+- name: Create Persistent Volume Claim for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-pvc.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+
+- name: Create nestjs Secret for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, jwt_token_secret=item.jwt_token_secret | default('your_default_value'), jwt_access_token_ttl=item.jwt_access_token_ttl | default(3600), jwt_refresh_token_ttl=item.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+  when: item.jwt_token_secret is defined and item.jwt_token_secret != ""
+
+- name: Create nestjs deployments/replicasets and pods
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'myportaldeploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount | default(1))) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+
+- name: Create nestjs services for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(portalname=item.name, replicacount=item.replicacount | default(1), namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+
+- name: Create nestjs ingress for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+
+- name: Debug current portal
+  debug:
+    msg: "Processing portal: {{ item.name }} in namespace: {{ ansible_operator_meta.namespace }}"
+  loop: "{{ myportals }}"
