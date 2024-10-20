@@ -1,17 +1,15 @@
-- name: Get MyPortal custom resource
-  community.kubernetes.k8s_info:
-    kind: MyPortal
-    namespace: portal1
-  register: myportal_info
-
-- name: Check if any MyPortal resources were found
-  fail:
-    msg: "No MyPortal resources found."
-  when: myportal_info.resources | length == 0
+- name: Set ansible_operator_meta namespace
+  set_fact:
+    ansible_operator_meta:
+      namespace: "portal1"
 
 - name: Set myportals variable
   set_fact:
-    myportals: "{{ myportal_info.resources[0].spec.myportals }}"
+    myportals:
+      - name: "nestjs-auth"
+        jwt_token_secret: "secret1"
+        jwt_access_token_ttl: "3600"
+        jwt_refresh_token_ttl: "7200"
 
 - name: Debug myportals variable
   debug:
