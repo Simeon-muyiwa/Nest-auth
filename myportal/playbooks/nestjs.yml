@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: localhost
   name: Deploy NestJS application
   roles:
     - pre-nestjs
