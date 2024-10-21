@@ -4,7 +4,7 @@ metadata:
   name: "{{ portalname }}"
   namespace: "{{ namespace }}"
 spec:
-  replicas: { { replicacount } }
+  replicas: { { replicacount | default(1 } }
   selector:
     matchLabels:
       app: "{{ portalname }}"
@@ -69,11 +69,11 @@ spec:
             - name: REDIS_PORT
               value: "6379"
             - name: JWT_TOKEN_SECRET
-              value: "{{ jwt_token_secret }}"
+              value: "{{ jwt_token_secret | default('your_default_value') }}"
             - name: JWT_ACCESS_TOKEN_TTL
-              value: "{{ jwt_access_token_ttl }}"
+              value: "{{ jwt_access_token_ttl | default('3600') }}"
             - name: JWT_REFRESH_TOKEN_TTL
-              value: "{{ jwt_refresh_token_ttl }}"
+              value: "{{ jwt_refresh_token_ttl | default('86400') }}"
             - name: JWT_TOKEN_AUDIENCE
               value: "{{ portalname }}.default.svc.cluster.local"
             - name: JWT_TOKEN_ISSUER
