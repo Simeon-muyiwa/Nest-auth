@@ -32,11 +32,11 @@
   loop: "{{ myportals }}"
   when: item.jwt_token_secret is defined and item.jwt_token_secret != ""
 
-- name: Create nestjs deployments/replicasets and pods
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount | default(1))) | from_yaml }}"
-    state: present
-  loop: "{{ myportals }}"
+# - name: Create nestjs deployments/replicasets and pods
+#   community.kubernetes.k8s:
+#     definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount | default(1))) | from_yaml }}"
+#     state: present
+#   loop: "{{ myportals }}"
 
 - name: Create nestjs services for each portal
   community.kubernetes.k8s:
