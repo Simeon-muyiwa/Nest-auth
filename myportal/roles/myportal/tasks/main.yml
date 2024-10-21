@@ -1,2 +1,2 @@
 - name: Execute the NestJS deployment playbook
-  ansible.builtin.include_tasks: ../../nestjs.yml
+  ansible.builtin.include_tasks: ../../playbooks/nestjs.yml
