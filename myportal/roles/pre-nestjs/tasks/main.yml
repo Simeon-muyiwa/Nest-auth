@@ -1,7 +1,7 @@
 - name: Clone or update the NestJS repository
   git:
-    repo: '{{ repo_path }}'
-    dest: '{{ service_path }}'
+    repo: "{{ repo_path }}"
+    dest: "{{ service_path }}"
     version: main
     update: yes
     force: yes
@@ -34,7 +34,7 @@
 - name: Archive NestJS application excluding MyK8sAnsible
   archive:
     path: /opt/nestjs
-    exclude_path: /opt/nestjs/myportal
+    exclude: /opt/nestjs/myportal
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
   when: repo_clone.changed
@@ -44,13 +44,6 @@
     src: /opt/nestjs
     dest: /myk8sansible
     remote_src: yes
-  
-
-# - name: Remove service_path
-#   file:
-#     path: '{{ service_path }}'
-#     state: absent
-#   when: repo_clone.changed
 
 - name: Encode archive content in base64
   set_fact:
