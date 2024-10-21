@@ -1,5 +1,8 @@
 {
     "yaml.schemas": {
-        "https://json.schemastore.org/yamllint.json": "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myPortal/roles/nestjs-deploy/templates/nestjs-deploy.yml"
+        "https://json.schemastore.org/yamllint.json": [
+            "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myPortal/roles/nestjs-deploy/templates/nestjs-deploy.yml"
+        ],
+        "https://github.com/DannyBen/completely/blob/master/schemas/completely.json": "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myPortal/roles/postgresql/tasks/main.yml"
     }
 }
