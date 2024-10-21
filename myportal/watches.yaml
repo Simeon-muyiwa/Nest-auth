@@ -3,5 +3,5 @@
 - version: v1
   group: portal.mycourse1.com
   kind: MyPortal
-  role: nestjs-deploy
+  role: myportal
 #+kubebuilder:scaffold:watch
