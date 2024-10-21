@@ -51,17 +51,27 @@ spec:
 
       containers:
         - name: nestjs-auth
-          image: node:14 # Non-Alpine version
+          image: node:14-alpine # Ensure this matches your intended Node version
           command:
-            - /bin/bash
+            - /bin/sh # Change this from /bin/bash to /bin/sh
           args:
             - -c
             - |
               set -e
+              # Change to your app directory
               cd /data || { echo "Failed to change directory to /data"; exit 1; }
-              npm install
-              npm run build
-              npm start
+
+              # Install dependencies
+              echo "Installing dependencies..."
+              npm install  # or yarn install
+
+              # Build the application
+              echo "Building application..."
+              npm run build  # or yarn build
+
+              # Run the application
+              echo "Running application..."
+              npm start  # or your application's start command
           env:
             - name: REDIS_HOST
               value: "redis"
