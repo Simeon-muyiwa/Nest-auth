@@ -34,7 +34,8 @@
 - name: Archive NestJS application excluding MyK8sAnsible
   archive:
     path: /opt/nestjs
-    exclude: /opt/nestjs/myportal
+    exclusion_patterns:
+      - myportal
     dest: /tmp/nestjs-app-archive.tar.gz
     format: gz
   when: repo_clone.changed
