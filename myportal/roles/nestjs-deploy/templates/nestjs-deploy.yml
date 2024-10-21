@@ -50,28 +50,18 @@ spec:
               mountPath: /data
 
       containers:
-        - name: "{{ portalname }}"
-          image: node:18-alpine
+        - name: nestjs-auth
+          image: node:14 # Non-Alpine version
           command:
-            - /bin/sh
+            - /bin/bash
           args:
             - -c
             - |
               set -e
-              # Navigate to the application directory
               cd /data || { echo "Failed to change directory to /data"; exit 1; }
-
-              # Install dependencies
-              echo "Installing dependencies..."
-              npm install  # or yarn install
-
-              # Build the application
-              echo "Building application..."
-              npm run build  # or yarn build
-
-              # Run the application
-              echo "Running application..."
-              npm start  # or your application's start command
+              npm install
+              npm run build
+              npm start
           env:
             - name: REDIS_HOST
               value: "redis"
