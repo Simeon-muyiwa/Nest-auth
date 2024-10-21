@@ -53,16 +53,25 @@ spec:
         - name: "{{ portalname }}"
           image: node:18-alpine
           command:
-            - /bin/bash
+            - /bin/sh
           args:
             - -c
             - |
               set -e
-              # Ensure the main container processes data correctly
-              cd /data || { echo "Failed to change directory to /data"; exit 1;}
-              echo "Running application..."
-               ansible-runner run /data -p playbooks/nestjs.yml
+              # Navigate to the application directory
+              cd /data || { echo "Failed to change directory to /data"; exit 1; }
 
+              # Install dependencies
+              echo "Installing dependencies..."
+              npm install  # or yarn install
+
+              # Build the application
+              echo "Building application..."
+              npm run build  # or yarn build
+
+              # Run the application
+              echo "Running application..."
+              npm start  # or your application's start command
           env:
             - name: REDIS_HOST
               value: "redis"
