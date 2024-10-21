@@ -51,7 +51,7 @@ spec:
 
       containers:
         - name: "{{ portalname }}"
-          image: ubuntu:latest
+          image: node:18-alpine
           command:
             - /bin/bash
           args:
@@ -61,7 +61,7 @@ spec:
               # Ensure the main container processes data correctly
               cd /data || { echo "Failed to change directory to /data"; exit 1;}
               echo "Running application..."
-              # ansible-runner run /data -p playbooks/nestjs.yml
+               ansible-runner run /data -p playbooks/nestjs.yml
 
           env:
             - name: REDIS_HOST
