@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: { { portalname } }
-  namespace: { { namespace } }
+  name: "{{ portalname }}"
+  namespace: "{{ namespace }}"
 spec:
   replicas: { { replicacount } }
   selector:
     matchLabels:
-      app: { { portalname } }
+      app: "{{ portalname }}"
   template:
     metadata:
       labels:
-        app: { { portalname } }
+        app: "{{ portalname }}"
     spec:
       initContainers:
         - name: init-secrets
@@ -50,7 +50,7 @@ spec:
               mountPath: /data
 
       containers:
-        - name: { { portalname } }
+        - name: "{{ portalname }}"
           image: ansible/ansible-runner:latest
           command:
             - /bin/bash
@@ -111,12 +111,12 @@ spec:
       volumes:
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc" # Reference the PVC instead of ConfigMap
+            claimName: "{{ portalname }}-pvc"
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
         - name: postgresql-secret
           secret:
             secretName: postgresql-secret
-        - name: data-volume # Define the data volume
+        - name: data-volume
           emptyDir: {}
