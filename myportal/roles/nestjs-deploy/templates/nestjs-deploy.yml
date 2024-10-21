@@ -51,7 +51,7 @@ spec:
 
       containers:
         - name: "{{ portalname }}"
-          image: ansible/ansible-runner:latest
+          image: ubuntu:latest
           command:
             - /bin/bash
           args:
