@@ -26,7 +26,7 @@
 
 - name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
   synchronize:
-    src: /opt/nestjs/myportal/
+    src: /opt/nestjs
     dest: /myk8sansible/myportal/
     delete: yes
   when: repo_clone.changed
@@ -39,11 +39,11 @@
     format: gz
   when: repo_clone.changed
 
-- name: Copy NestJS application to myk8sansible
-  ansible.builtin.copy:
-    src: /opt/nestjs
-    dest: /myk8sansible
-    remote_src: yes
+# - name: Copy NestJS application to myk8sansible
+#   ansible.builtin.copy:
+#     src: /opt/nestjs
+#     dest: /myk8sansible/myportal
+#     remote_src: yes
 
 - name: Encode archive content in base64
   set_fact:
