@@ -40,15 +40,8 @@
 
 - name: Create nestjs deployments/replicasets and pods
   community.kubernetes.k8s:
-    definition: >
-      {{ lookup('template', 'nestjs-deploy.yml', template_vars=(
-        'portalname': item.name,
-        'namespace': ansible_operator_meta.namespace,
-        'replicacount': item.replicacount | default(1),
-        'jwt_token_secret': item.jwt_token_secret | default('secret1'),
-        'jwt_access_token_ttl': item.jwt_access_token_ttl | default(3600),
-        'jwt_refresh_token_ttl': item.jwt_refresh_token_ttl | default(86400)
-      )) | from_yaml }}
+    definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount | default(1), jwt_token_secret=item.jwt_token_secret | default('secret1'), jwt_access_token_ttl=item.jwt_access_token_ttl | default(3600), jwt_refresh_token_ttl=item.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
+    state: present
   loop: "{{ myportals }}"
   when: item.jwt_token_secret is defined and item.jwt_token_secret != ""
 
