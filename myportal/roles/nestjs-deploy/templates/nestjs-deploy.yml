@@ -20,7 +20,7 @@ spec:
             - sh
             - -c
             - |
-              set -e  # Exit on error
+              set -e
               # Check and copy JWT secrets
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
@@ -35,17 +35,17 @@ spec:
               tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
 
               # Extract the tarball and change ownership
-              tar -xvf /root/nestjs/init/nestjs-app-archive.tar.gz -C /data && chown -R 1000:1000 /data || { echo "Extraction or ownership change failed"; exit 1;}
+              tar -xvf /root/nestjs/init/nestjs-app-archive.tar.gz -C /data && chown -R 1000:1000 /data || { echo "Extraction or ownership change failed"; exit 1; }
 
-              # Log success
+              # Log success message
               echo "JWT secrets copied and tarball created successfully."
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
-            - name: init-volume # Changed from app-volume to init-volume
-              mountPath: /root/nestjs/init # Use a separate directory for initialization
+            - name: init-volume
+              mountPath: /root/nestjs/init
             - name: data-volume
               mountPath: /data
 
@@ -58,8 +58,8 @@ spec:
             - -c
             - |
               set -e
-              #  Ensure the main container process data correctly
-              cd /data || { echo "Failed to change directly to /data"; exit 1;}
+              # Ensure the main container processes data correctly
+              cd /data || { echo "Failed to change directory to /data"; exit 1;}
               echo "Running application..."
               ansible-runner run /data -p playbooks/nestjs.yml
 
@@ -84,20 +84,20 @@ spec:
               prefix: JWT_
             - secretRef:
                 name: postgresql-secret
-              prefix: POSTGRES_ # Reference the ConfigMap for PostgreSQL configurations
+              prefix: POSTGRES_
             - configMapRef:
                 name: postgresql-configmap
 
           volumeMounts:
-            - name: init-volume # Changed from app-volume to init-volume
-              mountPath: /root/nestjs/init # Main application directory
+            - name: init-volume
+              mountPath: /root/nestjs/init
             - name: jwt-secrets
               mountPath: /root/nestjs/.env.jwt
               subPath: jwt-secrets.env
             - name: postgresql-secret
               mountPath: /root/nestjs/.env.postgres
               subPath: postgresql-secret.env
-            - name: data-volume # Mounting /data
+            - name: data-volume
               mountPath: /data
               readOnly: false
           resources:
