@@ -26,39 +26,42 @@
 
 - name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
   synchronize:
-    src: /opt/nestjs
-    dest: /myk8sansible/myportal/
+    src: "{{ service_path }}"
+    dest: "/myk8sansible/myportal/"
     delete: yes
   when: repo_clone.changed
 
 - name: Archive NestJS application excluding MyK8sAnsible
   archive:
-    path: /opt/nestjs
-    exclusion_patterns:
-      - myportal
-    dest: /tmp/nestjs-app-archive.tar.gz
+    path: "{{ service_path }}"
+    dest: "/tmp/nestjs-app-archive.tar.gz"
     format: gz
+    exclude:
+      - "myportal" # Correctly using exclude option
   when: repo_clone.changed
-
-# - name: Copy NestJS application to myk8sansible
-#   ansible.builtin.copy:
-#     src: /opt/nestjs
-#     dest: /myk8sansible/myportal
-#     remote_src: yes
 
 - name: Encode archive content in base64
   set_fact:
     base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
   when: repo_clone.changed
-# - name: Create ConfigMap manifest from template
-#   ansible.builtin.template:
-#     src: /myk8sansible/myportal/roles/nestjs-deploy/templates/nestjs-configmap.yml
-#     dest: /tmp/configmap.yml
-#   vars:
-#     base64_content: '{{ base64_content }}'
-#     portalname: '{{ portalname }}'
-#     namespace: '{{ namespace }}'
 
-# - name: Display decoded ConfigMap content
-#   ansible.builtin.debug:
-#     msg: "{{ base64_content }}"
+- name: Debug Base64 encoded content
+  debug:
+    msg: "Base64 content length: {{ base64_content | length }}"
+  when: repo_clone.changed
+
+# - name: Wait for Kubernetes job to complete
+#   k8s_info:
+#     kind: Job
+#     name: read-archive-job
+#     namespace: your-namespace  # Replace with your actual namespace
+#   register: job_info
+#   until: job_info.resources | length > 0 and job_info.resources[0].status.succeeded == 1
+#   retries: 10
+#   delay: 5
+
+- name: Remove the archive file to keep /tmp clean
+  file:
+    path: "/tmp/nestjs-app-archive.tar.gz"
+    state: absent
+  when: repo_clone.changed
