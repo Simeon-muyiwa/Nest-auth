@@ -4,7 +4,7 @@ metadata:
   name: "{{ portalname }}"
   namespace: "{{ namespace }}"
 spec:
-  replicas: { { replicacount } }
+  replicas: 1
   selector:
     matchLabels:
       app: "{{ portalname }}"
