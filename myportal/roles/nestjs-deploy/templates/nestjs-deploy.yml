@@ -2,8 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "{ { portalname } }"
-  namespace: "{ { namespace } }"
-spec:
+  namespace: portal1
   replicas: 1
   selector:
     matchLabels:
