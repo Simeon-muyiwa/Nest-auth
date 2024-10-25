@@ -38,8 +38,7 @@
   synchronize:
     src: "{{ service_path }}/" # Ensure to include the trailing slash for proper synchronization
     dest: "/nestjs/" # Change this to your PV mount path
-    exclude:
-      - "myportal"
+
     delete: yes
   when: repo_clone.changed
 # - name: Wait for Kubernetes job to complete
