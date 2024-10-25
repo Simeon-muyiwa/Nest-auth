@@ -15,16 +15,16 @@
   delegate_to: localhost
   become: true
 
-- name: Check if destination directory exists
-  stat:
-    path: "{{ service_path }}"
-  register: dir_exists
-  changed_when: false
+# - name: Check if destination directory exists
+#   stat:
+#     path: "{{ service_path }}"
+#   register: dir_exists
+#   changed_when: false
 
-- name: Fail if destination directory does not exist
-  fail:
-    msg: "Destination directory {{ service_path }} does not exist"
-  when: not dir_exists.stat.exists
+# - name: Fail if destination directory does not exist
+#   fail:
+#     msg: "Destination directory {{ service_path }} does not exist"
+#   when: not dir_exists.stat.exists
 
 - name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
   synchronize:
