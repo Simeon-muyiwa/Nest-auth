@@ -15,6 +15,12 @@
   delegate_to: localhost
   become: true
 
+- name: Check if destination directory exists
+  stat:
+    path: "{{ service_path }}"
+  register: dir_exists
+  changed_when: false
+
 - name: Fail if destination directory does not exist
   fail:
     msg: "Destination directory {{ service_path }} does not exist"
