@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{ { portalname } }"
+  name: myportal
   namespace: portal1
   replicas: 1
   selector:
