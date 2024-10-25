@@ -1,8 +1,8 @@
-- name: Create destination directory
-  file:
-    path: "{{ service_path }}"
-    state: directory
-  become: true
+# - name: Create destination directory
+#   file:
+#     path: "{{ service_path }}"
+#     state: directory
+#   become: true
 
 - name: Clone or update the NestJS repository
   git:
