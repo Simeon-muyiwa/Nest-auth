@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: '{{ portalname }}'
+  namespace: '{{ namespace }}'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: '{{ portalname }}'
+  template:
+    metadata:
+      labels:
+        app: '{{ portalname }}'
+  spec:
+    initContainers:
+      - name: init-secrets
+        image: busybox
+        command:
+          - sh
+          - -c
+          - |
+            set -e
+            mkdir -p /data
+
+            for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+              if [ -f /etc/jwt-secrets/$key ]; then
+                cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
+              else
+                echo "Error: /etc/jwt-secrets/$key not found."
+                exit 1
+              fi
+            done
+
+            tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs .
+
+            tar -xvf /root/nestjs/init/nestjs-app-archive.tar.gz -C /data && \
+            chown -R 1000:1000 /data || { echo "Extraction or ownership change failed"; exit 1; }
+
+            echo "JWT secrets copied and tarball created successfully."
+        volumeMounts:
+          - name: jwt-secrets
+            mountPath: /etc/jwt-secrets
+          - name: postgresql-secret
+            mountPath: /etc/postgresql-secret
+          - name: init-volume
+            mountPath: /root/nestjs/init
+          - name: data-volume
+            mountPath: /data
+
+  containers:
+    - name: 'nestjs-auth'
+      image: node:20-alpine # Ensure this matches your intended Node version
+      command:
+        - /bin/sh
+      args:
+        - -c
+        - |
+          set -e
+          cd /data || { echo "Failed to change directory to /data"; exit 1; }
+
+          if [ ! -f package.json ]; then
+            echo "Error: package.json not found in /data. Exiting."
+            exit 1
+          fi
+
+          echo "Installing dependencies..."
+          npm install
+
+          echo "Building application..."
+          npm run build
+
+          echo "Running application..."
+          npm start
+      env:
+        - name: REDIS_HOST
+          value: 'redis'
+        - name: REDIS_PORT
+          value: '6379'
+        - name: JWT_TOKEN_SECRET
+          value: "{{ jwt_token_secret | default('your_default_value') }}"
+        - name: JWT_ACCESS_TOKEN_TTL
+          value: "{{ jwt_access_token_ttl | default('3600') }}"
+        - name: JWT_REFRESH_TOKEN_TTL
+          value: "{{ jwt_refresh_token_ttl | default('86400') }}"
+        - name: JWT_TOKEN_AUDIENCE
+          value: '{{ portalname }}.default.svc.cluster.local'
+        - name: JWT_TOKEN_ISSUER
+          value: '{{ portalname }}.default.svc.cluster.local'
+      envFrom:
+        - secretRef:
+            name: jwt-secrets
+          prefix: JWT_
+        - secretRef:
+            name: postgresql-secret
+          prefix: POSTGRES_
+        - configMapRef:
+            name: postgresql-configmap
+      volumeMounts:
+        - name: init-volume
+          mountPath: /root/nestjs/init
+        - name: jwt-secrets
+          mountPath: /root/nestjs/.env.jwt
+          subPath: jwt-secrets.env
+        - name: postgresql-secret
+          mountPath: /root/nestjs/.env.postgres
+          subPath: postgresql-secret.env
+        - name: data-volume
+          mountPath: /data
+          readOnly: false
+      resources:
+        requests:
+          memory: '128Mi'
+          cpu: '250m'
+        limits:
+          memory: '256Mi'
+          cpu: '500m'
+      volumes:
+        - name: init-volume
+          persistentVolumeClaim:
+            claimName: '{{ portalname }}-pvc'
+        - name: jwt-secrets
+          secret:
+            secretName: jwt-secrets
+        - name: postgresql-secret
+          secret:
+            secretName: postgresql-secret
+        - name: data-volume
+          emptyDir: {}

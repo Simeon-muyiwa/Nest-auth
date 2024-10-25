@@ -1,3 +1,9 @@
+- name: Create destination directory
+  file:
+    path: "{{ service_path }}"
+    state: directory
+  become: true
+
 - name: Clone or update the NestJS repository
   git:
     repo: "{{ repo_path }}"
@@ -9,16 +15,6 @@
   delegate_to: localhost
   become: true
 
-- name: Debug Git module
-  debug:
-    var: repo_clone
-
-- name: Check if destination directory exists
-  stat:
-    path: "{{ service_path }}"
-  register: dir_exists
-  changed_when: false
-
 - name: Fail if destination directory does not exist
   fail:
     msg: "Destination directory {{ service_path }} does not exist"
@@ -26,30 +22,20 @@
 
 - name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
   synchronize:
-    src: "{{ service_path }}"
-    dest: "/myk8sansible/myportal/"
+    src: "{{ service_path }}/"
+    dest: "/myk8sansible/myportal"
+    # ensure only myportal folder is synchronize
     delete: yes
   when: repo_clone.changed
 
-- name: Archive NestJS application excluding MyK8sAnsible
-  archive:
-    path: "{{ service_path }}"
-    dest: "/tmp/nestjs-app-archive.tar.gz"
-    format: gz
+- name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
+  synchronize:
+    src: "{{ service_path }}/" # Ensure to include the trailing slash for proper synchronization
+    dest: "/nestjs/" # Change this to your PV mount path
     exclude:
-      - "myportal" # Correctly using exclude option
+      - "myportal"
+    delete: yes
   when: repo_clone.changed
-
-- name: Encode archive content in base64
-  set_fact:
-    base64_content: "{{ lookup('pipe', 'base64 /tmp/nestjs-app-archive.tar.gz') }}"
-  when: repo_clone.changed
-
-- name: Debug Base64 encoded content
-  debug:
-    msg: "Base64 content length: {{ base64_content | length }}"
-  when: repo_clone.changed
-
 # - name: Wait for Kubernetes job to complete
 #   k8s_info:
 #     kind: Job
@@ -60,8 +46,3 @@
 #   retries: 10
 #   delay: 5
 
-- name: Remove the archive file to keep /tmp clean
-  file:
-    path: "/tmp/nestjs-app-archive.tar.gz"
-    state: absent
-  when: repo_clone.changed

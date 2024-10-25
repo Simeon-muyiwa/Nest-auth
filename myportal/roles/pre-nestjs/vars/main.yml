@@ -1,5 +1,5 @@
 ---
-service_path: "/opt/nestjs/"
+service_path: "/nestjs/services"
 ansible_user: "root"
 repo_path: "https://github.com/Simeon-muyiwa/Nest-auth"
 portalname: "my-portal"
