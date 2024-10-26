@@ -1,3 +1,2 @@
 ---
-  service_path: '/opt/nestjs'
-  
+service_path: "/nestjs/services"
