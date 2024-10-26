@@ -16,8 +16,8 @@ spec:
         app: nestjs-auth
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
+        runAsUser: 0
+        runAsGroup: 0
       volumes:
         - name: jwt-secrets
           secret:
@@ -57,7 +57,9 @@ spec:
             - |
               set -e
 
-              chown -R 1000:1000 /etc/jwt-secrets /etc/postgresql-secret /nestjs /init /data
+              chown -R 1000:1000 /etc/jwt-secrets /etc/postgresql-secret /nestjs /init /data || { echo "Chown failed"; exit 1; }
+
+              # chown -R 1000:1000 /etc/jwt-secrets /etc/postgresql-secret /nestjs /init /data
 
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
