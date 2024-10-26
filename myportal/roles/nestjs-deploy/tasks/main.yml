@@ -1,5 +1,7 @@
-- name: Set myportals variable
+- name: Set namespaces and portals
   set_fact:
+    ansible_operator_meta:
+      namespace: "portal1"
     myportals:
       - name: "nestjs-auth"
         replicas: 1
