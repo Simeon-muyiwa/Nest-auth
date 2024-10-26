@@ -1,8 +1,3 @@
-- name: Set ansible_operator_meta namespace
-  set_fact:
-    ansible_operator_meta:
-      namespace: "portal1"
-
 - name: Set myportals variable
   set_fact:
     myportals:
