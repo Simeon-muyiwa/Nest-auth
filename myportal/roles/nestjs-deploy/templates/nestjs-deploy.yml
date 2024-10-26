@@ -39,14 +39,17 @@ spec:
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
+              readOnly: false
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
+              readOnly: false
             - name: nestjs-volume
               mountPath: /nestjs
             - name: init-volume
               mountPath: /init
             - name: data-volume
               mountPath: /data
+
           command:
             - /bin/sh
           args:
