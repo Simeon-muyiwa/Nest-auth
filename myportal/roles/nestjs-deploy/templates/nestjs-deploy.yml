@@ -35,7 +35,7 @@ spec:
           emptyDir: {}
       initContainers:
         - name: init-permissions
-          image: node:20-alpine
+          image: busybox
           volumeMounts:
             - name: nestjs-volume
               mountPath: /nestjs
