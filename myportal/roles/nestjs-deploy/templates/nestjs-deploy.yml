@@ -39,24 +39,25 @@ spec:
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
+              readOnly: true
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
+              readOnly: true
             - name: nestjs-volume
               mountPath: /nestjs
             - name: init-volume
               mountPath: /init
             - name: data-volume
               mountPath: /data
-          command:
-            - /bin/sh
+          command: ["/bin/sh"]
           args:
             - -c
             - |
               set -e
-              chown -R 1000:1000 /etc/jwt-secrets /etc/postgresql-secret /nestjs /init /data
+              # Copy files from secrets to the shared data volume
               for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
                 if [ -f /etc/jwt-secrets/$key ]; then
-                  cp /etc/jwt-secrets/$key /nestjs/.env.jwt
+                  cp /etc/jwt-secrets/$key /data/$key
                 else
                   echo "Error: /etc/jwt-secrets/$key not found."
                   exit 1
@@ -83,9 +84,7 @@ spec:
               mountPath: /init
             - name: data-volume
               mountPath: /data
-
-          command:
-            - /bin/sh
+          command: ["/bin/sh"]
           args:
             - -c
             - |
@@ -100,11 +99,17 @@ spec:
             - name: REDIS_PORT
               value: "6379"
             - name: JWT_TOKEN_SECRET
-              value: "{{ jwt_token_secret | default('your_default_value') }}"
+              valueFrom:
+                fieldRef:
+                  fieldPath: /data/JWT_TOKEN_SECRET
             - name: JWT_ACCESS_TOKEN_TTL
-              value: "{{ jwt_access_token_ttl | default('3600') }}"
+              valueFrom:
+                fieldRef:
+                  fieldPath: /data/JWT_ACCESS_TOKEN_TTL
             - name: JWT_REFRESH_TOKEN_TTL
-              value: "{{ jwt_refresh_token_ttl | default('86400') }}"
+              valueFrom:
+                fieldRef:
+                  fieldPath: /data/JWT_REFRESH_TOKEN_TTL
             - name: JWT_TOKEN_AUDIENCE
               value: "{{ portalname }}.default.svc.cluster.local"
             - name: JWT_TOKEN_ISSUER
