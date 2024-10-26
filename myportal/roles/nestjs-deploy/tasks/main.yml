@@ -1,3 +1,4 @@
+---
 - name: Set namespaces and portals
   set_fact:
     ansible_operator_meta:
