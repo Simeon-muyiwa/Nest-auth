@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: myportal
+  name: nestjs-auth
   namespace: portal1
   labels:
     app: nestjs-auth
