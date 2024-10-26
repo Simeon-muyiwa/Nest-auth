@@ -3,7 +3,7 @@
     ansible_operator_meta:
       namespace: "portal1"
     myportals:
-      - name: "nestjs-auth"
+      - name: nestjs-auth
         replicas: 1
         jwt_token_secret: "secret1"
         jwt_access_token_ttl: 3600
