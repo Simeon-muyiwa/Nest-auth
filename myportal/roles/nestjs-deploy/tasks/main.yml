@@ -6,8 +6,8 @@
       - name: "nestjs-auth"
         replicas: 1
         jwt_token_secret: "secret1"
-        jwt_access_token_ttl: "3600"
-        jwt_refresh_token_ttl: "7200"
+        jwt_access_token_ttl: 3600
+        jwt_refresh_token_ttl: 7200
 
 - name: Debug myportals variable
   debug:
