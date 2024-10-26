@@ -33,16 +33,50 @@ spec:
             claimName: "{{ portalname }}-pvc"
         - name: data-volume
           emptyDir: {}
+      initContainers:
+        - name: init-permissions
+          image: node:20-alpine
+          volumeMounts:
+            - name: jwt-secrets
+              mountPath: /etc/jwt-secrets
+            - name: postgresql-secret
+              mountPath: /etc/postgresql-secret
+            - name: nestjs-volume
+              mountPath: /nestjs
+            - name: init-volume
+              mountPath: /init
+            - name: data-volume
+              mountPath: /data
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -e
+              chown -R 1000:1000 /etc/jwt-secrets /etc/postgresql-secret /nestjs /init /data
+              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+                if [ -f /etc/jwt-secrets/$key ]; then
+                  cp /etc/jwt-secrets/$key /nestjs/.env.jwt
+                else
+                  echo "Error: /etc/jwt-secrets/$key not found."
+                  exit 1
+                fi
+              done
+              if [ ! -d /nestjs ]; then
+                echo "Error: NestJS application files not found in /nestjs. Exiting."
+                exit 1
+              fi
+
       containers:
         - name: nestjs-auth
           image: node:20-alpine
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
-              readOnly: false
+              readOnly: true
             - name: postgresql-secret
               mountPath: /etc/postgresql-secret
-              readOnly: false
+              readOnly: true
             - name: nestjs-volume
               mountPath: /nestjs
             - name: init-volume
@@ -56,27 +90,7 @@ spec:
             - -c
             - |
               set -e
-
-              chown -R 1000:1000 /etc/jwt-secrets /etc/postgresql-secret /nestjs /init /data || { echo "Chown failed"; exit 1; }
-
-              # chown -R 1000:1000 /etc/jwt-secrets /etc/postgresql-secret /nestjs /init /data
-
-              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
-                if [ -f /etc/jwt-secrets/$key ]; then
-                  cp /etc/jwt-secrets/$key /nestjs/.env.jwt
-                else
-                  echo "Error: /etc/jwt-secrets/$key not found."
-                  exit 1
-                fi
-              done
-
-              if [ ! -d /nestjs ]; then
-                echo "Error: NestJS application files not found in /nestjs . Exiting."
-                exit 1
-              fi
-
               cd /nestjs || { echo "Failed to change directory"; exit 1; }
-
               npm install
               npm run build
               npm start

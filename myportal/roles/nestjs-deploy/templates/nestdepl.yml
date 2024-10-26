@@ -35,6 +35,8 @@ spec:
             tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs .
 
             tar -xvf /root/nestjs/init/nestjs-app-archive.tar.gz -C /data && \
+
+            chown -R 1000:1000 /etc/jwt-secrets /etc/postgresql-secret /nestjs /init /data || { echo "Chown failed"; exit 1; }
             chown -R 1000:1000 /data || { echo "Extraction or ownership change failed"; exit 1; }
 
             echo "JWT secrets copied and tarball created successfully."
