@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: {{ namespace }}      # Ensure no spaces around the variable
-  name: {{ portalname }}           # Ensure no spaces around the variable
+  namespace: portal1 # Ensure no spaces around the variable
+  name: { { portalname } } # Ensure no spaces around the variable
   labels:
-    app: {{ portalname }}          # Ensure no spaces around the variable
+    app: { { portalname } } # Ensure no spaces around the variable
 spec:
   selector:
-    app: {{ portalname }}          # Ensure no spaces around the variable
+    app: { { portalname } } # Ensure no spaces around the variable
   ports:
     - protocol: TCP
       port: 80

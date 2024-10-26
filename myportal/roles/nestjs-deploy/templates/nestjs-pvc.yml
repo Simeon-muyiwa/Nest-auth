@@ -2,8 +2,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "{{ portalname }}-pvc"  # Use portalname variable for dynamic naming
-  namespace: "{{ namespace }}"     # Ensure it matches your deployment namespace
+  name: '{{ portalname }}-pvc' # Use portalname variable for dynamic naming
+  namespace: portal1 # Ensure it matches your deployment namespace
 spec:
   accessModes:
     - ReadWriteMany
