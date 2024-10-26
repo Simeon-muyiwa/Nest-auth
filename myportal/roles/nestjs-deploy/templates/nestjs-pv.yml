@@ -8,4 +8,4 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath: # For local development; adjust for cloud providers
-    path: /nestjs
+    path: /mnt/nestjs

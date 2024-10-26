@@ -62,7 +62,7 @@ spec:
             - name: init-volume
               mountPath: /init
             - name: data-volume
-              mountPath: /nestjs
+              mountPath: /data
           command:
             - /bin/sh
           args:
