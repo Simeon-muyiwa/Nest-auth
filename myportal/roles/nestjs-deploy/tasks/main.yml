@@ -9,6 +9,11 @@
         jwt_access_token_ttl: 3600
         jwt_refresh_token_ttl: 7200
 
+- name: Process each portal
+  debug:
+    msg: "Processing {{ item.name }} with replicas {{ item.replicas }}"
+  loop: "{{ myportals }}"
+
 - name: Debug myportals variable
   debug:
     var: myportals
