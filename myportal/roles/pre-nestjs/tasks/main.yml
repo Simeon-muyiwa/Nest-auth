@@ -1,9 +1,11 @@
-# - name: Create destination directory
-#   file:
-#     path: "{{ service_path }}"
-#     state: directory
-#   become: true
+# Create destination directory (if it doesn't exist)
+- name: Create destination directory
+  file:
+    path: "{{ service_path }}"
+    state: directory
+  become: true
 
+# Clone or update the NestJS repository
 - name: Clone or update the NestJS repository
   git:
     repo: "{{ repo_path }}"
@@ -15,30 +17,26 @@
   delegate_to: localhost
   become: true
 
-# - name: Check if destination directory exists
-#   stat:
-#     path: "{{ service_path }}"
-#   register: dir_exists
-#   changed_when: false
+# Adjust permissions for /nestjs directory
+- name: Ensure /nestjs has correct permissions
+  file:
+    path: "/nestjs"
+    mode: "u=rwx,g=rx,o=rx" # Set permissions as needed
+  become: true
 
-# - name: Fail if destination directory does not exist
-#   fail:
-#     msg: "Destination directory {{ service_path }} does not exist"
-#   when: not dir_exists.stat.exists
-
+# Synchronize MyK8sAnsible folder to myk8sansible/myportal
 - name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
   synchronize:
     src: "{{ service_path }}/"
     dest: "/myk8sansible/myportal"
-    # ensure only myportal folder is synchronize
     delete: yes
   when: repo_clone.changed
 
-- name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
+# Synchronize MyK8sAnsible folder to /nestjs
+- name: Synchronize MyK8sAnsible folder to /nestjs
   synchronize:
     src: "{{ service_path }}/" # Ensure to include the trailing slash for proper synchronization
-    dest: "/nestjs/" # Change this to your PV mount path
-
+    dest: "/nestjs/"
     delete: yes
   when: repo_clone.changed
 # - name: Wait for Kubernetes job to complete
