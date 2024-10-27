@@ -6,7 +6,7 @@ metadata:
   labels:
     app: nestjs-auth
 spec:
-  replicas: 1
+  replicas: { { replicacount } }
   selector:
     matchLabels:
       app: nestjs-auth
