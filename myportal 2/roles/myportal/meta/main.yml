@@ -1,6 +1,0 @@
-dependencies:
-  - role: pre-nestjs
-  - role: install-nodejs
-  - role: postgresql
-  - role: redis
-  - role: nestjs-deploy

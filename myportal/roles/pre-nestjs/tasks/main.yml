@@ -47,13 +47,3 @@
     path: "{{ service_path }}/myportal"
     state: absent
   become: true
-# - name: Wait for Kubernetes job to complete
-#   k8s_info:
-#     kind: Job
-#     name: read-archive-job
-#     namespace: your-namespace  # Replace with your actual namespace
-#   register: job_info
-#   until: job_info.resources | length > 0 and job_info.resources[0].status.succeeded == 1
-#   retries: 10
-#   delay: 5
-
