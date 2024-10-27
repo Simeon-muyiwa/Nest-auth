@@ -51,6 +51,7 @@ spec:
       containers:
         - name: { { portalname } }
           image: node:20-alpine
+          imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets

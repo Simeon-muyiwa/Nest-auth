@@ -17,32 +17,23 @@
   delegate_to: localhost
   become: true
 
-# Adjust permissions for /nestjs directory
-- name: Ensure /nestjs has correct permissions
-  file:
-    path: "/nestjs"
-    mode: "u=rwx,g=rx,o=rx" # Set permissions as needed
-  become: true
-
 # Synchronize MyK8sAnsible folder to /myk8sansible/myportal
 - name: Synchronize MyK8sAnsible folder to /myk8sansible/myportal
-  synchronize:
-    src: "{{ service_path }}/"
-    dest: "/myk8sansible/myportal/"
+  rsync:
+    src: "{{ service_path }}/myportal"
+    dest: "/myk8sansible/myportal"
     delete: yes
+    rsync_opts:
+      - "--ignore-perms"
+      - "--chmod=ugo-rwx"
   when: repo_clone.changed
 
 # Synchronize MyK8sAnsible folder to /mnt/nestjs
 - name: Synchronize MyK8sAnsible folder to /mnt/nestjs
-  synchronize:
-    src: "{{ service_path }}/" # Ensure to include the trailing slash for proper synchronization
-    dest: "/mnt/nestjs/"
+  rsync:
+    src: "{{ service_path }}"
+    dest: "/mnt/nestjs"
+    rsync_opts:
+      - "--exclude=myportal"
     delete: yes
   when: repo_clone.changed
-
-  # Remove myportal directory from /nestjs
-- name: Remove myportal directory from /nestjs
-  file:
-    path: "{{ service_path }}/myportal"
-    state: absent
-  become: true

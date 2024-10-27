@@ -16,9 +16,5 @@ COPY watches.yaml ${HOME}/watches.yaml
 COPY roles/ ${HOME}/roles/
 COPY playbooks/ ${HOME}/playbooks/nestjs.yml
 
-# # Create ansible.cfg in a writable location
-# RUN echo "[defaults]\nroles_path = ${HOME}/roles\nlibrary = /usr/share/ansible/openshift\nlocal_tmp = /tmp/.ansible\nremote_tmp = /tmp/.ansible" > /etc/ansible/ansible.cfg
 
-# # Optionally, switch back to the original user if required
-USER ansible
 

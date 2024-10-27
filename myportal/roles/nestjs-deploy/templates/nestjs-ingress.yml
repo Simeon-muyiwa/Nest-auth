@@ -1,13 +1,13 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: first-tenant
-  namespace: portal1
+  name: { { mytenants } }
+  namespace: { { namespace } }
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-    - host: first-tenant
+    - host: { { mytenantname } }
       http:
         paths:
           - path: /nestjs-auth/

@@ -89,3 +89,27 @@ rules:
       - get
       - list
       - watch
+
+  - apiGroups:
+      - "" # Replace with the actual API group for your PostgreSQL CRD
+    resources:
+      - postgresqls # Replace with the actual resource name for your PostgreSQL CRD
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - update
+      - watch
+
+  - apiGroups:
+      - "" # Replace with the actual API group for your Node.js application CRD
+    resources:
+      - redises # Replace with the actual resource name for your Node.js CRD
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - update
+      - watch
