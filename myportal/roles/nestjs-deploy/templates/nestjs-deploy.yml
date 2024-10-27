@@ -29,7 +29,7 @@ spec:
             claimName: nestjs-pvc
         - name: init-volume
           persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"
+            claimName: portal1-pvc
         - name: data-volume
           emptyDir: {}
       initContainers:
