@@ -1,9 +1,18 @@
 mytenants:
   - namespace: "portal1"
-    portals:
+    myportals:
       - name: "nestjs-auth"
         jwt_token_secret: "secret1"
         jwt_access_token_ttl: "3600"
         jwt_refresh_token_ttl: "7200"
-     
-  
+        env:
+          - name: DB_HOST
+            value: "postgres"
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_USERNAME
+            value: "postgres"
+          - name: DB_PASSWORD
+            value: "pass123"
+          - name: DB_DATABASE
+            value: "postgres"
