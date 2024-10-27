@@ -2,9 +2,9 @@
 - hosts: localhost
   name: Deploy NestJS application
   roles:
-    - postgresql
-    - redis
     - pre-nestjs
     - install-nodejs
     - nestjs-deploy
     - nestjs-service-setup
+    - postgresql
+    - redis
