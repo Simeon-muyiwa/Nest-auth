@@ -1,0 +1,12 @@
+---
+- name: Create Redis Deployment
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'redis-deploy.yml') | from_yaml }}"
+    state: present
+
+- name: Create Redis Service
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'redis-service.yml') | from_yaml }}"
+    state: present
+
+

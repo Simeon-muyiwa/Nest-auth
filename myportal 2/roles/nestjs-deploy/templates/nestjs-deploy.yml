@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: { { portalname } }
-  namespace: { { namespace } }
+  name: nestjs-auth
+  namespace: portal1
   labels:
-    app: { { portalname } }
+    app: nestjs-auth
 spec:
   replicas: { { replicacount } }
   selector:
     matchLabels:
-      app: { { portalname } }
+      app: nestjs-auth
   template:
     metadata:
       labels:
-        app: { { portalname } }
+        app: nestjs-auth
     spec:
       securityContext:
         runAsUser: 0
@@ -49,7 +49,7 @@ spec:
 
               echo "Init container completed successfully"
       containers:
-        - name: { { portalname } }
+        - name: nestjs-auth
           image: node:20-alpine
           volumeMounts:
             - name: jwt-secrets

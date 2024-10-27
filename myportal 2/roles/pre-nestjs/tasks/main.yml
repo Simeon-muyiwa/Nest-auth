@@ -28,7 +28,7 @@
 - name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
   synchronize:
     src: "{{ service_path }}/"
-    dest: "/myk8sansible/myportal/"
+    dest: "/myk8sansible/myportal"
     delete: yes
   when: repo_clone.changed
 
