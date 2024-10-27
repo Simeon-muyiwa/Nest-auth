@@ -29,6 +29,7 @@
   synchronize:
     src: "{{ service_path }}/"
     dest: "/myk8sansible/myportal/"
+    exclude: myportal 2
     delete: yes
   when: repo_clone.changed
 
