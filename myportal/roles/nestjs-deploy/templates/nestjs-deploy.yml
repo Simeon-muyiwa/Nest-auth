@@ -69,9 +69,7 @@ spec:
             - |
               set -e
               cd /nestjs || { echo "Failed to change directory"; exit 1; }
-              npm install
-              npm run build
-              npm start
+
           env:
             - name: REDIS_HOST
               value: "redis"
