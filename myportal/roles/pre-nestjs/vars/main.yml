@@ -2,5 +2,4 @@
 service_path: "/nestjs"
 ansible_user: "root"
 repo_path: "https://github.com/Simeon-muyiwa/Nest-auth"
-portalname: "my-portal"
 namespace: "{{ ansible_operator_meta.namespace | default('default') }}" # Use dynamic value or default to 'default'

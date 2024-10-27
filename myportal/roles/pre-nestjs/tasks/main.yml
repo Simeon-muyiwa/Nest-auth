@@ -24,22 +24,29 @@
     mode: "u=rwx,g=rx,o=rx" # Set permissions as needed
   become: true
 
-# Synchronize MyK8sAnsible folder to myk8sansible/myportal
-- name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
+# Synchronize MyK8sAnsible folder to /myk8sansible/myportal
+- name: Synchronize MyK8sAnsible folder to /myk8sansible/myportal
   synchronize:
     src: "{{ service_path }}/"
     dest: "/myk8sansible/myportal/"
-    exclude: myportal 2
+    # exclude: myportal  # Exclude if needed; adjust as necessary
     delete: yes
   when: repo_clone.changed
 
-# Synchronize MyK8sAnsible folder to /nestjs
-- name: Synchronize MyK8sAnsible folder to /nestjs
+# Synchronize MyK8sAnsible folder to /mnt/nestjs
+- name: Synchronize MyK8sAnsible folder to /mnt/nestjs
   synchronize:
     src: "{{ service_path }}/" # Ensure to include the trailing slash for proper synchronization
     dest: "/mnt/nestjs/"
     delete: yes
   when: repo_clone.changed
+
+  # Remove myportal directory from /nestjs
+- name: Remove myportal directory from /nestjs
+  file:
+    path: "{{ service_path }}/myportal"
+    state: absent
+  become: true
 # - name: Wait for Kubernetes job to complete
 #   k8s_info:
 #     kind: Job
