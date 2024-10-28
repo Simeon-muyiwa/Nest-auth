@@ -1,11 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{{ portalname }}-deploy"
+  name: "{{ portalname }}-deployment"
   namespace: "{{ namespace }}"
-  labels:
-    app: "{{ portalname }}-deploy"
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: "{{ portalname }}-deploy"
@@ -26,11 +25,8 @@ spec:
         - name: nestjs-volume
           persistentVolumeClaim:
             claimName: "{{ portalname }}-pvc"
-        - name: init-volume
-          persistentVolumeClaim:
-            claimName: "{{ portalname }}-pvc"
         - name: data-volume
-          emptyDir: {}
+          emptyDir: {} # Only if you need ephemeral storage
       initContainers:
         - name: init-permissions
           image: busybox
@@ -60,8 +56,6 @@ spec:
               mountPath: /etc/postgresql-secret
             - name: nestjs-volume
               mountPath: /nestjs
-            - name: init-volume
-              mountPath: /init
             - name: data-volume
               mountPath: /data
           command:
