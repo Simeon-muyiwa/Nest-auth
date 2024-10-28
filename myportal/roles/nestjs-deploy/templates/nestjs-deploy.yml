@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: { { portalname } }
-  namespace: { { namespace } }
+  name: "{{ portalname }}-deploy"
+  namespace: "{{ namespace }}"
   labels:
-    app: { { portalname } }
+    app: "{{ portalname }}-deploy"
 spec:
   replicas: { { replicacount } }
   selector:
     matchLabels:
-      app: { { portalname } }
+      app: "{{ portalname }}-deploy"
   template:
     metadata:
       labels:
-        app: { { portalname } }
+        app: "{{ portalname }}-deploy"
     spec:
       securityContext:
         runAsUser: 0
@@ -49,7 +49,7 @@ spec:
 
               echo "Init container completed successfully"
       containers:
-        - name: { { portalname } }
+        - name: "{{ portalname }}-c"
           image: node:20-alpine
           imagePullPolicy: IfNotPresent
           securityContext:
