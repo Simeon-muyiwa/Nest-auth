@@ -37,9 +37,15 @@
 
 - name: Create nestjs Secret for each portal
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(namespace=ansible_operator_meta.namespace, jwt_token_secret=item.config.jwt_token_secret | default('your_default_value'), jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600), jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
+    definition: "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(namespace=ansible_operator_meta.namespace)) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
+
+# - name: Create nestjs Secret for each portal
+#   community.kubernetes.k8s:
+#     definition: "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(namespace=ansible_operator_meta.namespace, jwt_token_secret=item.config.jwt_token_secret | default('your_default_value'), jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600), jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
+#     state: present
+#   loop: "{{ myportals }}"
 
 - name: Debug each portal item
   debug:
