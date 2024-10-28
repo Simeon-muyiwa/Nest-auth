@@ -53,7 +53,7 @@ spec:
           image: node:20-alpine
           imagePullPolicy: IfNotPresent
           securityContext:
-            runAsUser: 1001
+            runAsUser: 1003
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets

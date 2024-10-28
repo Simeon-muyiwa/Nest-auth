@@ -7,7 +7,7 @@ ENV HOME /home/ansible
 USER root
 
 # Create a non-root user with a specific UID
-RUN useradd -u 1001 -m ansible-user
+RUN bash -c "useradd -u 1003 -m ansible-user"
 
 # Copy requirements.yml and install collections
 COPY requirements.yml ${HOME}/requirements.yml
