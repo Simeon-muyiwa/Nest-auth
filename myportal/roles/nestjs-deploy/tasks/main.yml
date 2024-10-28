@@ -27,9 +27,9 @@
 
 - name: Create Persistent Volume for each portal
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-pv.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-pv.yml', template_vars=dict(
+      portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount | default(1))) | from_yaml }}"
   loop: "{{ myportals }}"
-
 - name: Create Persistent Volume Claim for each portal
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-pvc.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
