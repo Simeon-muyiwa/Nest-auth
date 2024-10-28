@@ -25,7 +25,7 @@ spec:
             secretName: postgresql-secret
         - name: nestjs-volume
           persistentVolumeClaim:
-            claimName: nestjs-pvc
+            claimName: "{{ portalname }}-pvc"
         - name: init-volume
           persistentVolumeClaim:
             claimName: "{{ portalname }}-pvc"
