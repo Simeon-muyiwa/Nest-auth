@@ -6,7 +6,6 @@ metadata:
   labels:
     app: "{{ portalname }}-deploy"
 spec:
-  replicas: { { replicacount } }
   selector:
     matchLabels:
       app: "{{ portalname }}-deploy"
