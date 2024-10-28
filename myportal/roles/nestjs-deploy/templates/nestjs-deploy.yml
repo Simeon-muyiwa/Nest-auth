@@ -59,7 +59,7 @@ spec:
             - name: data-volume
               mountPath: /data
           command:
-            - /bin/bash
+            - /bin/sh
           args:
             - -c
             - |
