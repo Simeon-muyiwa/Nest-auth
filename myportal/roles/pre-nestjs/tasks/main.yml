@@ -37,12 +37,3 @@
     src: "{{ service_path }}/" # Ensure to include the trailing slash for proper synchronization
     dest: "/mnt/nestjs/"
     delete: yes
-
-  # Remove myportal directory from /mnt/nestjs
-- name: Remove myportal directory from /mnt/nestjs
-  file:
-    path: "/mnt/nestjs/myportal"
-    state: absent
-  become: true
-  when: repo_clone.changed # Optional: only remove if repo_clone has changed
-
