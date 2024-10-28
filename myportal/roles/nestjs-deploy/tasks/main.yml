@@ -12,7 +12,7 @@
 
 - name: Process each portal
   debug:
-    msg: "Processing {{ item.name }} with replicas {{ item.replicas }}"
+    msg: "Processing {{ item.name }} with replicas {{ item.replicacount }}"
   loop: "{{ myportals }}"
 
 - name: Debug myportals variable
