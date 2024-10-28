@@ -6,8 +6,8 @@ ENV HOME /home/ansible
 # Switch to the root user to perform operations that require elevated permissions
 USER root
 
-# Create a non-root user and set home directory
-RUN useradd -m ansible-user
+# Create a non-root user with a specific UID
+RUN useradd -u 1001 -m ansible-user
 
 # Copy requirements.yml and install collections
 COPY requirements.yml ${HOME}/requirements.yml
