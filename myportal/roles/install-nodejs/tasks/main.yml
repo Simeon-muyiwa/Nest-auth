@@ -23,7 +23,7 @@
     state: present
     update_cache: yes
   vars:
-    node_version: "20"  # Updated Node.js version
+    node_version: "20" # Updated Node.js version
 
 - name: Install build dependencies
   apt:
@@ -52,4 +52,9 @@
 # Only install npm if the version installed with Node.js is not sufficient
 - name: Upgrade npm if necessary
   command: npm install -g npm@latest
+  when: npm_installed.rc == 0
+
+# Install NestJS CLI globally
+- name: Install NestJS CLI
+  command: npm install -g @nestjs/cli
   when: npm_installed.rc == 0
