@@ -1,5 +1,5 @@
 dependencies:
-  - role: postgresql
+  # - role: postgresql
   - role: redis
   - role: pre-nestjs
   - role: install-nodejs
