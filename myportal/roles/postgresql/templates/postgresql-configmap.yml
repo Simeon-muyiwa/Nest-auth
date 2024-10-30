@@ -2,9 +2,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgresql-configmap
-  namespace: '{{ namespace }}'
+  namespace: "{{ namespace }}"
 data:
-  DB_NAME: '{{ db_name }}' # Ensure this variable is defined
-  DB_HOST: '{{ db_host }}' # Ensure this variable is defined
-  DB_PORT: '{{ db_port }}' # Ensure this variable is defined
+  DB_NAME: "{{ db_name }}" # Ensure this variable is defined
+  DB_HOST: "{{ db_host }}" # Ensure this variable is defined
+  DB_PORT: "{{ db_port }}" # Ensure this variable is defined
 
