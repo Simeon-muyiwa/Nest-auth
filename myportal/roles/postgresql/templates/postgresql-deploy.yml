@@ -23,27 +23,27 @@ spec:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
           env:
-            - name: db_database
+            - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
                   key: db_database
-            - name: db_host
+            - name: POSTGRES_HOST
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
                   key: db_host
-            - name: db_port
+            - name: POSTGRES_PORT
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
                   key: db_port
-            - name: db_password
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgresql-secret
                   key: db_password
-            - name: db_username
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: postgresql-secret

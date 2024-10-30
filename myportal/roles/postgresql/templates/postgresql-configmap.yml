@@ -4,7 +4,7 @@ metadata:
   name: postgresql-configmap
   namespace: "{{ namespace }}"
 data:
-  db_database: "{{ db_database }}" # Ensure this variable is defined
-  db_host: "{{ db_host }}" # Ensure this variable is defined
-  db_port: "{{ db_port }}" # Ensure this variable is defined
+  POSTGRES_DB: "{{ db_database }}" # Ensure this variable is defined
+  POSTGRES_HOST: "{{ db_host }}" # Ensure this variable is defined
+  POSTGRES_PORT: "{{ db_port }}" # Ensure this variable is defined
 
