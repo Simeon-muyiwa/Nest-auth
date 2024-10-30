@@ -9,13 +9,6 @@
     definition: "{{ lookup('template', 'postgresql-secret.yml') | from_yaml }}"
     state: present
 
-- name: Debug PostgreSQL Deployment Variables
-  debug:
-    msg:
-      - "Postgres User: {{ postgres_user }}"
-      - "Postgres Password: {{ postgres_password }}"
-      - "Postgres DB: {{ postgres_db }}"
-
 - name: Create PostgreSQL Deployment
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'postgresql-deploy.yml') | from_yaml }}"

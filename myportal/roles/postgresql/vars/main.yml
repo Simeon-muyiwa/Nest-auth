@@ -1,5 +1,5 @@
-postgres_user: "postgres"
-postgres_password: "pass123"
-postgres_db: "postgres"
-postgres_host: "postgres"
-postgres_port: 5432
+db_host: "postgres"
+db_port: "5432"
+db_username: "postgres"
+db_password: "pass123"
+db_database: "postgres"
