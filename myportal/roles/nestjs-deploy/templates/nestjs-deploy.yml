@@ -25,8 +25,6 @@ spec:
         - name: nestjs-volume
           persistentVolumeClaim:
             claimName: "{{ portalname }}-pvc"
-        - name: data-volume
-          emptyDir: {} # Only if you need ephemeral storage
       initContainers:
         - name: init-permissions
           image: busybox
@@ -41,7 +39,6 @@ spec:
               set -e
               chown -R 1000:1000 /nestjs || { echo "Failed to change ownership"; exit 1; }
               chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
-
               echo "Init container completed successfully"
       containers:
         - name: "{{ portalname }}-c"
@@ -56,8 +53,6 @@ spec:
               mountPath: /etc/postgresql-secret
             - name: nestjs-volume
               mountPath: /nestjs
-            - name: data-volume
-              mountPath: /data
           command:
             - /bin/sh
           args:
@@ -65,7 +60,6 @@ spec:
             - |
               set -e
               cd /nestjs || { echo "Failed to change directory"; exit 1; }
-
           env:
             - name: REDIS_HOST
               value: "redis"
@@ -81,13 +75,35 @@ spec:
               value: "{{ portalname }}.default.svc.cluster.local"
             - name: JWT_TOKEN_ISSUER
               value: "{{ portalname }}.default.svc.cluster.local"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: user # Ensure this key exists in the secret
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: password # Ensure this key exists in the secret
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: postgresql-configmap
+                  key: DB_NAME # Ensure this key exists in the configMap
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: postgresql-configmap
+                  key: DB_HOST # Ensure this key exists in the configMap
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgresql-configmap
+                  key: DB_PORT # Ensure this key exists in the configMap
           envFrom:
             - secretRef:
                 name: jwt-secrets
               prefix: JWT_
-            - secretRef:
-                name: postgresql-secret
-              prefix: POSTGRES_
             - configMapRef:
                 name: postgresql-configmap
           resources:

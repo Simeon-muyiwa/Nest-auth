@@ -5,7 +5,7 @@
       namespace: "portal1"
     myportals:
       - name: nestjs-auth
-        replicacount: 1 # This will be used in other tasks
+        replicacount: 1
         config:
           jwt_token_secret: "secret1"
           jwt_access_token_ttl: 3600
