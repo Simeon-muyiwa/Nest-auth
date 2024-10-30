@@ -75,21 +75,21 @@ spec:
               value: "{{ portalname }}.default.svc.cluster.local"
             - name: JWT_TOKEN_ISSUER
               value: "{{ portalname }}.default.svc.cluster.local"
-            - name: DB_USER
+            - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: postgresql-secret
-                  key: user # Ensure this key exists in the secret
+                  key: db_username # Ensure this key exists in the secret
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgresql-secret
-                  key: password # Ensure this key exists in the secret
-            - name: DB_NAME
+                  key: db_password # Ensure this key exists in the secret
+            - name: DB_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
-                  key: DB_NAME # Ensure this key exists in the configMap
+                  key: DB_DATABASE # Ensure this key exists in the configMap
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
