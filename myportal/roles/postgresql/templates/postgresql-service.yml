@@ -5,8 +5,8 @@ metadata:
   namespace: portal1
 spec:
   selector:
-    app: postgres
+    app: postgres # Ensure this matches the labels in your PostgreSQL pod
   ports:
     - protocol: TCP
-      port: 5432
-      targetPort: 5432
+      port: 5432 # Port exposed by the Service
+      targetPort: 5432 # Port on the PostgreSQL Pod
