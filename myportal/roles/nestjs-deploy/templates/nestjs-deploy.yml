@@ -89,7 +89,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
-                  key: DB_DATABASE # Ensure this key exists in the configMap
+                  key: db_database # Ensure this key exists in the configMap
             - name: db_host
               valueFrom:
                 configMapKeyRef:
