@@ -1,17 +1,133 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: '{{ portalname }}-deployment'
+#   namespace: '{{ namespace }}'
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: '{{ portalname }}-deploy'
+#   template:
+#     metadata:
+#       labels:
+#         app: '{{ portalname }}-deploy'
+#     spec:
+#       securityContext:
+#         runAsUser: 0
+#       volumes:
+#         - name: jwt-secrets
+#           secret:
+#             secretName: jwt-secrets
+#         - name: postgresql-secret
+#           secret:
+#             secretName: postgresql-secret
+#         - name: nestjs-volume
+#           persistentVolumeClaim:
+#             claimName: '{{ portalname }}-pvc'
+#       initContainers:
+#         - name: init-permissions
+#           image: busybox
+#           volumeMounts:
+#             - name: nestjs-volume
+#               mountPath: /nestjs
+#           command:
+#             - /bin/sh
+#           args:
+#             - -c
+#             - |
+#               set -e
+#               chown -R 1000:1000 /nestjs || { echo "Failed to change ownership"; exit 1; }
+#               chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
+#               echo "Init container completed successfully"
+#       containers:
+#         - name: '{{ portalname }}-c'
+#           image: node:20-alpine
+#           imagePullPolicy: IfNotPresent
+#           securityContext:
+#             runAsUser: 1003
+#           volumeMounts:
+#             - name: jwt-secrets
+#               mountPath: /etc/jwt-secrets
+#             - name: postgresql-secret
+#               mountPath: /etc/postgresql-secret
+#             - name: nestjs-volume
+#               mountPath: /nestjs
+#           command:
+#             - /bin/sh
+#           args:
+#             - -c
+#             - |
+#               set -e
+#               cd /nestjs || { echo "Failed to change directory"; exit 1; }
+#           env:
+#             - name: REDIS_HOST
+#               value: 'redis'
+#             - name: REDIS_PORT
+#               value: '6379'
+#             - name: JWT_TOKEN_SECRET
+#               value: "{{ jwt_token_secret | default('your_default_value') }}"
+#             - name: JWT_ACCESS_TOKEN_TTL
+#               value: "{{ jwt_access_token_ttl | default('3600') }}"
+#             - name: JWT_REFRESH_TOKEN_TTL
+#               value: "{{ jwt_refresh_token_ttl | default('86400') }}"
+#             - name: JWT_TOKEN_AUDIENCE
+#               value: '{{ portalname }}.default.svc.cluster.local'
+#             - name: JWT_TOKEN_ISSUER
+#               value: '{{ portalname }}.default.svc.cluster.local'
+#             - name: db_username
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: postgresql-secret
+#                   key: db_username # Ensure this key exists in the secret
+#             - name: db_password
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: postgresql-secret
+#                   key: db_password # Ensure this key exists in the secret
+#             - name: db_database
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: postgresql-configmap
+#                   key: db_database # Ensure this key exists in the configMap
+#             - name: db_host
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: postgresql-configmap
+#                   key: db_host # Ensure this key exists in the configMap
+#             - name: db_port
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: postgresql-configmap
+#                   key: db_port # Ensure this key exists in the configMap
+#           envFrom:
+#             - secretRef:
+#                 name: jwt-secrets
+#               prefix: JWT_
+#             - configMapRef:
+#                 name: postgresql-configmap
+#           resources:
+#             requests:
+#               memory: '128Mi'
+#               cpu: '250m'
+#             limits:
+#               memory: '256Mi'
+#               cpu: '500m'
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: '{{ portalname }}-deployment'
-  namespace: '{{ namespace }}'
+  name: "{{ portalname }}-deployment"
+  namespace: "{{ namespace }}"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: '{{ portalname }}-deploy'
+      app: "{{ portalname }}-deploy"
   template:
     metadata:
       labels:
-        app: '{{ portalname }}-deploy'
+        app: "{{ portalname }}-deploy"
     spec:
       securityContext:
         runAsUser: 0
@@ -24,7 +140,7 @@ spec:
             secretName: postgresql-secret
         - name: nestjs-volume
           persistentVolumeClaim:
-            claimName: '{{ portalname }}-pvc'
+            claimName: "{{ portalname }}-pvc"
       initContainers:
         - name: init-permissions
           image: busybox
@@ -41,7 +157,7 @@ spec:
               chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
               echo "Init container completed successfully"
       containers:
-        - name: '{{ portalname }}-c'
+        - name: "{{ portalname }}-c"
           image: node:20-alpine
           imagePullPolicy: IfNotPresent
           securityContext:
@@ -62,54 +178,56 @@ spec:
               cd /nestjs || { echo "Failed to change directory"; exit 1; }
           env:
             - name: REDIS_HOST
-              value: 'redis'
+              value: "redis"
             - name: REDIS_PORT
-              value: '6379'
-            - name: JWT_TOKEN_SECRET
-              value: "{{ jwt_token_secret | default('your_default_value') }}"
-            - name: JWT_ACCESS_TOKEN_TTL
-              value: "{{ jwt_access_token_ttl | default('3600') }}"
-            - name: JWT_REFRESH_TOKEN_TTL
-              value: "{{ jwt_refresh_token_ttl | default('86400') }}"
-            - name: JWT_TOKEN_AUDIENCE
-              value: '{{ portalname }}.default.svc.cluster.local'
-            - name: JWT_TOKEN_ISSUER
-              value: '{{ portalname }}.default.svc.cluster.local'
-            - name: db_username
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-secret
-                  key: db_username # Ensure this key exists in the secret
-            - name: db_password
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-secret
-                  key: db_password # Ensure this key exists in the secret
-            - name: db_database
-              valueFrom:
-                configMapKeyRef:
-                  name: postgresql-configmap
-                  key: db_database # Ensure this key exists in the configMap
-            - name: db_host
-              valueFrom:
-                configMapKeyRef:
-                  name: postgresql-configmap
-                  key: db_host # Ensure this key exists in the configMap
-            - name: db_port
-              valueFrom:
-                configMapKeyRef:
-                  name: postgresql-configmap
-                  key: db_port # Ensure this key exists in the configMap
-          envFrom:
-            - secretRef:
-                name: jwt-secrets
-              prefix: JWT_
-            - configMapRef:
-                name: postgresql-configmap
+              value: "6379"
+            # Commented out JWT environment variables
+            # - name: JWT_TOKEN_SECRET
+            #   value: "{{ jwt_token_secret | default('your_default_value') }}"
+            # - name: JWT_ACCESS_TOKEN_TTL
+            #   value: "{{ jwt_access_token_ttl | default('3600') }}"
+            # - name: JWT_REFRESH_TOKEN_TTL
+            #   value: "{{ jwt_refresh_token_ttl | default('86400') }}"
+            # - name: JWT_TOKEN_AUDIENCE
+            #   value: '{{ portalname }}.default.svc.cluster.local'
+            # - name: JWT_TOKEN_ISSUER
+            #   value: '{{ portalname }}.default.svc.cluster.local'
+            # Commented out database environment variables
+            # - name: db_username
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: postgresql-secret
+            #       key: db_username
+            # - name: db_password
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: postgresql-secret
+            #       key: db_password
+            # - name: db_database
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: postgresql-configmap
+            #       key: db_database
+            # - name: db_host
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: postgresql-configmap
+            #       key: db_host
+            # - name: db_port
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: postgresql-configmap
+            #       key: db_port
+          # envFrom:
+          #   - secretRef:
+          #       name: jwt-secrets
+          #     prefix: JWT_
+          #   - configMapRef:
+          #       name: postgresql-configmap
           resources:
             requests:
-              memory: '128Mi'
-              cpu: '250m'
+              memory: "128Mi"
+              cpu: "250m"
             limits:
-              memory: '256Mi'
-              cpu: '500m'
+              memory: "256Mi"
+              cpu: "500m"
