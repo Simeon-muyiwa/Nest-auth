@@ -40,12 +40,12 @@ spec:
                   key: db_port
             - name: POSTGRES_PASSWORD
               valueFrom:
-                secretKeyRef:
+                configMapKeyRef:
                   name: postgresql-secret
                   key: db_password
             - name: POSTGRES_USER
               valueFrom:
-                secretKeyRef:
+                configMapKeyRef:
                   name: postgresql-secret
                   key: db_username
   volumeClaimTemplates:

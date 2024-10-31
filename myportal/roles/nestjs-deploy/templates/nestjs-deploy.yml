@@ -19,9 +19,6 @@ spec:
         - name: jwt-secrets
           secret:
             secretName: jwt-secrets
-        - name: postgresql-secret
-          secret:
-            secretName: postgresql-secret
         - name: nestjs-volume
           persistentVolumeClaim:
             claimName: "{{ portalname }}-pvc"
@@ -49,8 +46,6 @@ spec:
           volumeMounts:
             - name: jwt-secrets
               mountPath: /etc/jwt-secrets
-            - name: postgresql-secret
-              mountPath: /etc/postgresql-secret
             - name: nestjs-volume
               mountPath: /nestjs
           command:
@@ -77,14 +72,14 @@ spec:
               value: "{{ portalname }}.default.svc.cluster.local"
             - name: db_username
               valueFrom:
-                secretKeyRef:
-                  name: postgresql-secret
-                  key: db_username # Ensure this key exists in the secret
+                configMapKeyRef:
+                  name: postgresql-configmap
+                  key: db_username # Ensure this key exists in the configMap
             - name: db_password
               valueFrom:
-                secretKeyRef:
-                  name: postgresql-secret
-                  key: db_password # Ensure this key exists in the secret
+                configMapKeyRef:
+                  name: postgresql-configmap
+                  key: db_password # Ensure this key exists in the configMap
             - name: db_database
               valueFrom:
                 configMapKeyRef:
