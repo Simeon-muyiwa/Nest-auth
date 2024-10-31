@@ -70,31 +70,31 @@ spec:
               value: "{{ portalname }}.default.svc.cluster.local"
             - name: JWT_TOKEN_ISSUER
               value: "{{ portalname }}.default.svc.cluster.local"
-            - name: db_username
+            - name: DB_USERNAME
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
-                  key: db_username
-            - name: db_password
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
-                  key: db_password
-            - name: db_database
+                  key: POSTGRES_PASSWORD
+            - name: DB_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
-                  key: db_database
-            - name: db_host
+                  key: POSTGRES_DB
+            - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
-                  key: db_host
-            - name: db_port
+                  key: POSTGRES_HOST
+            - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
                   name: postgresql-configmap
-                  key: db_port
+                  key: POSTGRES_PORT
           envFrom:
             - secretRef:
                 name: jwt-secrets

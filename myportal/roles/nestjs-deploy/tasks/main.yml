@@ -1,4 +1,17 @@
----
+- name: Fetch PostgreSQL ConfigMap values
+  community.kubernetes.k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    name: postgresql-configmap
+    namespace: "{{ ansible_operator_meta.namespace }}"
+  register: postgres_config
+
+# Debug PostgreSQL ConfigMap values
+- name: Debug PostgreSQL ConfigMap values
+  debug:
+    var: postgres_config
+
+# Set namespaces, portals, and tenant name
 - name: Set namespaces, portals, and tenant name
   set_fact:
     ansible_operator_meta:
@@ -11,11 +24,11 @@
           jwt_token_secret: "secret1"
           jwt_access_token_ttl: 3600
           jwt_refresh_token_ttl: 7200
-          db_host: "postgres"
-          db_port: "5432"
-          db_username: "postgres"
-          db_password: "pass123"
-          db_database: "postgres"
+          db_host: "{{ postgres_config['items'][0]['data']['POSTGRES_HOST'] | default('postgres') }}"
+          db_port: "{{ postgres_config['items'][0]['data']['POSTGRES_PORT'] | default('5432') }}"
+          db_username: "{{ postgres_config['items'][0]['data']['POSTGRES_USER'] | default('postgres') }}"
+          db_password: "{{ postgres_config['items'][0]['data']['POSTGRES_PASSWORD'] | default('pass123') }}"
+          db_database: "{{ postgres_config['items'][0]['data']['POSTGRES_DB'] | default('postgres') }}"
 
 - name: Process each portal
   debug:
@@ -55,6 +68,7 @@
     state: present
   loop: "{{ myportals }}"
 
+# Create nestjs deployments/replicasets and pods
 - name: Create nestjs deployments/replicasets and pods
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(
@@ -65,11 +79,11 @@
       jwt_token_secret=item.config.jwt_token_secret | default('secret1'),
       jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600),
       jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400),
-      db_host=item.config.db_host | default('postgres'),
-      db_port=item.config.db_port | default('5432'),
-      db_username=item.config.db_username | default('postgres'),
-      db_password=item.config.db_password | default('pass123'),
-      db_database=item.config.db_database | default('postgres'))) | from_yaml }}"
+      db_host=item.config.db_host | default('{{ postgres_config['items'][0]['data']['POSTGRES_HOST']| default('5432')  }}'),
+      db_port=item.config.db_port | default('{{ postgres_config['items'][0]['data']['POSTGRES_PORT'] | default('postgres')}}'),
+      db_username=item.config.db_username | default('{{ postgres_config['items'][0]['data']['POSTGRES_USER'] | default('postgres')}}'),
+      db_password=item.config.db_password | default('{{ postgres_config['items'][0]['data']['POSTGRES_PASSWORD'] | default('pass123')}}'),
+      db_database=item.config.db_database | default('{{ postgres_config['items'][0]['data']['POSTGRES_DB'] }}'))) | f| default('postgres')rom_yaml }}"
     state: present
   loop: "{{ myportals }}"
 
