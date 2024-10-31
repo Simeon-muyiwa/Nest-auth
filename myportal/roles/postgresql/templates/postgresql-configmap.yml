@@ -4,8 +4,8 @@ metadata:
   name: postgresql-configmap
   namespace: "{{ namespace }}"
 data:
-  db_database: "{{ db_database }}" # Change this to match what you are referencing
-  db_host: "{{ db_host }}"
-  db_port: "{{ db_port }}"
-  db_password: "{{ db_password }}"
-  db_username: "{{ db_username }}"
+  POSTGRES_HOST: "{{ db_host }}"
+  POSTGRES_PORT: "{{ db_port }}"
+  POSTGRES_USER: "{{ db_username }}"
+  POSTGRES_PASSWORD: "{{ db_password }}"
+  POSTGRES_DB: "{{ db_database }}"
