@@ -79,11 +79,11 @@
       jwt_token_secret=item.config.jwt_token_secret | default('secret1'),
       jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600),
       jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400),
-      db_host=item.config.db_host | default('{{ postgres_config['items'][0]['data']['POSTGRES_HOST']| default('5432')  }}'),
-      db_port=item.config.db_port | default('{{ postgres_config['items'][0]['data']['POSTGRES_PORT'] | default('postgres')}}'),
-      db_username=item.config.db_username | default('{{ postgres_config['items'][0]['data']['POSTGRES_USER'] | default('postgres')}}'),
-      db_password=item.config.db_password | default('{{ postgres_config['items'][0]['data']['POSTGRES_PASSWORD'] | default('pass123')}}'),
-      db_database=item.config.db_database | default('{{ postgres_config['items'][0]['data']['POSTGRES_DB'] }}'))) | f| default('postgres')rom_yaml }}"
+      db_host=item.config.db_host | default(postgres_config['items'][0]['data']['POSTGRES_HOST'] | default('5432')),
+      db_port=item.config.db_port | default(postgres_config['items'][0]['data']['POSTGRES_PORT'] | default('postgres')),
+      db_username=item.config.db_username | default(postgres_config['items'][0]['data']['POSTGRES_USER'] | default('postgres')),
+      db_password=item.config.db_password | default(postgres_config['items'][0]['data']['POSTGRES_PASSWORD'] | default('pass123')),
+      db_database=item.config.db_database | default(postgres_config['items'][0]['data']['POSTGRES_DB']))) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
 
