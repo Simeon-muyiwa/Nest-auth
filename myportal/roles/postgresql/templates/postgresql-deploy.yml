@@ -41,13 +41,13 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 configMapKeyRef:
-                  name: postgresql-secret
-                  key: db_password
+                  name: postgresql-configmap # Changed to use ConfigMap
+                  key: db_password # Ensure this key exists in your ConfigMap
             - name: POSTGRES_USER
               valueFrom:
                 configMapKeyRef:
-                  name: postgresql-secret
-                  key: db_username
+                  name: postgresql-configmap # Changed to use ConfigMap
+                  key: db_username # Ensure this key exists in your ConfigMap
   volumeClaimTemplates:
     - metadata:
         name: postgres-storage
