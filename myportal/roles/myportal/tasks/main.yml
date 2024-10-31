@@ -6,9 +6,9 @@
   include_role:
     name: install-nodejs
 
-# - name: Include PostgreSQL role
-#   include_role:
-#     name: postgresql
+- name: Include PostgreSQL role
+  include_role:
+    name: postgresql
 
 - name: Include Redis role
   include_role:
@@ -17,3 +17,7 @@
 - name: Include NestJS deployment role
   include_role:
     name: nestjs-deploy
+
+- name: Include Nestjs SERVICE SETUP
+  include_role:
+    name: nestjs-service-setup
