@@ -3,6 +3,8 @@
   set_fact:
     ansible_operator_meta:
       namespace: "portal1"
+      mytenantname: "first-tenant"
+
     myportals:
       - name: nestjs-auth
         replicacount: 1
