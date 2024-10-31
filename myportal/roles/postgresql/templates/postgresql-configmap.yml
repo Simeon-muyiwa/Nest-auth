@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgresql-configmap
-  namespace: "{{ namespace }}"
+  namespace: portal1
 data:
   POSTGRES_HOST: "{{ db_host }}"
   POSTGRES_PORT: "{{ db_port }}"
