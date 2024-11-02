@@ -71,13 +71,13 @@ spec:
             - name: JWT_TOKEN_ISSUER
               value: "{{ portalname }}.default.svc.cluster.local"
             - name: POSTGRES_USERNAME
-              value: "your_postgres_username" # Replace with actual username
+              value: "postgres" # Replace with actual username
             - name: POSTGRES_PASSWORD
-              value: "your_postgres_password" # Replace with actual password
+              value: "pass123" # Replace with actual password
             - name: POSTGRES_DATABASE
-              value: "your_postgres_database" # Replace with actual database name
+              value: "postgres" # Replace with actual database name
             - name: POSTGRES_HOST
-              value: "your_postgres_host" # Replace with actual host
+              value: "postgres" # Replace with actual host
             - name: POSTGRES_PORT
               value: "5432" # Default PostgreSQL port
             - name: POSTGRES_USERNAME
