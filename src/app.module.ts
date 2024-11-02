@@ -22,6 +22,7 @@ import { ConfigModule } from '@nestjs/config';
       database: process.env.POSTGRES_DATABASE || 'postgres',
       autoLoadEntities: true,
       synchronize: false,
+      logging: true
     }),
     IamModule,
   ],
