@@ -1,0 +1,19 @@
+- name: Include Node.js installation role
+  include_role:
+    name: pre-nestjs
+
+- name: Include Node.js installation role
+  include_role:
+    name: install-nodejs
+
+- name: Include PostgreSQL role
+  include_role:
+    name: postgresql
+
+- name: Include Redis role
+  include_role:
+    name: redis
+
+- name: Include NestJS deployment role
+  include_role:
+    name: nestjs-deploy

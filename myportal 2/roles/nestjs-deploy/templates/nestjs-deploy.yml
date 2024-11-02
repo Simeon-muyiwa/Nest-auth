@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nestjs-auth
+  namespace: portal1
+  labels:
+    app: nestjs-auth
+spec:
+  replicas: { { replicacount } }
+  selector:
+    matchLabels:
+      app: nestjs-auth
+  template:
+    metadata:
+      labels:
+        app: nestjs-auth
+    spec:
+      securityContext:
+        runAsUser: 0
+      volumes:
+        - name: jwt-secrets
+          secret:
+            secretName: jwt-secrets
+        - name: postgresql-secret
+          secret:
+            secretName: postgresql-secret
+        - name: nestjs-volume
+          persistentVolumeClaim:
+            claimName: nestjs-pvc
+        - name: init-volume
+          persistentVolumeClaim:
+            claimName: portal1-pvc
+        - name: data-volume
+          emptyDir: {}
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          volumeMounts:
+            - name: nestjs-volume
+              mountPath: /nestjs
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -e
+              chown -R 1000:1000 /nestjs || { echo "Failed to change ownership"; exit 1; }
+              chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
+
+              echo "Init container completed successfully"
+      containers:
+        - name: nestjs-auth
+          image: node:20-alpine
+          volumeMounts:
+            - name: jwt-secrets
+              mountPath: /etc/jwt-secrets
+            - name: postgresql-secret
+              mountPath: /etc/postgresql-secret
+            - name: nestjs-volume
+              mountPath: /nestjs
+            - name: init-volume
+              mountPath: /init
+            - name: data-volume
+              mountPath: /data
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -e
+              cd /nestjs || { echo "Failed to change directory"; exit 1; }
+
+          env:
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: JWT_TOKEN_SECRET
+              value: "{{ jwt_token_secret | default('your_default_value') }}"
+            - name: JWT_ACCESS_TOKEN_TTL
+              value: "{{ jwt_access_token_ttl | default('3600') }}"
+            - name: JWT_REFRESH_TOKEN_TTL
+              value: "{{ jwt_refresh_token_ttl | default('86400') }}"
+            - name: JWT_TOKEN_AUDIENCE
+              value: "{{ portalname }}.default.svc.cluster.local"
+            - name: JWT_TOKEN_ISSUER
+              value: "{{ portalname }}.default.svc.cluster.local"
+          envFrom:
+            - secretRef:
+                name: jwt-secrets
+              prefix: JWT_
+            - secretRef:
+                name: postgresql-secret
+              prefix: POSTGRES_
+            - configMapRef:
+                name: postgresql-configmap
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"

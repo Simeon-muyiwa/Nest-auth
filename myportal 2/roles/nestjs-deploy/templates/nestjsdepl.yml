@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ portalname }}
+  namespace: {{ namespace }}
+spec:
+  replicas: {{ replicacount }}
+  selector:
+    matchLabels:
+      app: {{ portalname }}
+  template:
+    metadata:
+      labels:
+        app: {{ portalname }}
+    spec:
+      initContainers:
+        - name: init-secrets
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              set -e  # Exit on error
+              # Check and copy JWT secrets
+              for key in JWT_ACCESS_TOKEN_TTL JWT_REFRESH_TOKEN_TTL JWT_TOKEN_SECRET; do
+                if [ -f /etc/jwt-secrets/$key ]; then
+                  cp /etc/jwt-secrets/$key /root/nestjs/.env.jwt
+                else
+                  echo "Error: /etc/jwt-secrets/$key not found."
+                  exit 1
+                fi
+              done
+
+             tar czf /root/nestjs/init/nestjs-app-archive.tar.gz -C /root/nestjs . || { echo "Failed to create tarball"; exit 1; }
+              tar -xvf /root/nestjs/init/nestjs-app-archive.tar.gz -C /data && chown -R 1000:1000 /data || { echo "Extraction or ownership change failed"; exit 1;}
+              echo "JWT secrets copied and tarball created successfully."
+
+          volumeMounts:
+            - name: jwt-secrets
+              mountPath: /etc/jwt-secrets
+            - name: postgresql-secret
+              mountPath: /etc/postgresql-secret
+            - name: init-volume  # Changed from app-volume to init-volume
+              mountPath: /root/nestjs/init  # Use a separate directory for initialization
+            - name: data-volume
+              mountPath: /data
+
+      containers:
+        - name: {{ portalname }}
+          image: ubuntu:latest
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - |
+              set -e
+              #  Ensure the main container process data correctly
+              cd /data || { echo "Failed to change directly to /data"; exit 1;}
+        #   makefile will run dockerfile that copy ansible playbook for this deployment
+               echo "Running application..."  
+             
+          env:
+            - name: REDIS_HOST
+              value: 'redis'
+            - name: REDIS_PORT
+              value: '6379'
+            - name: JWT_TOKEN_AUDIENCE
+              value: '{{ portalname }}.default.svc.cluster.local'
+            - name: JWT_TOKEN_ISSUER
+              value: '{{ portalname }}.default.svc.cluster.local'
+          envFrom:
+            - secretRef:
+                name: jwt-secrets
+              prefix: JWT_
+            - secretRef:
+                name: postgresql-secret
+              prefix: POSTGRES_
+          volumeMounts:
+            - name: init-volume  # Changed from app-volume to init-volume
+              mountPath: /root/nestjs/init  # Main application directory
+            - name: jwt-secrets
+              mountPath: /root/nestjs/.env.jwt
+              subPath: jwt-secrets.env
+            - name: postgresql-secret
+              mountPath: /root/nestjs/.env.postgres
+              subPath: postgresql-secret.env
+            - name: data-volume  # Mounting /data
+              mountPath: /data
+              readOnly: false
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '250m'
+            limits:
+              memory: '256Mi'
+              cpu: '500m'
+
+      volumes:
+        - name: init-volume
+          persistentVolumeClaim:
+            claimName: "{{ portalname }}-pvc"  # Reference the PVC instead of ConfigMap
+        - name: jwt-secrets
+          secret:
+            secretName: jwt-secrets
+        - name: postgresql-secret
+          secret:
+            secretName: postgresql-secret
+        - name: data-volume  # Define the data volume
+          emptyDir: {}

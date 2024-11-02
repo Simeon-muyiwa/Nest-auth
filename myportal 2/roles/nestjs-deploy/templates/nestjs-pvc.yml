@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: portal1-pvc # Use portalname variable for dynamic naming
+  namespace: portal1 # Ensure it matches your deployment namespace
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

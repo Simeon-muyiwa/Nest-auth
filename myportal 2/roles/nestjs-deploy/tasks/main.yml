@@ -1,0 +1,83 @@
+---
+- name: Set namespaces and portals
+  set_fact:
+    ansible_operator_meta:
+      namespace: "portal1"
+    myportals:
+      - name: nestjs-auth
+        replicas: 1
+        jwt_token_secret: "secret1"
+        jwt_access_token_ttl: 3600
+        jwt_refresh_token_ttl: 7200
+
+- name: Process each portal
+  debug:
+    msg: "Processing {{ item.name }} with replicas {{ item.replicas }}"
+  loop: "{{ myportals }}"
+
+- name: Debug myportals variable
+  debug:
+    var: myportals
+
+- name: Create Persistent Volume for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-pv.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+  loop: "{{ myportals }}"
+
+- name: Create Persistent Volume Claim for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-pvc.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+  loop: "{{ myportals }}"
+
+- name: Create nestjs Secret for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, jwt_token_secret=item.jwt_token_secret | default('your_default_value'), jwt_access_token_ttl=item.jwt_access_token_ttl | default(3600), jwt_refresh_token_ttl=item.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+  when: item.jwt_token_secret is defined and item.jwt_token_secret != ""
+
+- name: Debug each portal item
+  debug:
+    var: item
+  loop: "{{ myportals }}"
+- name: Create nestjs deployments/replicasets and pods
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(
+      portalname=item.name,
+      namespace=ansible_operator_meta.namespace,
+      replicacount=item.replicacount | default(1),
+      jwt_token_secret=item.jwt_token_secret | default('secret1'),
+      jwt_access_token_ttl=item.jwt_access_token_ttl | default(3600),
+      jwt_refresh_token_ttl=item.jwt_refresh_token_ttl | default(86400),
+      db_host=item.db_host | default('postgres'),
+      db_port=item.db_port | default('5432'),
+      db_username=item.db_username | default('postgres'),
+      db_password=item.db_password | default('pass123'),
+      db_database=item.db_database | default('postgres') )) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+  when: item.jwt_token_secret is defined and item.jwt_token_secret != ""
+
+# - name: Create nestjs deployments/replicasets and pods
+#   community.kubernetes.k8s:
+#     definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount | default(1), jwt_token_secret=item.jwt_token_secret | default('secret1'), jwt_access_token_ttl=item.jwt_access_token_ttl | default(3600), jwt_refresh_token_ttl=item.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
+#     state: present
+#   loop: "{{ myportals }}"
+#   when: item.jwt_token_secret is defined and item.jwt_token_secret != ""
+
+- name: Create nestjs services for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(portalname=item.name, replicacount=item.replicacount | default(1), namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+
+- name: Create nestjs ingress for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+
+- name: Debug current portal
+  debug:
+    msg: "Processing portal: {{ item.name }} in namespace: {{ ansible_operator_meta.namespace }}"
+  loop: "{{ myportals }}"

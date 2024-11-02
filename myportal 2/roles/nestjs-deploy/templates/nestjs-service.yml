@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: portal1 # Ensure no spaces around the variable
+  name: nestjs-auth # Ensure no spaces around the variable
+  labels:
+    app: nestjs-auth # Ensure no spaces around the variable
+spec:
+  selector:
+    app: nestjs-auth # Ensure no spaces around the variable
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

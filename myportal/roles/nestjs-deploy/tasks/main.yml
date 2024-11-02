@@ -73,9 +73,11 @@
     definition: "{{ lookup('template', 'nestjs-config.yml', template_vars=dict(
       namespace=ansible_operator_meta.namespace,
       mytenantname=mytenantname,
-      jwt_token_secret=item.config.jwt_token_secret | default('your_default_value'),
-      jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600),
-      jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
+      db_host='{{ item.name }}.default.svc.cluster.local',          # Directly set
+      db_port='5432',              # Directly set
+      db_username='postgres',      # Directly set
+      db_password='pass123',       # Directly set
+      db_database='postgres'       # Directly set)) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
 
