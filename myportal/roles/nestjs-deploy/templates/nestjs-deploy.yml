@@ -80,31 +80,31 @@ spec:
               value: "postgres" # Replace with actual host
             - name: POSTGRES_PORT
               value: "5432" # Default PostgreSQL port
-            - name: POSTGRES_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: postgresql-configmap
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: postgresql-configmap
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: postgresql-configmap
-                  key: POSTGRES_DB
-            - name: POSTGRES_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: postgresql-configmap
-                  key: POSTGRES_HOST
-            - name: POSTGRES_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: postgresql-configmap
-                  key: POSTGRES_PORT
+            # - name: POSTGRES_USERNAME
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: postgresql-configmap
+            #       key: POSTGRES_USER
+            # - name: POSTGRES_PASSWORD
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: postgresql-configmap
+            #       key: POSTGRES_PASSWORD
+            # - name: POSTGRES_DATABASE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: postgresql-configmap
+            #       key: POSTGRES_DB
+            # - name: POSTGRES_HOST
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: postgresql-configmap
+            #       key: POSTGRES_HOST
+            # - name: POSTGRES_PORT
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: postgresql-configmap
+            #       key: POSTGRES_PORT
           envFrom:
             - secretRef:
                 name: jwt-secrets
