@@ -4,7 +4,7 @@ metadata:
   namespace: "{{ namespace }}"
   name: "{{ portalname }}"
   labels:
-    app: "{{ portalname }}"
+    app: "{{ portalname }}-deployment"
 spec:
   selector:
     app: "{{ portalname }}-deploy" # Adjusted to match the Deployment label
