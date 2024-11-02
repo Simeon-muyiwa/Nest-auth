@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{{ portalname }}-deployment"
+  name: "{{ portalname }}"
   namespace: "{{ namespace }}"
 spec:
   replicas: 1
