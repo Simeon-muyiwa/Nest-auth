@@ -1,3 +1,5 @@
+yaml
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -44,22 +46,6 @@ rules:
       - update
       - watch
   ##
-  ## Rules for persistent storage
-  ##
-  - apiGroups:
-      - ""
-    resources:
-      - persistentvolumes
-      - persistentvolumeclaims
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  ##
   ## Rules for portal.mycourse1.com/v1, Kind: MyPortal
   ##
   - apiGroups:
@@ -77,39 +63,51 @@ rules:
       - update
       - watch
   ##
-  ## Namespace management rules
+  ## Permissions for Postgres
   ##
   - apiGroups:
-      - ""
+      - apps
     resources:
-      - namespaces
+      - statefulsets
+      - statefulsets/status
     verbs:
       - create
       - delete
       - get
       - list
-      - watch
-
-  - apiGroups:
-      - "" # Replace with the actual API group for your PostgreSQL CRD
-    resources:
-      - postgresqls # Replace with the actual resource name for your PostgreSQL CRD
-    verbs:
-      - create
-      - delete
-      - get
-      - list
+      - patch
       - update
       - watch
-
+  ##
+  ## Permissions for Redis
+  ##
   - apiGroups:
-      - "" # Replace with the actual API group for your Node.js application CRD
+      - apps
     resources:
-      - redises # Replace with the actual resource name for your Node.js CRD
+      - statefulsets
+      - statefulsets/status
     verbs:
       - create
       - delete
       - get
       - list
+      - patch
       - update
       - watch
+  ##
+  ## Permissions for NestJS
+  ##
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - deployments/status
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+# +kubebuilder:scaffold:rules
