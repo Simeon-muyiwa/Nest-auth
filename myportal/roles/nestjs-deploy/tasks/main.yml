@@ -97,7 +97,6 @@
       db_database=item.db_database | default('postgres') )) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
-  when: item.jwt_token_secret is defined and item.jwt_token_secret != ""
 
 - name: Create nestjs services for each portal
   community.kubernetes.k8s:
