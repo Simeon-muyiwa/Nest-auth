@@ -74,10 +74,10 @@
       namespace=ansible_operator_meta.namespace,
       mytenantname=mytenantname,
       db_host='{{ item.name }}.default.svc.cluster.local',          # Directly set
-      db_port='5432',              # Directly set
-      db_username='postgres',      # Directly set
-      db_password='pass123',       # Directly set
-      db_database='postgres'       # Directly set)) | from_yaml }}"
+      db_port='5432',
+      db_username='postgres',
+      db_password='pass123',
+      db_database='postgres'       )) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
 
