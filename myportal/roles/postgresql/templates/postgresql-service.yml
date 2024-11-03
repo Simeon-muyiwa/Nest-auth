@@ -10,3 +10,6 @@ spec:
     - protocol: TCP
       port: 5432 # Port exposed by the Service
       targetPort: 5432 # Port on the PostgreSQL Pod
+
+selector:
+  app: postgres
