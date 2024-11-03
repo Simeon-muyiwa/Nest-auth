@@ -86,7 +86,7 @@
     definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(
       portalname=item.name,
       namespace=ansible_operator_meta.namespace,
-      replicacount=item.replicacount | default(1),
+      replicacount=item.replicacount,
       jwt_token_secret=item.jwt_token_secret | default('secret1'),
       jwt_access_token_ttl=item.jwt_access_token_ttl | default(3600),
       jwt_refresh_token_ttl=item.jwt_refresh_token_ttl | default(86400),
