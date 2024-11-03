@@ -72,8 +72,8 @@
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-config.yml', template_vars=dict(
       namespace=ansible_operator_meta.namespace,
-      mytenantname=mytenantname,
-      db_host='{{ item.name }}.default.svc.cluster.local',          # Directly set
+
+      db_host= 'postgres',
       db_port='5432',
       db_username='postgres',
       db_password='pass123',
