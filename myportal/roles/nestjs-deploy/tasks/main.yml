@@ -81,18 +81,19 @@
     state: present
   loop: "{{ myportals }}"
 
-# Create nestjs deployments/replicasets and pods
-- name: Create nestjs deployments/replicasets and pods
+# Create NestJS deployments, replicasets, and pods
+- name: Create NestJS deployments, replicasets, and pods
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(
-      portalname=item.name,
-      namespace=ansible_operator_meta.namespace,
-      mytenantname=mytenantname,
-      replicacount=item.replicacount | default(1),
-      jwt_token_secret=item.config.jwt_token_secret | default('secret1'),
-      jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600),
-      jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400),
-      ))) | from_yaml }}"
+    definition: >
+      {{ lookup('template', 'nestjs-deploy.yml', template_vars=(
+        portalname: item.name,
+        namespace: ansible_operator_meta.namespace,
+        mytenantname: mytenantname,
+        replicacount: item.replicacount | default(1),
+        jwt_token_secret: item.config.jwt_token_secret | default('secret1'),
+        jwt_access_token_ttl: item.config.jwt_access_token_ttl | default(3600),
+        jwt_refresh_token_ttl: item.config.jwt_refresh_token_ttl | default(86400)
+      )) | from_yaml }}
     state: present
   loop: "{{ myportals }}"
 
