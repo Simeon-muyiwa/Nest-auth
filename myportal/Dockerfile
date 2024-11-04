@@ -14,14 +14,14 @@ RUN chown -R 1003:1003 ${HOME}
 
 # Switch to the non-root user with the numeric UID
 USER 1003
-
+USER root
 # Set the working directory
 WORKDIR ${HOME}
 
 # Copy requirements.yml and install collections as the non-root user
 COPY requirements.yml ${HOME}/requirements.yml
 RUN ansible-galaxy collection install -r ${HOME}/requirements.yml && chmod -R ug+rwx ${HOME}/.ansible
-
+USER 1003
 # Copy other necessary files
 COPY watches.yaml ${HOME}/watches.yaml
 COPY roles/ ${HOME}/roles/
