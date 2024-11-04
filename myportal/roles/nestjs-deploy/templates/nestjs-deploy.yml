@@ -4,7 +4,7 @@ metadata:
   name: "{{ portalname }}"
   namespace: "{{ namespace }}"
 spec:
-  replicas: 1
+  replicas: { { replicacount } }
   selector:
     matchLabels:
       app: "{{ portalname }}-deploy"
@@ -13,53 +13,50 @@ spec:
       labels:
         app: "{{ portalname }}-deploy"
     spec:
-  securityContext:
-    runAsUser: 0
-  volumes:
-    - name: jwt-secrets
-      secret:
-        secretName: jwt-secrets
-    - name: nestjs-volume
-      persistentVolumeClaim:
-        claimName: "{{ portalname }}-pvc"
-  initContainers:
-    - name: init-permissions
-      image: busybox
-      volumeMounts:
-        - name: nestjs-volume
-          mountPath: /nestjs
-      command:
-        - /bin/sh
-      args:
-        - -c
-        - |
-          set -e
-          chown -R 1003:1003 /nestjs || { echo "Failed to change ownership"; exit 1; }
-          chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
-          echo "Init container completed successfully"
-  containers:
-    - name: "{{ portalname }}-c"
-      image: node:20-alpine
-      imagePullPolicy: IfNotPresent
       securityContext:
-        runAsUser: 1003 # Keep as 1003
-      volumeMounts:
+        runAsUser: 0
+      volumes:
         - name: jwt-secrets
-          mountPath: /etc/jwt-secrets
+          secret:
+            secretName: jwt-secrets
         - name: nestjs-volume
-          mountPath: /nestjs
-      command:
-        - /bin/sh
-      args:
-        - -c
-        - |
-          set -e
-          echo "Current directory contents:"
-          ls -la /nestjs
-          npm install --prefix /nestjs && npm run build --prefix /nestjs && npm run start --prefix /nestjs
-              # cd /nestjs || { echo "Failed to change directory"; exit 1; }
-              # npm run build
-              #  npm run start:prod
+          persistentVolumeClaim:
+            claimName: "{{ portalname }}-pvc"
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          volumeMounts:
+            - name: nestjs-volume
+              mountPath: /nestjs
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -e
+              chown -R 1003:1003 /nestjs || { echo "Failed to change ownership"; exit 1; }
+              chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
+              echo "Init container completed successfully"
+      containers:
+        - name: "{{ portalname }}-c"
+          image: node:20-alpine
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1003
+          volumeMounts:
+            - name: jwt-secrets
+              mountPath: /etc/jwt-secrets
+            - name: nestjs-volume
+              mountPath: /nestjs
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -e
+              echo "Current directory contents:"
+              ls -la /nestjs
+              npm install --prefix /nestjs && npm run build --prefix /nestjs && npm run start --prefix /nestjs
           env:
             - name: REDIS_HOST
               value: "redis"
