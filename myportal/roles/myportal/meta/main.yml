@@ -4,4 +4,4 @@ dependencies:
   - role: pre-nestjs
   - role: install-nodejs
   - role: nestjs-deploy
-  - role: nestjs-service-setup
+  # - role: nestjs-service-setup
