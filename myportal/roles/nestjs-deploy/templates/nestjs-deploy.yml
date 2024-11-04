@@ -55,7 +55,7 @@ spec:
             - |
               set -e
               sleep 5
-              cd /nestjs && npm run build && npm run start:prod
+              cd /nestjs && npm install && npm run build && npm run start:prod
 
               # cd /nestjs || { echo "Failed to change directory"; exit 1; }
               # npm run build
