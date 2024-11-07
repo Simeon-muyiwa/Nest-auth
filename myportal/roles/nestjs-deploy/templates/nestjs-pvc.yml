@@ -5,8 +5,6 @@ metadata:
   name: '{{ portalname }}-pvc'
   namespace: '{{ namespace }}'
 spec:
-  storageClassName: 'manual'
-  volumeName: '{{ portalname }}-pv'
   accessModes:
     - ReadWriteOnce
   resources:
