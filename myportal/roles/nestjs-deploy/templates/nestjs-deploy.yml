@@ -38,7 +38,7 @@ spec:
               echo "Init container completed successfully"
       containers:
         - name: "{{ portalname }}-c"
-          image: node:20-alpine
+          image: node:20-buster
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1003
