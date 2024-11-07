@@ -47,15 +47,7 @@ spec:
               mountPath: /etc/jwt-secrets
             - name: nestjs-volume
               mountPath: /nestjs
-          command:
-            - /bin/sh
-          args:
-            - -c
-            - |
-              set -e
-              echo "Current directory contents:"
-              ls -la /nestjs
-              npm install --prefix /nestjs && npm run build --prefix /nestjs && npm run start --prefix /nestjs
+
           env:
             - name: REDIS_HOST
               value: "redis"
