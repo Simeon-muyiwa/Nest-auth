@@ -29,20 +29,11 @@ spec:
             echo "Init container completed successfully"
     containers:
       - name: "{{ portalname }}-c"
-        image: node:20-buster
+        image: alpine
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 1003
-        command:
-          - /bin/sh
-        args:
-          - -c
-          - |
-            set -e
-            cd /nestjs
-            npm install
-            npm run build
-            npm start
+
         volumeMounts:
           - name: jwt-secrets
             mountPath: /etc/jwt-secrets
