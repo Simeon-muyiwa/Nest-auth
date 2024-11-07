@@ -12,6 +12,4 @@ collections:
     version: "2.0.1"
   - name: community.k8s
     version: ">=2.0.0" # Specify the version if needed
-  - name: ansible.builtin.rsync # rsync module from ansible.builtin
-  - name: ansible-runner
-    version: ">=2.0.0" # Specify version if required
+
