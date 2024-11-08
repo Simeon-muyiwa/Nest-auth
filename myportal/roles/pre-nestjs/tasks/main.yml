@@ -65,8 +65,8 @@
       path: "{{ service_path }}" # Path to the directory containing Dockerfile
     tag: "V1"
     state: present
-  environment:
-    DOCKER_HOST: "tcp://192.168.49.2:2376" # Ensure Ansible uses Minikube's Docker daemon
+  # environment:
+  #   DOCKER_HOST: "tcp://192.168.49.2:2376" # Ensure Ansible uses Minikube's Docker daemon
 
 - name: Ensure Docker image is built and available
   docker_image_info:
