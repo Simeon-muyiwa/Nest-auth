@@ -65,10 +65,5 @@
     tag: "V1"
     state: present
 
-  environment:
-    DOCKER_TLS_VERIFY: "1"
-    DOCKER_CERT_PATH: "../../dockercerts" # two levels up to dockercerts
-    DOCKER_HOST: "tcp://192.168.49.2:2376"
-
 - name: Ensure Docker image is built and available
   docker_image_info:
