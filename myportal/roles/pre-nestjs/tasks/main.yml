@@ -1,11 +1,5 @@
-# Create destination directory (if it doesn't exist)
-- name: Create destination directory
-  file:
-    path: "{{ service_path }}"
-    state: directory
-  become: true
-
-# Clone or update the NestJS repository
+---
+# 1. Clone or update the NestJS repository
 - name: Clone or update the NestJS repository
   git:
     repo: "{{ repo_path }}"
@@ -15,25 +9,64 @@
     force: yes
   register: repo_clone
   delegate_to: localhost
-  become: true
 
-# Adjust permissions for /nestjs directory
+# 2. Ensure correct permissions for /nestjs
 - name: Ensure /nestjs has correct permissions
   file:
     path: "/nestjs"
-    mode: "u=rwx,g=rx,o=rx" # Set permissions as needed
+    mode: "u=rwx,g=rx,o=rx"
   become: true
 
-# Synchronize MyK8sAnsible folder to myk8sansible/myportal
-- name: Synchronize MyK8sAnsible folder to myk8sansible/myportal
+# 3. Synchronize MyK8sAnsible folder to myk8sansible/myportal
+- name: Synchronize MyK8sAnsible folder to /myk8sansible/myportal/
   synchronize:
     src: "{{ service_path }}/myportal/"
     dest: "/myk8sansible/myportal/"
     delete: yes
 
-# Synchronize MyK8sAnsible folder to /nestjs
-- name: Synchronize MyK8sAnsible folder to /nestjs
-  synchronize:
-    src: "{{ service_path }}/" # Ensure to include the trailing slash for proper synchronization
-    dest: "/mnt/nestjs/"
-    delete: yes
+# 4. Set Docker environment to Minikube's Docker daemon
+- name: Set Docker environment to Minikube's Docker daemon
+  shell: |
+    eval $(minikube -p minikube docker-env)
+  environment:
+    DOCKER_CLI_EXPERIMENTAL: "enabled"
+  become: true
+
+- name: Create a Dockerfile for the NestJS app
+  copy:
+    dest: "{{ dockerfile_path }}"
+    content: |
+      # Use Node.js base image
+      FROM node:20 alpine
+
+      # Set working directory
+      WORKDIR /app
+
+      # Copy package.json and package-lock.json
+      COPY package*.json ./
+
+      # Install dependencies
+      RUN npm install
+
+      # Copy the rest of the application
+      COPY . .
+
+      # Expose the application port
+      EXPOSE 3000
+
+      # Run the NestJS application
+      CMD ["npm", "run", "start:prod"]
+
+- name: Build Docker image for NestJS app
+  docker_image:
+    name: "{{ nestjs-auth }}"
+    source: build
+    build:
+      path: "{{ service_path }}" # Path to the directory containing Dockerfile
+    tag: "{{ V1}}"
+    state: present
+  environment:
+    DOCKER_HOST: "tcp://localhost:2376" # Ensure Ansible uses Minikube's Docker daemon
+
+- name: Ensure Docker image is built and available
+  docker_image_facts:

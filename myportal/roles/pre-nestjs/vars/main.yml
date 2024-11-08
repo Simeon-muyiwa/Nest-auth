@@ -1,5 +1,7 @@
 ---
 service_path: "/nestjs"
-ansible_user: "root"
+dockerfile_path: "{{ service_path }}/Dockerfile"
+docker_image_tag: "latest"
+docker_image_name: "nestjs-app"
 repo_path: "https://github.com/Simeon-muyiwa/Nest-auth"
-namespace: "{{ ansible_operator_meta.namespace | default('default') }}" # Use dynamic value or default to 'default'
+namespace: "{{ ansible_operator_meta.namespace | default('default') }}"
