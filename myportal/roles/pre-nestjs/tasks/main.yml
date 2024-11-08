@@ -59,7 +59,7 @@
 
 - name: Build Docker image for NestJS app
   docker_image:
-    name: "{{ nestjs-auth }}"
+    name: "nestjs-auth"
     source: build
     build:
       path: "{{ service_path }}" # Path to the directory containing Dockerfile
