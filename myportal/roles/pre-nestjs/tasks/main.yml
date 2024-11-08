@@ -60,11 +60,12 @@
 - name: Build Docker image for NestJS app
   community.docker.docker_image:
     name: "nestjs-auth"
+    source: build
     build:
       path: "{{ service_path }}"
     tag: "V1"
     state: present
-    docker_host: "tcp://192.168.49.2:2376"
+    docker_url: "tcp://192.168.49.2:2376"
 
 - name: Ensure Docker image is built and available
   docker_image_info:
