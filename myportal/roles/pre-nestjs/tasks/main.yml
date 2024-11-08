@@ -58,16 +58,14 @@
       CMD ["npm", "run", "start:prod"]
 
 - name: Build Docker image for NestJS app
-  docker_image:
+  community.docker.docker_image:
     name: "nestjs-auth"
     source: build
     build:
-      path: "{{ service_path }}" # Path to the directory containing Dockerfile
+      path: "{{ service_path }}"
     tag: "V1"
     state: present
-    environment:
-      "docker_host": "tcp://192.168.49.2:2376"
-  #   DOCKER_HOST: "tcp://192.168.49.2:2376" # Ensure Ansible uses Minikube's Docker daemon
+    docker_url: "tcp://192.168.49.2:2376"
 
 - name: Ensure Docker image is built and available
   docker_image_info:
