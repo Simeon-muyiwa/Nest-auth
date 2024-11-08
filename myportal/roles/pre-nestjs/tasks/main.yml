@@ -56,7 +56,6 @@
 
       # Run the NestJS application
       CMD ["npm", "run", "start:prod"]
-
 - name: Build Docker image for NestJS app
   community.docker.docker_image:
     name: "nestjs-auth"
@@ -68,7 +67,7 @@
     docker_url: "tcp://192.168.49.2:2376"
   environment:
     DOCKER_TLS_VERIFY: "1"
-    DOCKER_CERT_PATH: "/myk8sansible/dockercerts"
+    DOCKER_CERT_PATH: "../../dockercerts" # two levels up to dockercerts
     DOCKER_HOST: "tcp://192.168.49.2:2376"
 
 - name: Ensure Docker image is built and available
