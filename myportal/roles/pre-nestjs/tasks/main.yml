@@ -63,7 +63,7 @@
     source: build
     build:
       path: "{{ service_path }}" # Path to the directory containing Dockerfile
-    tag: "{{ V1}}"
+    tag: "V1"
     state: present
   environment:
     DOCKER_HOST: "tcp://localhost:2376" # Ensure Ansible uses Minikube's Docker daemon
