@@ -3,9 +3,7 @@
   set_fact:
     mytenantname: "tenant1" # Set this to your tenant name or a specific identifier
     myportals:
-      - { name: "portal1", replicacount: 2 }
-      - { name: "portal2", replicacount: 3 }
-      - { name: "portal3", replicacount: 1 }
+      - { name: "nestjs-auth", replicacount: 1, namespace: portal1 }
 
 # 1. Clone or update the NestJS repository
 - name: Clone or update the NestJS repository
@@ -76,14 +74,6 @@
     tag: "V1"
     state: present
 
-# # 7. Ensure Docker image is built and available
-# - name: Ensure Docker image is built and available
-#   docker_image_info:
-#     name: "nestjs-auth:V1"
-#   register: docker_image_info
-#   failed_when: docker_image_info is not defined or docker_image_info.image is not defined
-#   when: image_built is not changed
-
 # 8. Verify Docker image availability in Minikube
 - name: Verify Docker image availability in Minikube
   shell: |
@@ -105,7 +95,7 @@
       kind: Deployment
       metadata:
         name: "{{ item.name }}-deployment"
-        namespace: "default"  # Adjust the namespace as needed
+        namespace: "{{ item.namespace }}"  # Adjust the namespace as needed
       spec:
         replicas: {{ item.replicacount | default(1) }}
         selector:
