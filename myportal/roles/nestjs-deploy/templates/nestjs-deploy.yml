@@ -28,8 +28,8 @@ spec:
     #         chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
     #         echo "Init container completed successfully"
     containers:
-      - name: "{{ portalname }}-c"
-        image: { { nestjs-auth } }
+      - name: nestjs-auth
+        image: "nestjs-auth@sha256:15b89575a3e8a97f9bced0a21455458e5e18203d8e0743d7d72fc6ca9e44a1af"
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 1003
