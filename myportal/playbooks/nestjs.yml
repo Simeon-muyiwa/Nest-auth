@@ -4,7 +4,7 @@
   tasks:
     - name: Print Minikube IP
       debug:
-        msg: "Minikube IP is {{ ansible_host }}"
+        msg: 'Minikube IP is {{ ansible_host }}'
 
     - name: Verify inventory_hostname
       debug:
@@ -13,14 +13,14 @@
     - name: Print Database Connection Details
       debug:
         msg:
-          - "Database Host: {{ db_host }}"
-          - "Database Port: {{ db_port }}"
-          - "Database User: {{ db_user }}"
-          - "Database Password: {{ db_password }}"
-          - "Database Name: {{ db_name }}"
+          - 'Database Host: {{ db_host }}'
+          - 'Database Port: {{ db_port }}'
+          - 'Database User: {{ db_user }}'
+          - 'Database Password: {{ db_password }}'
+          - 'Database Name: {{ db_name }}'
 
-- hosts: localhost
-  name: Deploy NestJS application
+- name: Deploy NestJS application
+  hosts: localhost
   roles:
     - test
     - pre-nestjs
