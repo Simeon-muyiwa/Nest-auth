@@ -29,7 +29,7 @@ spec:
     #         echo "Init container completed successfully"
     containers:
       - name: "{{ portalname }}-c"
-        image: nestjs-auth
+        image: { { nestjs-auth } }
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 1003
