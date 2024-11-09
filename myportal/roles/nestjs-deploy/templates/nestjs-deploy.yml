@@ -12,90 +12,49 @@ spec:
       labels:
         app: "{{ portalname }}-deploy"
   spec:
-    # initContainers:
-    #   - name: init-permissions
-    #     image: busybox
-    #     volumeMounts:
-    #       - name: nestjs-volume
-    #         mountPath: /nestjs
-    #     command:
-    #       - /bin/sh
-    #     args:
-    #       - -c
-    #       - |
-    #         set -e
-    #         chown -R 1003:1003 /nestjs || { echo "Failed to change ownership"; exit 1; }
-    #         chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
-    #         echo "Init container completed successfully"
     containers:
       - name: nestjs-auth
-        image: "sha256:fd8a7fa77c30ca01884d31a62866ac82c84fa22ff28723f90de94d043502b764" # Replace with the correct image or digest
+        image: "sha256:fd8a7fa77c30ca01884d31a62866ac82c84fa22ff28723f90de94d043502b764" # Your locally created image
         ports:
           - containerPort: 3000
         securityContext:
           runAsUser: 1003
-
         volumeMounts:
           - name: jwt-secrets
             mountPath: /etc/jwt-secrets
           - name: nestjs-volume
             mountPath: /nestjs
-    env:
-      - name: REDIS_HOST
-        value: "redis"
-      - name: REDIS_PORT
-        value: "6379"
-      - name: JWT_TOKEN_SECRET
-        value: "{{ jwt_token_secret | default('secret1') }}"
-      - name: JWT_ACCESS_TOKEN_TTL
-        value: "{{ jwt_access_token_ttl | default('3600') }}"
-      - name: JWT_REFRESH_TOKEN_TTL
-        value: "{{ jwt_refresh_token_ttl | default('86400') }}"
-      - name: JWT_TOKEN_AUDIENCE
-        value: "{{ portalname }}.default.svc.cluster.local"
-      - name: JWT_TOKEN_ISSUER
-        value: "{{ portalname }}.default.svc.cluster.local"
-      - name: POSTGRES_USERNAME
-        value: "postgres" # Replace with actual username
-      - name: POSTGRES_PASSWORD
-        value: "pass123" # Replace with actual password
-      - name: POSTGRES_DATABASE
-        value: "postgres" # Replace with actual database name
-      - name: POSTGRES_HOST
-        value: "postgres" # Replace with actual host
-      - name: POSTGRES_PORT
-        value: "5432" # Default PostgreSQL port
-      # - name: POSTGRES_USERNAME
-      #   valueFrom:
-      #     configMapKeyRef:
-      #       name: postgresql-configmap
-      #       key: POSTGRES_USER
-      # - name: POSTGRES_PASSWORD
-      #   valueFrom:
-      #     configMapKeyRef:
-      #       name: postgresql-configmap
-      #       key: POSTGRES_PASSWORD
-      # - name: POSTGRES_DATABASE
-      #   valueFrom:
-      #     configMapKeyRef:
-      #       name: postgresql-configmap
-      #       key: POSTGRES_DB
-      # - name: POSTGRES_HOST
-      #   valueFrom:
-      #     configMapKeyRef:
-      #       name: postgresql-configmap
-      #       key: POSTGRES_HOST
-      # - name: POSTGRES_PORT
-      #   valueFrom:
-      #     configMapKeyRef:
-      #       name: postgresql-configmap
-      #       key: POSTGRES_PORT
-    envFrom:
-      - secretRef:
-          name: jwt-secrets
-        prefix: JWT_
-      - configMapRef:
-          name: postgresql-configmap
+        env:
+          - name: REDIS_HOST
+            value: "redis"
+          - name: REDIS_PORT
+            value: "6379"
+          - name: JWT_TOKEN_SECRET
+            value: "{{ jwt_token_secret | default('secret1') }}"
+          - name: JWT_ACCESS_TOKEN_TTL
+            value: "{{ jwt_access_token_ttl | default('3600') }}"
+          - name: JWT_REFRESH_TOKEN_TTL
+            value: "{{ jwt_refresh_token_ttl | default('86400') }}"
+          - name: JWT_TOKEN_AUDIENCE
+            value: "{{ portalname }}.default.svc.cluster.local"
+          - name: JWT_TOKEN_ISSUER
+            value: "{{ portalname }}.default.svc.cluster.local"
+          - name: POSTGRES_USERNAME
+            value: "postgres"
+          - name: POSTGRES_PASSWORD
+            value: "pass123"
+          - name: POSTGRES_DATABASE
+            value: "postgres"
+          - name: POSTGRES_HOST
+            value: "postgres"
+          - name: POSTGRES_PORT
+            value: "5432"
+        envFrom:
+          - secretRef:
+              name: jwt-secrets
+            prefix: JWT_
+          - configMapRef:
+              name: postgresql-configmap
     resources:
       requests:
         memory: "128Mi"
@@ -103,3 +62,19 @@ spec:
       limits:
         memory: "256Mi"
         cpu: "500m"
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 3000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 3000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    volumes:
+      - name: jwt-secrets
+        secret:
+          secretName: jwt-secrets
