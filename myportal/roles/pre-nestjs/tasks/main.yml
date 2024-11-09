@@ -1,4 +1,6 @@
 ---
+# Variables definition
+
 # 1. Clone or update the NestJS repository
 - name: Clone or update the NestJS repository
   git:
@@ -17,7 +19,7 @@
     mode: "u=rwx,g=rx,o=rx"
   become: true
 
-# 3. Synchronize MyK8sAnsible folder to myk8sansible/myportal
+# 3. Synchronize MyK8sAnsible folder to /myk8sansible/myportal/
 - name: Synchronize MyK8sAnsible folder to /myk8sansible/myportal/
   synchronize:
     src: "{{ service_path }}/myportal/"
@@ -32,12 +34,13 @@
     DOCKER_CLI_EXPERIMENTAL: "enabled"
   become: true
 
+# 5. Create a Dockerfile for the NestJS app
 - name: Create a Dockerfile for the NestJS app
   copy:
     dest: "{{ dockerfile_path }}"
     content: |
       # Use Node.js base image
-      FROM node:20 
+      FROM node:20
 
       # Set working directory
       WORKDIR /app
@@ -56,6 +59,8 @@
 
       # Run the NestJS application
       CMD ["npm", "run", "start:prod"]
+
+# 6. Build Docker image for NestJS app
 - name: Build Docker image for NestJS app
   community.docker.docker_image:
     name: "nestjs-auth"
@@ -65,17 +70,48 @@
     tag: "V1"
     state: present
 
+# 7. Ensure Docker image is built and available
 - name: Ensure Docker image is built and available
   docker_image_info:
+    name: "nestjs-auth:V1"
+  register: docker_image_info
+  failed_when: docker_image_info is not defined or docker_image_info.image is not defined
 
-  # 7. Ensure Docker image is built and available in Minikube
+# 8. Verify Docker image availability in Minikube
 - name: Verify Docker image availability in Minikube
   shell: |
     docker images | grep "nestjs-auth"
   register: docker_images
   failed_when: "'nestjs-auth' not in docker_images.stdout"
 
-# 8. Get the image tag (in case you want to dynamically retrieve it for use in deployment.yaml)
+# 9. Get the Docker image tag for the deployment
 - name: Get the Docker image tag for the deployment
   set_fact:
     image_tag: "nestjs-auth:V1"
+
+# 10. Deploy the application directly using kubernetes.core.k8s module
+- name: Deploy the application using kubernetes.core.k8s
+  kubernetes.core.k8s:
+    state: present
+    definition: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ item.name }}-deployment"
+        namespace: "default"  # Adjust the namespace as needed
+      spec:
+        replicas: {{ item.replicacount | default(1) }}
+        selector:
+          matchLabels:
+            app: "{{ item.name }}"
+        template:
+          metadata:
+            labels:
+              app: "{{ item.name }}"
+          spec:
+            containers:
+              - name: "{{ item.name }}"
+                image: "{{ mytenantname }}/{{ item.name }}:V1"
+                ports:
+                  - containerPort: 3000
+  loop: "{{ myportals }}"
