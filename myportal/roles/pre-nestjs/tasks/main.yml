@@ -118,7 +118,7 @@
           spec:
             containers:
               - name: "{{ item.name }}"
-                image: "{{ mytenantname }}/{{ item.name }}:V1"
+                image: "nestjs-auth:V1"
                 ports:
                   - containerPort: 3000
   loop: "{{ myportals }}"
