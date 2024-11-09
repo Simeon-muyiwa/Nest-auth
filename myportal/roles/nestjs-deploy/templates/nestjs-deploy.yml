@@ -12,24 +12,24 @@ spec:
       labels:
         app: "{{ portalname }}-deploy"
   spec:
-    initContainers:
-      - name: init-permissions
-        image: busybox
-        volumeMounts:
-          - name: nestjs-volume
-            mountPath: /nestjs
-        command:
-          - /bin/sh
-        args:
-          - -c
-          - |
-            set -e
-            chown -R 1003:1003 /nestjs || { echo "Failed to change ownership"; exit 1; }
-            chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
-            echo "Init container completed successfully"
+    # initContainers:
+    #   - name: init-permissions
+    #     image: busybox
+    #     volumeMounts:
+    #       - name: nestjs-volume
+    #         mountPath: /nestjs
+    #     command:
+    #       - /bin/sh
+    #     args:
+    #       - -c
+    #       - |
+    #         set -e
+    #         chown -R 1003:1003 /nestjs || { echo "Failed to change ownership"; exit 1; }
+    #         chmod -R u+w /nestjs || { echo "Failed to set write permissions"; exit 1; }
+    #         echo "Init container completed successfully"
     containers:
       - name: "{{ portalname }}-c"
-        image: alpine
+        image: nestjs-auth
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 1003
