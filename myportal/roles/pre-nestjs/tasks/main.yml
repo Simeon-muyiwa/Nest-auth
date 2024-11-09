@@ -1,5 +1,11 @@
 ---
-# Variables definition
+- name: Set tenant name and portals data
+  set_fact:
+    mytenantname: "tenant1" # Set this to your tenant name or a specific identifier
+    myportals:
+      - { name: "portal1", replicacount: 2 }
+      - { name: "portal2", replicacount: 3 }
+      - { name: "portal3", replicacount: 1 }
 
 # 1. Clone or update the NestJS repository
 - name: Clone or update the NestJS repository

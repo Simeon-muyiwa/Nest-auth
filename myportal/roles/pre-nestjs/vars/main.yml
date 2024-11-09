@@ -5,3 +5,9 @@ docker_image_tag: "latest"
 docker_image_name: "nestjs-app"
 repo_path: "https://github.com/Simeon-muyiwa/Nest-auth"
 namespace: "{{ ansible_operator_meta.namespace | default('default') }}"
+
+mytenantname: "tenant1" # Set this to your tenant name or a specific identifier
+myportals:
+  - { name: "portal1", replicacount: 2 }
+  - { name: "portal2", replicacount: 3 }
+  - { name: "portal3", replicacount: 1 }
