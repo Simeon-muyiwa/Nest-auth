@@ -13,7 +13,7 @@
 
 # Set namespaces, portals, and tenant name
 - name: Set namespaces, portals, and tenant name
-  set_facts:
+  set_fact:
     ansible_operator_meta:
       namespace: "portal1"
     mytenantname: "first-tenant"
