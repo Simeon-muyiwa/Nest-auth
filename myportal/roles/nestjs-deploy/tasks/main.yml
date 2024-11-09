@@ -1,86 +1,86 @@
-- name: Fetch PostgreSQL ConfigMap values
-  community.kubernetes.k8s_info:
-    api_version: v1
-    kind: ConfigMap
-    name: postgresql-configmap
-    namespace: "{{ ansible_operator_meta.namespace }}"
-  register: postgres_config
+# - name: Fetch PostgreSQL ConfigMap values
+#   community.kubernetes.k8s_info:
+#     api_version: v1
+#     kind: ConfigMap
+#     name: postgresql-configmap
+#     namespace: "{{ ansible_operator_meta.namespace }}"
+#   register: postgres_config
 
-# Debug PostgreSQL ConfigMap values
-- name: Debug PostgreSQL ConfigMap values
-  debug:
-    var: postgres_config
+# # Debug PostgreSQL ConfigMap values
+# - name: Debug PostgreSQL ConfigMap values
+#   debug:
+#     var: postgres_config
 
-# Set namespaces, portals, and tenant name
-- name: Set namespaces, portals, and tenant name
-  set_fact:
-    ansible_operator_meta:
-      namespace: "portal1"
-    mytenantname: "first-tenant"
-    myportals:
-      - name: nestjs-auth
-        replicacount: 1
-        config:
-          jwt_token_secret: "secret1"
-          jwt_access_token_ttl: 3600
-          jwt_refresh_token_ttl: 7200
-          db_host: "postgres"
-          db_port: "5432"
-          db_username: "postgres"
-          db_password: "pass123"
-          db_database: "postgres"
+# # Set namespaces, portals, and tenant name
+# - name: Set namespaces, portals, and tenant name
+#   set_fact:
+#     ansible_operator_meta:
+#       namespace: "portal1"
+#     mytenantname: "first-tenant"
+#     myportals:
+#       - name: nestjs-auth
+#         replicacount: 1
+#         config:
+#           jwt_token_secret: "secret1"
+#           jwt_access_token_ttl: 3600
+#           jwt_refresh_token_ttl: 7200
+#           db_host: "postgres"
+#           db_port: "5432"
+#           db_username: "postgres"
+#           db_password: "pass123"
+#           db_database: "postgres"
 
-- name: Process each portal
-  debug:
-    msg: "Processing {{ item.name }} with replicas {{ item.replicacount }}"
-  loop: "{{ myportals }}"
+# - name: Process each portal
+#   debug:
+#     msg: "Processing {{ item.name }} with replicas {{ item.replicacount }}"
+#   loop: "{{ myportals }}"
 
-- name: Debug myportals variable
-  debug:
-    var: myportals
-- name: Create Persistent Volume for each portal
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-pv.yml', template_vars=dict(
-      portalname=item.name,
-      namespace=ansible_operator_meta.namespace,
-      mytenantname=mytenantname,
-      replicacount=item.replicacount | default(1))) | from_yaml }}"
-    state: present
-  loop: "{{ myportals }}"
+# - name: Debug myportals variable
+#   debug:
+#     var: myportals
+# - name: Create Persistent Volume for each portal
+#   community.kubernetes.k8s:
+#     definition: "{{ lookup('template', 'nestjs-pv.yml', template_vars=dict(
+#       portalname=item.name,
+#       namespace=ansible_operator_meta.namespace,
+#       mytenantname=mytenantname,
+#       replicacount=item.replicacount | default(1))) | from_yaml }}"
+#     state: present
+#   loop: "{{ myportals }}"
 
-- name: Create Persistent Volume Claim for each portal
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-pvc.yml', template_vars=dict(
-      portalname=item.name,
-      namespace=ansible_operator_meta.namespace,
-      mytenantname=mytenantname)) | from_yaml }}"
-    state: present
-  loop: "{{ myportals }}"
+# - name: Create Persistent Volume Claim for each portal
+#   community.kubernetes.k8s:
+#     definition: "{{ lookup('template', 'nestjs-pvc.yml', template_vars=dict(
+#       portalname=item.name,
+#       namespace=ansible_operator_meta.namespace,
+#       mytenantname=mytenantname)) | from_yaml }}"
+#     state: present
+#   loop: "{{ myportals }}"
 
-- name: Create nestjs Secret for each portal
-  community.kubernetes.k8s:
-    definition:
-      "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(
-      namespace=ansible_operator_meta.namespace,
-      mytenantname=mytenantname,
-      jwt_token_secret=item.config.jwt_token_secret | default('your_default_value'),
-      jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600),
-      jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
-    state: present
-  loop: "{{ myportals }}"
+# - name: Create nestjs Secret for each portal
+#   community.kubernetes.k8s:
+#     definition:
+#       "{{ lookup('template', 'jwt-secrets.env.yml', template_vars=dict(
+#       namespace=ansible_operator_meta.namespace,
+#       mytenantname=mytenantname,
+#       jwt_token_secret=item.config.jwt_token_secret | default('your_default_value'),
+#       jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600),
+#       jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
+#     state: present
+#   loop: "{{ myportals }}"
 
-- name: Create nestjs configmap for each portal
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-config.yml', template_vars=dict(
-      namespace=ansible_operator_meta.namespace,
+# - name: Create nestjs configmap for each portal
+#   community.kubernetes.k8s:
+#     definition: "{{ lookup('template', 'nestjs-config.yml', template_vars=dict(
+#       namespace=ansible_operator_meta.namespace,
 
-      db_host= 'postgres',
-      db_port='5432',
-      db_username='postgres',
-      db_password='pass123',
-      db_database='postgres'       )) | from_yaml }}"
-    state: present
-  loop: "{{ myportals }}"
+#       db_host= 'postgres',
+#       db_port='5432',
+#       db_username='postgres',
+#       db_password='pass123',
+#       db_database='postgres'       )) | from_yaml }}"
+#     state: present
+#   loop: "{{ myportals }}"
 
 - name: Create nestjs deployments/replicasets and pods
   community.kubernetes.k8s:
@@ -122,8 +122,7 @@
       mytenantname=mytenantname)) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
-
-- name: Debug current portal
-  debug:
-    msg: "Processing portal: {{ item.name }} in namespace: {{ ansible_operator_meta.namespace }}"
-  loop: "{{ myportals }}"
+# - name: Debug current portal
+#   debug:
+#     msg: "Processing portal: {{ item.name }} in namespace: {{ ansible_operator_meta.namespace }}"
+#   loop: "{{ myportals }}"
