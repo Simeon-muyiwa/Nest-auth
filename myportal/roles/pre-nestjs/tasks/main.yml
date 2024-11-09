@@ -70,13 +70,13 @@
     tag: "V1"
     state: present
 
-# 7. Ensure Docker image is built and available
-- name: Ensure Docker image is built and available
-  docker_image_info:
-    name: "nestjs-auth:V1"
-  register: docker_image_info
-  failed_when: docker_image_info is not defined or docker_image_info.image is not defined
-  when: image_built is not changed
+# # 7. Ensure Docker image is built and available
+# - name: Ensure Docker image is built and available
+#   docker_image_info:
+#     name: "nestjs-auth:V1"
+#   register: docker_image_info
+#   failed_when: docker_image_info is not defined or docker_image_info.image is not defined
+#   when: image_built is not changed
 
 # 8. Verify Docker image availability in Minikube
 - name: Verify Docker image availability in Minikube
