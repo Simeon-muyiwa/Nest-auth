@@ -2,6 +2,7 @@
 - hosts: localhost
   name: Deploy NestJS application
   roles:
+    - test
     - pre-nestjs
     - install-nodejs
     - nestjs-deploy

@@ -1,0 +1,19 @@
+---
+all:
+  children:
+    minikube:
+      hosts:
+        minikube:
+          ansible_host: "{{ lookup('pipe', 'minikube ip') }}"
+          ansible_user: root
+      vars:
+        db_host: "postgres"
+        db_port: 5432
+        db_user: "postgres"
+        db_password: "pass123"
+        db_name: "postgres"
+        jwt_token_secret: "{{ item.config.jwt_token_secret | default('secret1') }}"
+        jwt_access_token_ttl: "{{ item.config.jwt_access_token_ttl | default(3600) }}"
+        jwt_refresh_token_ttl: "{{ item.config.jwt_refresh_token_ttl | default(86400) }}"
+        JWT_TOKEN_AUDIENC: "{{ portalname }}.default.svc.cluster.local"
+        JWT_TOKEN_ISSUE: "{{ portalname }}.default.svc.cluster.local"

@@ -1,0 +1,28 @@
+- name: Gather facts for Minikube
+  ansible.builtin.gather_facts:
+  delegate_to: minikube
+
+- name: Print Minikube IP
+  debug:
+    msg: "Minikube IP is {{ ansible_host }}"
+  delegate_to: minikube
+
+- name: Print Database Connection Details
+  debug:
+    msg:
+      - "Database Host: {{ db_host }}"
+      - "Database Port: {{ db_port }}"
+      - "Database User: {{ db_user }}"
+      - "Database Password: {{ db_password }}"
+      - "Database Name: {{ db_name }}"
+  delegate_to: minikube
+
+- name: Print JWT Config
+  debug:
+    msg:
+      - "JWT Token Secret: {{ jwt_token_secret }}"
+      - "JWT Access Token TTL: {{ jwt_access_token_ttl }}"
+      - "JWT Refresh Token TTL: {{ jwt_refresh_token_ttl }}"
+      - "JWT Token Audience: {{ JWT_TOKEN_AUDIENC }}"
+      - "JWT Token Issue: {{ JWT_TOKEN_ISSUE }}"
+  delegate_to: minikube
