@@ -8,7 +8,7 @@
 
     - name: Verify inventory_hostname
       debug:
-        msg: "Current host is: {{ inventory_hostname }}"
+        msg: "Current host is: {{ hostvars[inventory_hostname]['db_user'] }}"
 
     - name: Print Database Connection Details
       debug:
