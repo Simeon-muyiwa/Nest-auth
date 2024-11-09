@@ -29,7 +29,7 @@ spec:
     #         echo "Init container completed successfully"
     containers:
       - name: nestjs-auth
-        image: nestjs-auth:V1 # Replace with the correct image or digest
+        image: "sha256:fd8a7fa77c30ca01884d31a62866ac82c84fa22ff28723f90de94d043502b764" # Replace with the correct image or digest
         ports:
           - containerPort: 3000
         securityContext:
