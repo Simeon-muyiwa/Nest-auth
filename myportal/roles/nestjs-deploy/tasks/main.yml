@@ -11,24 +11,23 @@
 #   debug:
 #     var: postgres_config
 
-# # Set namespaces, portals, and tenant name
-# - name: Set namespaces, portals, and tenant name
-#   set_fact:
-#     ansible_operator_meta:
-#       namespace: "portal1"
-#     mytenantname: "first-tenant"
-#     myportals:
-#       - name: nestjs-auth
-#         replicacount: 1
-#         config:
-#           jwt_token_secret: "secret1"
-#           jwt_access_token_ttl: 3600
-#           jwt_refresh_token_ttl: 7200
-#           db_host: "postgres"
-#           db_port: "5432"
-#           db_username: "postgres"
-#           db_password: "pass123"
-#           db_database: "postgres"
+# Set namespaces, portals, and tenant name
+- name: Set namespaces, portals, and tenant name
+  set_fact:
+    namespace: "portal1"
+    mytenantname: "first-tenant"
+    myportals:
+      - name: nestjs-auth
+        replicacount: 1
+        config:
+          jwt_token_secret: "secret1"
+          jwt_access_token_ttl: 3600
+          jwt_refresh_token_ttl: 7200
+          db_host: "postgres"
+          db_port: "5432"
+          db_username: "postgres"
+          db_password: "pass123"
+          db_database: "postgres"
 
 # - name: Process each portal
 #   debug:
