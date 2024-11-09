@@ -10,6 +10,7 @@
 - name: Verify inventory_hostname
   debug:
     msg: "Current host is: {{ inventory_hostname }}"
+  delegate_to: minikube
 
 - name: Print Database Connection Details
   debug:
@@ -19,7 +20,7 @@
       - "Database User: {{ db_user }}"
       - "Database Password: {{ db_password }}"
       - "Database Name: {{ db_name }}"
-  delegate_to: "{{ inventory_hostname }}"
+    delegate_to: minikube
 
 - name: Print JWT Config
   debug:
@@ -29,4 +30,3 @@
       - "JWT Refresh Token TTL: {{ jwt_refresh_token_ttl }}"
       - "JWT Token Audience: {{ JWT_TOKEN_AUDIENC }}"
       - "JWT Token Issue: {{ JWT_TOKEN_ISSUE }}"
-  delegate_to: "{{ inventory_hostname }}"
