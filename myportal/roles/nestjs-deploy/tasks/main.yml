@@ -29,6 +29,7 @@
           db_username: "postgres"
           db_password: "pass123"
           db_database: "postgres"
+          image_name: "nestjs-auth"
 
 # - name: Process each portal
 #   debug:
@@ -84,8 +85,17 @@
 
 - name: Create nestjs deployments/replicasets and pods
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace, replicacount=item.replicacount | default(1), jwt_token_secret=item.jwt_token_secret | default('secret1'), jwt_access_token_ttl=item.jwt_access_token_ttl | default(3600), jwt_refresh_token_ttl=item.jwt_refresh_token_ttl | default(86400))) | from_yaml }}"
-    state: present
+    definition: >
+      {{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(
+        portalname=item.name,
+        namespace=ansible_operator_meta.namespace,
+        replicacount=item.replicacount | default(1),
+        jwt_token_secret=item.config.jwt_token_secret | default('secret1'),
+        jwt_access_token_ttl=item.config.jwt_access_token_ttl | default(3600),
+        jwt_refresh_token_ttl=item.config.jwt_refresh_token_ttl | default(86400),
+        image_name=item.config.image_name | default('nestjs-auth')  # Set default image here
+      )) | from_yaml }}
+  state: present
   loop: "{{ myportals }}"
 
 # - name: Create nestjs deployments/replicasets and pods
