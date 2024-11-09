@@ -1,6 +1,6 @@
-- name: Gather facts for Minikube
-  ansible.builtin.gather_facts:
-  delegate_to: minikube
+# - name: Gather facts for Minikube
+#   ansible.builtin.gather_facts:
+#   delegate_to: minikube
 
 - name: Print Minikube IP
   debug:
