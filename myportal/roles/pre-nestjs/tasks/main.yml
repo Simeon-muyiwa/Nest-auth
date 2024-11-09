@@ -67,3 +67,15 @@
 
 - name: Ensure Docker image is built and available
   docker_image_info:
+
+  # 7. Ensure Docker image is built and available in Minikube
+- name: Verify Docker image availability in Minikube
+  shell: |
+    docker images | grep "nestjs-auth"
+  register: docker_images
+  failed_when: "'nestjs-auth' not in docker_images.stdout"
+
+# 8. Get the image tag (in case you want to dynamically retrieve it for use in deployment.yaml)
+- name: Get the Docker image tag for the deployment
+  set_fact:
+    image_tag: "nestjs-auth:V1"
