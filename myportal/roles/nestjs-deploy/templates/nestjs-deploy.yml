@@ -14,7 +14,7 @@ spec:
   spec:
     containers:
       - name: nestjs-auth
-        image: "sha256:fd8a7fa77c30ca01884d31a62866ac82c84fa22ff28723f90de94d043502b764" # Your locally created image
+        image: sha256:fd8a7fa77c30ca01884d31a62866ac82c84fa22ff28723f90de94d043502b764 # Your locally created image
         ports:
           - containerPort: 3000
         securityContext:
