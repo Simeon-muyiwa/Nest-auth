@@ -1,5 +1,5 @@
 - name: Delegate Tasks
-  hosts: minikube
+  hosts: all
   vars:
     ansible_user: root
   tasks:
@@ -9,16 +9,16 @@
 
     - name: Verify inventory_hostname
       debug:
-        msg: 'Current host is: {{ inventory_hostname }}'
+        msg: "Current host is: {{ inventory_hostname }}"
 
     - name: Print Database Connection Details
       debug:
         msg:
-          - 'Database Host: {{ db_host }}'
-          - 'Database Port: {{ db_port }}'
-          - 'Database User: {{ db_user }}'
-          - 'Database Password: {{ db_password }}'
-          - 'Database Name: {{ db_name }}'
+          - "Database Host: {{ db_host }}"
+          - "Database Port: {{ db_port }}"
+          - "Database User: {{ db_user }}"
+          - "Database Password: {{ db_password }}"
+          - "Database Name: {{ db_name }}"
 
 - name: Deploy NestJS application
   hosts: localhost
