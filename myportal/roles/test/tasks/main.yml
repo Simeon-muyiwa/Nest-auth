@@ -1,12 +1,12 @@
 - name: Print Minikube IP
   debug:
     msg: "Minikube IP is {{ ansible_host }}"
-  delegate_to: "{{ groups['minikube'][0] }}"
+  delegate_to: localhost
 
 - name: Verify inventory_hostname
   debug:
     msg: "Current host is: {{ inventory_hostname }}"
-  delegate_to: "{{ groups['minikube'][0] }}"
+  delegate_to: localhost
 
 - name: Print Database Connection Details
   debug:
@@ -16,4 +16,4 @@
       - "Database User: {{ db_user }}"
       - "Database Password: {{ db_password }}"
       - "Database Name: {{ db_name }}"
-  delegate_to: "{{ groups['minikube'][0] }}"
+  delegate_to: localhost
