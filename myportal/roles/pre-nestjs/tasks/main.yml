@@ -118,11 +118,11 @@
                 image: "nestjs-auth:V1"
                 ports:
                   - containerPort: 3000
-                  envFrom:
-          # - configMapRef:
-          #     name: jwt-configmap
-          # - configMapRef:
-          #     name: postgresql-configmap
+                envFrom:
+                  - configMapRef:
+                      name: jwt-configmap
+                  - configMapRef:
+                      name: postgresql-configmap
     resources:
       requests:
         memory: "128Mi"
