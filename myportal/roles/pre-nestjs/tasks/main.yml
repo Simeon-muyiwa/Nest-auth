@@ -74,7 +74,7 @@
     tag: "V1"
     state: present
 
-# 8. Verify Docker image availability in Minikube
+# 7. Verify Docker image availability in Minikube
 - name: Verify Docker image availability in Minikube
   shell: |
     docker images | grep "nestjs-auth"
@@ -88,6 +88,12 @@
 - name: Print the image tag (for verification)
   debug:
     msg: "The image tag for deployment is: {{ image_tag }}"
+
+- name: Get Docker image details as artifact
+  community.docker.artifact:
+    name: "{{ image_tag }}"
+    state: present
+  register: docker_image_artifact
 
 # 10. Deploy the application directly using kubernetes.core.k8s module
 - name: Deploy the application using kubernetes.core.k8s
