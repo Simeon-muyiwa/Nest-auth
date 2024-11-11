@@ -1,15 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: postgres # The name you will use in the NestJS app to connect to PostgreSQL
   namespace: portal1
 spec:
   selector:
-    app: postgres # Ensure this matches the labels in your PostgreSQL pod
+    app: postgres # Match the label of your PostgreSQL pod here
   ports:
     - protocol: TCP
-      port: 5432 # Port exposed by the Service
-      targetPort: 5432 # Port on the PostgreSQL Pod
-
-selector:
-  app: postgres
+      port: 5432 # Default PostgreSQL port
+      targetPort: 5432 # The port PostgreSQL listens to inside the container
+  type: ClusterIP # Internal service within the cluster
