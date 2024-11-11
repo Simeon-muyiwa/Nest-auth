@@ -93,41 +93,74 @@
 - name: Print the image tag (for verification)
   debug:
     msg: "The image tag for deployment is: {{ image_tag }}"
-# 10. Deploy the application directly using kubernetes.core.k8s module
-- name: Deploy the application using kubernetes.core.k8s
-  kubernetes.core.k8s:
-    state: present
-    definition: |
-      apiVersion: apps/v1
-      kind: Deployment
-      metadata:
-        name: "{{ item.name }}-deployment"
-        namespace: "{{ item.namespace }}"  # Adjust the namespace as needed
-      spec:
-        replicas: {{ item.replicacount | default(1) }}
-        selector:
-          matchLabels:
-            app: "{{ item.name }}"
-        template:
+
+- name: Deploy ConfigMaps and application for each portal
+  block:
+    - name: Deploy the PostgreSQL ConfigMap for {{ item.name }}
+      kubernetes.core.k8s:
+        state: present
+        definition: |
+          apiVersion: v1
+          kind: ConfigMap
           metadata:
-            labels:
-              app: "{{ item.name }}"
+            name: "{{ item.name }}-postgresql-configmap"
+            namespace: "{{ item.namespace }}"
+          data:
+            POSTGRES_HOST: 'postgres'
+            POSTGRES_PORT: '5432'
+            POSTGRES_USER: 'postgres'
+            POSTGRES_PASSWORD: 'pass123'
+            POSTGRES_DB: 'postgres'
+
+    - name: Deploy the JWT ConfigMap for {{ item.name }}
+      kubernetes.core.k8s:
+        state: present
+        definition: |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: "{{ item.name }}-jwt-configmap"
+            namespace: "{{ item.namespace }}"
+          data:
+            JWT_TOKEN_SECRET: 'secret'
+            JWT_ACCESS_TOKEN_TTL: '3600'
+            JWT_REFRESH_TOKEN_TTL: '7600'
+            JWT_TOKEN_AUDIENCE: "{{ item.name }}.default.svc.cluster.local"
+
+    - name: Deploy the application using kubernetes.core.k8s for {{ item.name }}
+      kubernetes.core.k8s:
+        state: present
+        definition: |
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: "{{ item.name }}-deployment"
+            namespace: "{{ item.namespace }}"
           spec:
-            containers:
-              - name: "{{ item.name }}"
-                image: "{{ item.image }}"
-                ports:
-                  - containerPort: 3000
-                envFrom:
-                  - configMapRef:
-                      name: jwt-configmap
-                  - configMapRef:
-                      name: postgresql-configmap
-                resources:
-                  requests:
-                    memory: "128Mi"
-                    cpu: "250m"
-                  limits:
-                    memory: "256Mi"
-                    cpu: "500m"
+            replicas: {{ item.replicacount | default(1) }}
+            selector:
+              matchLabels:
+                app: "{{ item.name }}"
+            template:
+              metadata:
+                labels:
+                  app: "{{ item.name }}"
+              spec:
+                containers:
+                  - name: "{{ item.name }}"
+                    image: "{{ item.image }}"
+                    ports:
+                      - containerPort: 3000
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ item.name }}-postgresql-configmap"
+                      - configMapRef:
+                          name: "{{ item.name }}-jwt-configmap"
+                    resources:
+                      requests:
+                        memory: "128Mi"
+                        cpu: "250m"
+                      limits:
+                        memory: "256Mi"
+                        cpu: "500m"
   loop: "{{ myportals }}"

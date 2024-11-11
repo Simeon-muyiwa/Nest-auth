@@ -4,9 +4,9 @@
   roles:
     - postgresql
     - redis
-    - nestjs-config
-    - nestjs-deploy
     - pre-nestjs
+    - nestjs-deploy
+
     # - install-nodejs
     # - nestjs-deploy
     # - nestjs-service-setup
