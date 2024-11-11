@@ -99,7 +99,7 @@
             name: "{{ item.name }}-configmap"
             namespace: "{{ ansible_operator_meta.namespace }}"
           data:
-            POSTGRES_HOST: '10.101.214.98'
+            POSTGRES_HOST: 'postgres.portal1.svc.cluster.local'
             POSTGRES_PORT: '5432'
             POSTGRES_USER: 'postgres'
             POSTGRES_PASSWORD: 'pass123'
