@@ -81,11 +81,6 @@
   register: docker_images
   failed_when: "'nestjs-auth' not in docker_images.stdout"
 
-# # 9. Get the Docker image tag for the deployment
-# - name: Get the Docker image tag for the deployment
-#   set_fact:
-#     image_tag: "nestjs-auth:V1"
-
 - name: Set image_tag fact for deployment
   set_fact:
     image_tag: "nestjs-auth:V1"
