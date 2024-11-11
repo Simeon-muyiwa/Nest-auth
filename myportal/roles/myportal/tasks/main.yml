@@ -2,9 +2,9 @@
   include_role:
     name: pre-nestjs
 
-- name: Include Node.js installation role
-  include_role:
-    name: install-nodejs
+# - name: Include Node.js installation role
+#   include_role:
+#     name: install-nodejs
 
 - name: Include PostgreSQL role
   include_role:
