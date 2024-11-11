@@ -3,7 +3,12 @@
   set_fact:
     mytenantname: "tenant1" # Set this to your tenant name or a specific identifier
     myportals:
-      - { name: "nestjs-auth", replicacount: 1, namespace: portal1 }
+      - {
+          name: "nestjs-auth",
+          replicacount: 1,
+          namespace: portal1,
+          image: imag_tag,
+        }
 
 # 1. Clone or update the NestJS repository
 - name: Clone or update the NestJS repository
