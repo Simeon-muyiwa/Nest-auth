@@ -154,11 +154,52 @@
                     image: "{{ item.image }}"
                     ports:
                       - containerPort: 3000
-                    envFrom:
-                      - configMapRef:
-                          name: "{{ item.name }}-postgresql-configmap"
-                      - configMapRef:
-                          name: "{{ item.name }}-jwt-configmap"
+                    env:
+                      - name: POSTGRES_HOST
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-postgresql-configmap"
+                            key: POSTGRES_HOST
+                      - name: POSTGRES_PORT
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-postgresql-configmap"
+                            key: POSTGRES_PORT
+                      - name: POSTGRES_USER
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-postgresql-configmap"
+                            key: POSTGRES_USER
+                      - name: POSTGRES_PASSWORD
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-postgresql-configmap"
+                            key: POSTGRES_PASSWORD
+                      - name: POSTGRES_DB
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-postgresql-configmap"
+                            key: POSTGRES_DB
+                      - name: JWT_TOKEN_SECRET
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-jwt-configmap"
+                            key: JWT_TOKEN_SECRET
+                      - name: JWT_ACCESS_TOKEN_TTL
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-jwt-configmap"
+                            key: JWT_ACCESS_TOKEN_TTL
+                      - name: JWT_REFRESH_TOKEN_TTL
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-jwt-configmap"
+                            key: JWT_REFRESH_TOKEN_TTL
+                      - name: JWT_TOKEN_AUDIENCE
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-jwt-configmap"
+                            key: JWT_TOKEN_AUDIENCE
                     resources:
                       requests:
                         memory: "128Mi"
