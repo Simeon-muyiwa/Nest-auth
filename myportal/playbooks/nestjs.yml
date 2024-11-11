@@ -1,12 +1,33 @@
 ---
-- name: Deploy NestJS application
+- name: Deploy PostgreSQL and Redis services
   hosts: localhost
   roles:
     - postgresql
     - redis
+
+- name: Ensure PostgreSQL and Redis are running
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Check if PostgreSQL is reachable
+      wait_for:
+        host: "postgres:5432"
+        state: started
+        timeout: 60
+      delegate_to: localhost
+
+    - name: Check if Redis is reachable
+      wait_for:
+        host: "redis:6379"
+        state: started
+        timeout: 60
+      delegate_to: localhost
+
+- name: Deploy NestJS application
+  hosts: localhost
+  roles:
     - pre-nestjs
     - nestjs-deploy
-
     # - install-nodejs
     # - nestjs-deploy
     # - nestjs-service-setup
