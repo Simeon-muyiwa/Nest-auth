@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "{{ portalname }}"
-  namespace: "{{ namespace }}"
+  namespace: portal1
 spec:
   selector:
     matchLabels:
