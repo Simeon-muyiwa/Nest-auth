@@ -7,10 +7,10 @@
 #   register: postgres_config
 
 ---
-- name: Get Docker image tag for deployment
-  artifacts:
-    name: nestjs-image-tag
-    register: image_tag_value
+# - name: Get Docker image tag for deployment
+#   artifacts:
+#     name: nestjs-image-tag
+#     register: image_tag_value
 
 - name: Create config maps
   community.kubernetes.k8s:
