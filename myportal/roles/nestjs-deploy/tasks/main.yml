@@ -1,17 +1,3 @@
-# - name: Fetch PostgreSQL ConfigMap values
-#   community.kubernetes.k8s_info:
-#     api_version: v1
-#     kind: ConfigMap
-#     name: postgresql-configmap
-#     namespace: "{{ ansible_operator_meta.namespace }}"
-#   register: postgres_config
-
----
-# - name: Get Docker image tag for deployment
-#   artifacts:
-#     name: nestjs-image-tag
-#     register: image_tag_value
-
 - name: Create config maps
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-config.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
@@ -23,7 +9,7 @@
     definition: "{{ lookup('template', 'jwt-config.yml', template_vars=dict(
       namespace=ansible_operator_meta.namespace, portalname=item.name)) | from_yaml }}"
     state: present
-  loop: "{{ myportals }}"
+  # loop: "{{ myportals }}"
 
 - name: Create portal deployments/replicasets and pods
   community.kubernetes.k8s:
