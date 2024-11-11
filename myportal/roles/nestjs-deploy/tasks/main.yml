@@ -17,15 +17,15 @@
 #     state: present
 #   loop: "{{ myportals }}"
 
-- name: Create nestjs services for each portal
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(
-      portalname=item.name,
-      replicacount=item.replicacount | default(1),
+# - name: Create nestjs services for each portal
+#   community.kubernetes.k8s:
+#     definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(
+#       portalname=item.name,
+#       replicacount=item.replicacount | default(1),
 
-      )) | from_yaml }}"
-    state: present
-  loop: "{{ myportals }}"
+#       )) | from_yaml }}"
+#     state: present
+#   loop: "{{ myportals }}"
 
 - name: Create nestjs ingress for each portal
   community.kubernetes.k8s:

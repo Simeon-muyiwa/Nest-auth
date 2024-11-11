@@ -208,3 +208,24 @@
                         memory: "256Mi"
                         cpu: "500m"
       loop: "{{ myportals }}"
+
+    - name: Deploy Service for {{ item.name }}
+      kubernetes.core.k8s:
+        state: present
+        definition: |
+          apiVersion: v1
+          kind: Service
+          metadata:
+            namespace: "{{ item.namespace }}"
+            name: "{{ item.name }}"
+            labels:
+              app: "{{ item.name }}"
+          spec:
+            selector:
+              app: "{{ item.name }}-deploy"  # Ensure this matches the deployment label
+            ports:
+              - protocol: TCP
+                port: 80
+                targetPort: 3000
+            type: ClusterIP
+      loop: "{{ myportals }}"
