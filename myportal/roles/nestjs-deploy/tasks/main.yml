@@ -13,7 +13,7 @@
 
 - name: Create portal deployments/replicasets and pods
   community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=item.namespace, image=image_tag.value, replicacount=item.replicacount)) | from_yaml }}"
+    definition: "{{ lookup('template', 'nestjs-deploy.yml', template_vars=dict(portalname=item.name, namespace=item.namespace, image=item.image_tag, replicacount=item.replicacount)) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
 
