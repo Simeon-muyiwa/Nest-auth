@@ -94,6 +94,7 @@
   debug:
     msg: "The image tag for deployment is: {{ image_tag }}"
 
+# Loop through myportals to deploy both ConfigMap (postgresql and jwt) and application Deployment
 - name: Deploy ConfigMaps and application for each portal
   block:
     - name: Deploy the PostgreSQL ConfigMap for {{ item.name }}
@@ -111,6 +112,7 @@
             POSTGRES_USER: 'postgres'
             POSTGRES_PASSWORD: 'pass123'
             POSTGRES_DB: 'postgres'
+      loop: "{{ myportals }}"
 
     - name: Deploy the JWT ConfigMap for {{ item.name }}
       kubernetes.core.k8s:
@@ -126,6 +128,7 @@
             JWT_ACCESS_TOKEN_TTL: '3600'
             JWT_REFRESH_TOKEN_TTL: '7600'
             JWT_TOKEN_AUDIENCE: "{{ item.name }}.default.svc.cluster.local"
+      loop: "{{ myportals }}"
 
     - name: Deploy the application using kubernetes.core.k8s for {{ item.name }}
       kubernetes.core.k8s:
@@ -163,4 +166,4 @@
                       limits:
                         memory: "256Mi"
                         cpu: "500m"
-  loop: "{{ myportals }}"
+      loop: "{{ myportals }}"
