@@ -7,7 +7,7 @@
           name: "nestjs-auth",
           replicacount: 1,
           namespace: portal1,
-          image: image_tag,
+          image: "nestjs-auth:V1",
         }
 
 # 1. Clone or update the NestJS repository
