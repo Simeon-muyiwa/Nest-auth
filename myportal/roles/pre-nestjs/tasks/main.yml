@@ -118,4 +118,16 @@
                 image: "nestjs-auth:V1"
                 ports:
                   - containerPort: 3000
+                  envFrom:
+          - configMapRef:
+              name: jwt-configmap
+          - configMapRef:
+              name: postgresql-configmap
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "250m"
+      limits:
+        memory: "256Mi"
+        cpu: "500m"
   loop: "{{ myportals }}"
