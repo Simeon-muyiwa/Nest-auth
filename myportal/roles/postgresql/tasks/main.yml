@@ -22,17 +22,6 @@
     definition: "{{ lookup('template', 'postgresql-configmap.yml') | from_yaml }}"
     state: present
 
-# - name: Debug PostgreSQL ConfigMap Template
-#   debug:
-#     msg: "{{ lookup('template', 'postgresql-configmap.yml', template_vars=dict(
-#     namespace=ansible_operator_meta.namespace,
-#     db_host=item.config.db_host | default('postgres'),
-#     db_port=item.config.db_port | default(5432),
-#     db_username=item.config.db_username | default('postgres'),
-#     db_password=item.config.db_password | default('pass123'),
-#     db_database=item.config.db_database | default('postgres')
-#     )) }}"
-
 # - name: Create PostgreSQL Secret
 #   community.kubernetes.k8s:
 #     definition: "{{ lookup('template', 'postgresql-secret.yml') | from_yaml }}"
