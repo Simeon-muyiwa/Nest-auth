@@ -81,6 +81,11 @@
   register: docker_images
   failed_when: "'nestjs-auth' not in docker_images.stdout"
 
+- name: Set image_tag artifact
+  artifacts:
+    name: nestjs-image-tag
+    value: "{{ image_tag }}"
+
 # 9. Get the Docker image tag for the deployment
 - name: Get the Docker image tag for the deployment
   set_fact:
