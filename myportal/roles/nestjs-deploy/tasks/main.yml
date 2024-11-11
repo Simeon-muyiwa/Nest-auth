@@ -22,7 +22,7 @@
     definition: "{{ lookup('template', 'nestjs-service.yml', template_vars=dict(
       portalname=item.name,
       replicacount=item.replicacount | default(1),
-      namespace=ansible_operator_meta.namespace,
+
       )) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
