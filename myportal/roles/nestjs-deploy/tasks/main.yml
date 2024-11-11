@@ -7,7 +7,7 @@
 - name: Create jwt-config for each portal
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'jwt-config.yml', template_vars=dict(
-      namespace=ansible_operator_meta.namespace, portalname=item.name)) | from_yaml }}"
+      )) | from_yaml }}"
     state: present
   # loop: "{{ myportals }}"
 
