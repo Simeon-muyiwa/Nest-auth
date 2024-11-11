@@ -151,7 +151,7 @@
               spec:
                 containers:
                   - name: "{{ item.name }}"
-                    image: "{{ item.image }}"
+                    image: "{{ item.image | default('nestjs-auth:V1') }}"
                     ports:
                       - containerPort: 3000
                     env:
