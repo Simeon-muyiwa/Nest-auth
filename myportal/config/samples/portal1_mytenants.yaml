@@ -5,5 +5,5 @@ metadata:
   namespace: portal1
 spec:
   myportals:
-    - { name: "nestjs-auth", replicacount: 1, namespace: portal1 }
+    - { name: "nestjs-auth", replicacount: 1 }
   mytenantname: "first-tenant"

@@ -105,7 +105,7 @@
           kind: ConfigMap
           metadata:
             name: "{{ item.name }}-configmap"
-            namespace: "{{ item.namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace }}"
           data:
             POSTGRES_HOST: '10.101.214.98'
             POSTGRES_PORT: '5432'
@@ -122,7 +122,7 @@
           kind: ConfigMap
           metadata:
             name: "{{ item.name }}-jwt-configmap"
-            namespace: "{{ item.namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace }}"
           data:
             JWT_TOKEN_SECRET: 'secret'
             JWT_ACCESS_TOKEN_TTL: '3600'
@@ -138,7 +138,7 @@
           kind: Deployment
           metadata:
             name: "{{ item.name }}-deployment"
-            namespace: "{{ item.namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace }}"
           spec:
             replicas: {{ item.replicacount | default(1) }}
             selector:
@@ -216,7 +216,7 @@
           apiVersion: v1
           kind: Service
           metadata:
-            namespace: "{{ item.namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace }}"
             name: "{{ item.name }}"
             labels:
               app: "{{ item.name }}"
