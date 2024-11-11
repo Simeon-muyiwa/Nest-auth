@@ -9,6 +9,9 @@
           namespace: portal1,
           image: "nestjs-auth:V1",
         }
+- name: Get Minikube IP address on the host
+  local_action: command minikube ip
+  register: minikube_ip
 
 # 1. Clone or update the NestJS repository
 - name: Clone or update the NestJS repository
