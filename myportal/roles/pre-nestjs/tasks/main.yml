@@ -119,10 +119,10 @@
                 ports:
                   - containerPort: 3000
                   envFrom:
-          - configMapRef:
-              name: jwt-configmap
-          - configMapRef:
-              name: postgresql-configmap
+          # - configMapRef:
+          #     name: jwt-configmap
+          # - configMapRef:
+          #     name: postgresql-configmap
     resources:
       requests:
         memory: "128Mi"
