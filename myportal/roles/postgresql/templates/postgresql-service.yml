@@ -10,4 +10,4 @@ spec:
     - protocol: TCP
       port: 5432 # Default PostgreSQL port
       targetPort: 5432 # The port PostgreSQL listens to inside the container
-  type: ClusterIP # Internal service within the cluster
+  clusterIP: None # Internal service within the cluster
