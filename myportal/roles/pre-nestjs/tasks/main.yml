@@ -115,7 +115,7 @@
           spec:
             containers:
               - name: "{{ item.name }}"
-                image: "nestjs-auth:V1"
+                image: "{{ item.image }}"
                 ports:
                   - containerPort: 3000
                 envFrom:
@@ -123,11 +123,11 @@
                       name: jwt-configmap
                   - configMapRef:
                       name: postgresql-configmap
-    resources:
-      requests:
-        memory: "128Mi"
-        cpu: "250m"
-      limits:
-        memory: "256Mi"
-        cpu: "500m"
+                resources:
+                  requests:
+                    memory: "128Mi"
+                    cpu: "250m"
+                  limits:
+                    memory: "256Mi"
+                    cpu: "500m"
   loop: "{{ myportals }}"
