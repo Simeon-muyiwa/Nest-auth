@@ -8,13 +8,13 @@ mytenants:
         replicacount: 1
 
         env:
-          - name: DB_HOST
+          - name: POSTGRES_HOST
             value: "postgres"
-          - name: DB_PORT
+          - name: POSTGRES_PORT
             value: "5432"
-          - name: DB_USERNAME
+          - name: POSTGRES_USERNAME
             value: "postgres"
-          - name: DB_PASSWORD
+          - name: POSTGRES_PASSWORD
             value: "pass123"
-          - name: DB_DATABASE
+          - name: POSTGRES_DATABASE
             value: "postgres"
