@@ -3,8 +3,8 @@
   hosts: localhost
   roles:
     - pre-nestjs
-    # - install-nodejs
-    # - nestjs-deploy
-    # - nestjs-service-setup
+    - install-nodejs
+    - nestjs-deploy
+    - nestjs-service-setup
     - postgresql
     - redis
