@@ -1,41 +1,38 @@
 ---
 # Set namespaces, portals, and tenant name
-- name: Set namespaces, portals, and tenant name
-  set_fact:
-    ansible_operator_meta:
-      namespace: "portal1"
-    mytenantname: "first-tenant"
-    myportals:
-      - name: nestjs-auth
-        replicacount: 1
-        config:
-          jwt_token_secret: "secret1"
-          jwt_access_token_ttl: 3600
-          jwt_refresh_token_ttl: 7200
-          db_host: "{{ postgres_config['items'][0]['data']['POSTGRES_HOST'] | default('postgres') }}"
-          db_port: "{{ postgres_config['items'][0]['data']['POSTGRES_PORT'] | default('5432') }}"
-          db_username: "{{ postgres_config['items'][0]['data']['POSTGRES_USER'] | default('postgres') }}"
-          db_password: "{{ postgres_config['items'][0]['data']['POSTGRES_PASSWORD'] | default('pass123') }}"
-          
-
+# - name: Set namespaces, portals, and tenant name
+#   set_fact:
+#     ansible_operator_meta:
+#       namespace: "portal1"
+#     mytenantname: "first-tenant"
+#     myportals:
+#       - name: nestjs-auth
+#         replicacount: 1
+#         config:
+#           jwt_token_secret: "secret1"
+#           jwt_access_token_ttl: 3600
+#           jwt_refresh_token_ttl: 7200
+#           db_host: "{{ postgres_config['items'][0]['data']['POSTGRES_HOST'] | default('postgres') }}"
+#           db_port: "{{ postgres_config['items'][0]['data']['POSTGRES_PORT'] | default('5432') }}"
+#           db_username: "{{ postgres_config['items'][0]['data']['POSTGRES_USER'] | default('postgres') }}"
+#           db_password: "{{ postgres_config['items'][0]['data']['POSTGRES_PASSWORD'] | default('pass123') }}"
 
 - name: Create PostgreSQL ConfigMap
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'postgresql-configmap.yml') | from_yaml }}"
     state: present
 
+# - name: Debug PostgreSQL ConfigMap Template
+#   debug:
+#     msg: "{{ lookup('template', 'postgresql-configmap.yml', template_vars=dict(
+#     namespace=ansible_operator_meta.namespace,
+#     db_host=item.config.db_host | default('postgres'),
+#     db_port=item.config.db_port | default(5432),
+#     db_username=item.config.db_username | default('postgres'),
+#     db_password=item.config.db_password | default('pass123'),
+#     db_database=item.config.db_database | default('postgres')
+#     )) }}"
 
-- name: Debug PostgreSQL ConfigMap Template
-  debug:
-    msg: "{{ lookup('template', 'postgresql-configmap.yml', template_vars=dict(
-    namespace=ansible_operator_meta.namespace,
-    db_host=item.config.db_host | default('postgres'),
-    db_port=item.config.db_port | default(5432),
-    db_username=item.config.db_username | default('postgres'),
-    db_password=item.config.db_password | default('pass123'),
-    db_database=item.config.db_database | default('postgres')
-    )) }}"
- 
 # - name: Create PostgreSQL Secret
 #   community.kubernetes.k8s:
 #     definition: "{{ lookup('template', 'postgresql-secret.yml') | from_yaml }}"

@@ -1,0 +1,12 @@
+- name: Create config maps
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'nestjs-config.yml', template_vars=dict(portalname=item.name, namespace=ansible_operator_meta.namespace)) | from_yaml }}"
+    state: present
+  loop: "{{ myportals }}"
+
+- name: Create jwt-config for each portal
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', 'jwt-config.yml', template_vars=dict(
+      )) | from_yaml }}"
+    state: present
+  # loop: "{{ myportals }}"
