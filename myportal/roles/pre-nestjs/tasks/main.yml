@@ -34,13 +34,14 @@
     dest: "/myk8sansible/myportal/"
     delete: yes
 
-# 4. Set Docker environment to Minikube's Docker daemon
-- name: Set Docker environment to Minikube's Docker daemon
-  shell: |
-    eval $(minikube -p minikube docker-env)
+- name: Set up Minikube Docker environment
+  shell: "eval $(minikube -p minikube docker-env)"
   environment:
-    DOCKER_CLI_EXPERIMENTAL: "enabled"
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: "/myk8sansible/dockercerts"
+    DOCKER_HOST: "tcp://192.168.49.2:2376"
   become: true
+  become_user: root
 
 # 5. Create a Dockerfile for the NestJS app
 - name: Create a Dockerfile for the NestJS app
