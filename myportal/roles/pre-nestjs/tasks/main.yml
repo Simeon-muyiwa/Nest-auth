@@ -62,7 +62,7 @@
 
   # Step 1: Find containers using the nestjs-auth:V1 image
 - name: Find containers using the nestjs-auth:V1 image
-  command: docker ps -a --filter "ancestor=nestjs-auth:V1" --format "{{.ID}}"
+  shell: docker ps -a --filter "ancestor=nestjs-auth:V1" --format "{{.ID}}"
   register: containers_using_image
   changed_when:
     false
