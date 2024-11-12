@@ -60,7 +60,12 @@
       # Run the NestJS application
       CMD ["npm", "run", "start:prod"]
 
-# 6. Build Docker image for NestJS app
+- name: Remove old NestJS image
+  community.docker.docker_image:
+    name: "nestjs-auth"
+    state: absent
+    tag: "V1"
+
 - name: Build Docker image for NestJS app
   community.docker.docker_image:
     name: "nestjs-auth"
@@ -69,6 +74,7 @@
       path: "{{ service_path }}"
     tag: "V1"
     state: present
+    force: yes # This forces a rebuild
 
 # 7. Verify Docker image availability in Minikube
 - name: Verify Docker image availability in Minikube
@@ -143,6 +149,7 @@
                 containers:
                   - name: "{{ item.name }}"
                     image: "{{ item.image | default('nestjs-auth:V1') }}"
+                    imagePullPolicy: Always
                     ports:
                       - containerPort: 3000
                     env:
