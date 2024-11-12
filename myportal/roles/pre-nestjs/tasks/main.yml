@@ -85,7 +85,7 @@
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "{{ lookup('env', 'DOCKER_CERT_PATH') }}:{{ lookup('env', 'DOCKER_CERT_PATH') }}"
-    environment:
+    env:
       DOCKER_TLS_VERIFY: 1
       DOCKER_HOST: tcp://192.168.49.2:2376
     state: started
