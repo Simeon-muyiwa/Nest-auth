@@ -193,11 +193,11 @@
                             key: JWT_TOKEN_AUDIENCE
                     resources:
                       requests:
-                        memory: "128Mi"
-                        cpu: "250m"
-                      limits:
-                        memory: "256Mi"
+                        memory: "512Mi"
                         cpu: "500m"
+                      limits:
+                        memory: "1Gi"
+                        cpu: "1"
       loop: "{{ myportals }}"
 
     - name: Deploy Service for "{{ item.name }}"
