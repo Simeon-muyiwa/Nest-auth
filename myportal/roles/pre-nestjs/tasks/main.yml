@@ -64,28 +64,28 @@
 - name: Find containers using the nestjs-auth:V1 image
   command: docker ps -a --filter "ancestor=nestjs-auth:V1" --format "{{.ID}}"
   register: containers_using_image
-  changed_when: false
+  changed_when:
+    false
+
+    # Step 2: Stop containers using the nestjs-auth:V1 image
+- name: Stop containers using the nestjs-auth:V1 image
+  command: docker stop "{{ item }}"
+  with_items: "{{ containers_using_image.stdout_lines }}"
+  when:
+    containers_using_image.stdout_lines | length > 0
+
+    # Step 3: Remove containers using the nestjs-auth:V1 image
+- name: Remove containers using the nestjs-auth:V1 image
+  command: docker rm "{{ item }}"
+  with_items: "{{ containers_using_image.stdout_lines }}"
+  when: containers_using_image.stdout_lines | length > 0
 
   # Step 4: Remove the old NestJS image
 - name: Remove old NestJS image
   community.docker.docker_image:
     name: "nestjs-auth"
     tag: "V1"
-    state:
-      absent
-
-      # Step 3: Remove containers using the nestjs-auth:V1 image
-- name: Remove containers using the nestjs-auth:V1 image
-  command: docker rm "{{ item }}"
-  with_items: "{{ containers_using_image.stdout_lines }}"
-  when:
-    containers_using_image.stdout_lines | length > 0
-
-    # Step 2: Stop containers using the nestjs-auth:V1 image
-- name: Stop containers using the nestjs-auth:V1 image
-  command: docker stop "{{ item }}"
-  with_items: "{{ containers_using_image.stdout_lines }}"
-  when: containers_using_image.stdout_lines | length > 0
+    state: absent
 
 - name: Build Docker image for NestJS app
   community.docker.docker_image:
