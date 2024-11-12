@@ -40,14 +40,6 @@
     dest: "/myk8sansible/myportal/"
     delete: yes
 
-# 7. Remove old Docker image (if exists)
-- name: Remove old Docker image (if exists)
-  community.docker.docker_image:
-    name: "nestjs-auth"
-    tag: "V1"
-    state: absent
-    force_source: yes #
-
 # 5. Create a Dockerfile for the NestJS app
 - name: Create a Dockerfile for the NestJS app
   copy:
