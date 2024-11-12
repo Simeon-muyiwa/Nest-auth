@@ -51,6 +51,10 @@
       # Set working directory
       WORKDIR /app
 
+       # Set a build argument to bust cache
+      ARG CACHE_BUSTER
+      RUN echo "Cache busting with $CACHE_BUSTER" && echo $CACHE_BUSTER > /tmp/cache_buster.txt
+
       # Copy package.json and package-lock.json
       COPY package*.json ./
 
