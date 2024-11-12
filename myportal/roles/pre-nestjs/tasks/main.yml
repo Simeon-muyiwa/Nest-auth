@@ -10,6 +10,12 @@
           image: "nestjs-auth:V1",
         }
 
+- name: Set Docker environment variables for Minikube Docker Daemon
+  set_fact:
+    DOCKER_HOST: "tcp://192.168.49.2:2376"
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: "/myk8sansible/dockercerts"
+
 # 1. Clone or update the NestJS repository
 - name: Clone or update the NestJS repository
   git:
@@ -33,15 +39,6 @@
     src: "{{ service_path }}/myportal/"
     dest: "/myk8sansible/myportal/"
     delete: yes
-
-- name: Set up Minikube Docker environment
-  shell: "eval $(minikube -p minikube docker-env)"
-  environment:
-    DOCKER_TLS_VERIFY: "1"
-    DOCKER_CERT_PATH: "/myk8sansible/dockercerts"
-    DOCKER_HOST: "tcp://192.168.49.2:2376"
-  become: true
-  become_user: root
 
 # 5. Create a Dockerfile for the NestJS app
 - name: Create a Dockerfile for the NestJS app
