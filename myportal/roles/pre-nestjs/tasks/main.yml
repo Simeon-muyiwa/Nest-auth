@@ -80,8 +80,8 @@
 
 - name: Run container with Docker access to Minikube
   community.docker.docker_container:
-    name: "my-docker-container"
-    image: "your-container-image"
+    name: "nestjs-auth"
+    image: "nestjs-auth:V1"
     interactive: yes
     tty: yes
     volumes:
@@ -89,7 +89,7 @@
       - "{{ lookup('env', 'DOCKER_CERT_PATH') }}:{{ lookup('env', 'DOCKER_CERT_PATH') }}"
     environment:
       DOCKER_TLS_VERIFY: 1
-      DOCKER_HOST: "tcp://{{ minikube_ip.stdout }}:2376"
+      DOCKER_HOST: tcp://192.168.49.2:2376
     state: started
 
 # 7. Verify Docker image availability in Minikube
@@ -102,20 +102,6 @@
 - name: Set image_tag fact for deployment
   set_fact:
     image_tag: "nestjs-auth:V1"
-
-- name: Run container with Docker access to Minikube
-  community.docker.docker_container:
-    name: "nestjs-auth"
-    image: "nestjs-auth:V1"
-    interactive: yes
-    tty: yes
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "{{ lookup('env', 'DOCKER_CERT_PATH') }}:{{ lookup('env', 'DOCKER_CERT_PATH') }}"
-    environment:
-      DOCKER_TLS_VERIFY: 1
-      DOCKER_HOST: tcp://192.168.49.2:2376
-    state: started
 
 - name: Print the image tag (for verification)
   debug:
