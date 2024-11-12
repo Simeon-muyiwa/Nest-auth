@@ -75,10 +75,17 @@ help: ## Display this help.
 
 ##@ Build
 
-.PHONY: run
+.PHONY: run build-docker-image
+
 ANSIBLE_ROLES_PATH?="$(shell pwd)/roles"
-run: ansible-operator ## Run against the configured Kubernetes cluster in ~/.kube/config
+
+# This is the entry point, you only need to run `make run`
+run: build-docker-image ## Rebuild the Docker image and run ansible-operator
 	$(ANSIBLE_OPERATOR) run
+
+# This rebuilds the Docker image, always using the latest code
+build-docker-image:
+	docker build --no-cache -t nestjs-auth:V1 .
 
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
