@@ -117,7 +117,7 @@
           kind: ConfigMap
           metadata:
             name: "{{ item.name }}-configmap"
-            namespace: "{{ ansible_operator_meta.namespace || {{ item.image }} }}"
+            namespace: "{{ ansible_operator_meta.namespace or item.namespace }}"
           data:
             POSTGRES_HOST: 'postgres.portal1.svc.cluster.local'
             POSTGRES_PORT: '5432'
@@ -134,7 +134,7 @@
           kind: ConfigMap
           metadata:
             name: "{{ item.name }}-jwt-configmap"
-            namespace: "{{ ansible_operator_meta.namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace or item.namespace }}"
           data:
             JWT_TOKEN_SECRET: 'secret'
             JWT_ACCESS_TOKEN_TTL: '3600'
@@ -151,7 +151,7 @@
           kind: Deployment
           metadata:
             name: "{{ item.name }}-deployment"
-            namespace: "{{ ansible_operator_meta.namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace or item.namespace }}"
           spec:
             replicas: {{ item.replicacount | default(1) }}
             selector:
@@ -231,7 +231,7 @@
           apiVersion: v1
           kind: Service
           metadata:
-            namespace: "{{ ansible_operator_meta.namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace or item.namespace}}"
             name: "{{ item.name }}"
             labels:
               app: "{{ item.name }}"
