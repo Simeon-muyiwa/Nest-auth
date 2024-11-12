@@ -76,6 +76,7 @@
     state: present
     force_source: yes # Forces a rebuild even if the image already exists
 
+# 6. Run container with Docker access to Minikube
 - name: Run container with Docker access to Minikube
   community.docker.docker_container:
     name: "nestjs-auth"
@@ -83,11 +84,11 @@
     interactive: yes
     tty: yes
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "{{ lookup('env', 'DOCKER_CERT_PATH') }}:{{ lookup('env', 'DOCKER_CERT_PATH') }}"
-    env:
-      DOCKER_TLS_VERIFY: 1
-      DOCKER_HOST: tcp://192.168.49.2:2376
+      - "/var/run/docker.sock:/var/run/docker.sock" # Mount Docker socket for Docker-in-Docker
+      - "{{ lookup('env', 'DOCKER_CERT_PATH') }}:{{ lookup('env', 'DOCKER_CERT_PATH') }}" # Use certs from the environment
+    env: # Correcting 'environment' to 'env'
+      DOCKER_TLS_VERIFY: "{{ DOCKER_TLS_VERIFY }}" # Set Docker TLS verify
+      DOCKER_HOST: "{{ DOCKER_HOST }}" # Minikube Docker daemon
     state: started
 
 # 7. Verify Docker image availability in Minikube
