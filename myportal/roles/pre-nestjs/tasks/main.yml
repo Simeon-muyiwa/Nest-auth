@@ -165,7 +165,7 @@
                   - name: "{{ item.name }}"
                     image: "nestjs-auth:V1"
 
-                    imagePullPolicy: Always
+                    imagePullPolicy: Never
                     ports:
                       - containerPort: 3000
                     env:
