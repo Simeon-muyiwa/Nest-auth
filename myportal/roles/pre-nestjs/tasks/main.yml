@@ -74,8 +74,8 @@
       path: "{{ service_path }}"
     tag: "V1"
     state: present
-    force_source: yes # Forces a rebuild even if the image already exists
-
+    force_source: yes # Forces rebuild even if image exists
+    no_cache: yes
 # # 6. Run container with Docker access to Minikube
 # - name: Run container with Docker access to Minikube
 #   community.docker.docker_container:
