@@ -68,7 +68,7 @@
       EXPOSE 3000
 
       # Run the NestJS application
-      CMD ["npm", "run", "start:prod"]
+      CMD ["npm", "run", "start:dev"]
 
 - name: Build Docker image for NestJS app
   community.docker.docker_image:
