@@ -19,7 +19,6 @@
     update: yes
     force: yes
   register: repo_clone
-  delegate_to: localhost
 
 # 2. Ensure correct permissions for /nestjs
 - name: Ensure /nestjs has correct permissions
@@ -214,10 +213,10 @@
               app: "{{ item.name }}"
           spec:
             selector:
-              app: "{{ item.name }}-deploy"  # Ensure this matches the deployment label
+              app: "{{ item.name }}"  # Ensure this matches the deployment label
             ports:
               - protocol: TCP
                 port: 80
                 targetPort: 3000
-            type: ClusterIP
+            ClusterIP: none
       loop: "{{ myportals }}"
