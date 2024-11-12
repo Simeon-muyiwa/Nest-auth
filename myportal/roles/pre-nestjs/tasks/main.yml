@@ -72,10 +72,11 @@
     source: build
     build:
       path: "{{ service_path }}"
+      args:
+        CACHE_BUSTER: "{{ ansible_date_time.iso8601 }}"
     tag: "V1"
     state: present
     force_source: yes # Forces rebuild even if image exists
-    no_cache: yes
 # # 6. Run container with Docker access to Minikube
 # - name: Run container with Docker access to Minikube
 #   community.docker.docker_container:
