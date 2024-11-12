@@ -117,7 +117,7 @@
           kind: ConfigMap
           metadata:
             name: "{{ item.name }}-configmap"
-            namespace: "{{ ansible_operator_meta.namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace || {{ item.image }} }}"
           data:
             POSTGRES_HOST: 'postgres.portal1.svc.cluster.local'
             POSTGRES_PORT: '5432'
@@ -139,6 +139,7 @@
             JWT_TOKEN_SECRET: 'secret'
             JWT_ACCESS_TOKEN_TTL: '3600'
             JWT_REFRESH_TOKEN_TTL: '7600'
+            JWT_TOKEN_ISSUER: "{{ item.name }}.default.svc.cluster.local"
             JWT_TOKEN_AUDIENCE: "{{ item.name }}.default.svc.cluster.local"
       loop: "{{ myportals }}"
 
