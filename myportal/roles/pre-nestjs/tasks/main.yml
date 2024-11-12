@@ -150,27 +150,27 @@
                       - name: POSTGRES_HOST
                         valueFrom:
                           configMapKeyRef:
-                            name: "{{ item.name }}-postgresql-configmap"
+                            name: "{{ item.name }}-configmap"
                             key: POSTGRES_HOST
                       - name: POSTGRES_PORT
                         valueFrom:
                           configMapKeyRef:
-                            name: "{{ item.name }}-postgresql-configmap"
+                            name: "{{ item.name }}-configmap"
                             key: POSTGRES_PORT
                       - name: POSTGRES_USER
                         valueFrom:
                           configMapKeyRef:
-                            name: "{{ item.name }}-postgresql-configmap"
+                            name: "{{ item.name }}-configmap"
                             key: POSTGRES_USER
                       - name: POSTGRES_PASSWORD
                         valueFrom:
                           configMapKeyRef:
-                            name: "{{ item.name }}-postgresql-configmap"
+                            name: "{{ item.name }}-configmap"
                             key: POSTGRES_PASSWORD
                       - name: POSTGRES_DB
                         valueFrom:
                           configMapKeyRef:
-                            name: "{{ item.name }}-postgresql-configmap"
+                            name: "{{ item.name }}-configmap"
                             key: POSTGRES_DB
                       - name: JWT_TOKEN_SECRET
                         valueFrom:
