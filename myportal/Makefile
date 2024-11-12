@@ -81,7 +81,7 @@ ANSIBLE_ROLES_PATH?="$(shell pwd)/roles"
 
 # This is the entry point, you only need to run `make run`
 run: build-docker-image ## Rebuild the Docker image and run ansible-operator
-	$(ANSIBLE_OPERATOR) run
+	$(ANSIBLE_OPERATOR) 
 
 # This rebuilds the Docker image, always using the latest code
 build-docker-image:
