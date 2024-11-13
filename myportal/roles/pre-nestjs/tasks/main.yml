@@ -272,6 +272,6 @@
                       pathType: Prefix
                       backend:
                         service:
-                          name: "{{ item.name }}"
+                          name: "nestjs-auth"
                           port:
                             number: 80
