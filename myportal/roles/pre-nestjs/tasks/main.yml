@@ -1,7 +1,7 @@
 ---
 - name: Set tenant name and portals data
   set_fact:
-    mytenantname: "tenant1" # Set this to your tenant name or a specific identifier
+    mytenantname: "first-tenant" # Set this to your tenant name or a specific identifier
     myportals:
       - {
           name: "nestjs-auth",
@@ -262,7 +262,7 @@
           kind: Ingress
           metadata:
             name: "{{ mytenantname }}-ingress"
-            namespace: "{{ namespace }}"
+            namespace: "{{ ansible_operator_meta.namespace or item.namespace}}"
           spec:
             rules:
               - host: "{{ mytenantname }}"
