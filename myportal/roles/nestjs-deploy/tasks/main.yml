@@ -30,7 +30,7 @@
 - name: Create nestjs ingress for each portal
   community.kubernetes.k8s:
     definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(
-      portalname=item.name, namespace=item.namespace,
+      portalname=item.name, namespace=ansible_operator_meta.namespace,
       mytenantname=mytenantname)) | from_yaml }}"
     state: present
   loop: "{{ myportals }}"
