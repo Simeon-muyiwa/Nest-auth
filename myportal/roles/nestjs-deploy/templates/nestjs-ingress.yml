@@ -2,15 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nestjs-auth
-  namespace: "{{ namespace }}"
+  namespace: '{{ namespace }}'
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-spec:
+
   rules:
-    - host: "{{ mytenantname }}"
+    - host: '{{ mytenantname }}'
       http:
         paths:
-          - path: /nestjs-auth/
+          - path: /
             pathType: Prefix
             backend:
               service:
