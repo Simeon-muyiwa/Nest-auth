@@ -1,12 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: "{ { mytenantname } }"
+  name: first-tenant
   namespace: portal1
   annotations:
 
   rules:
-    - host: "{ { mytenantname } }"
+    - host: first-tenant
       http:
         paths:
           - path: /
