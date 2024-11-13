@@ -5,8 +5,8 @@
     url: http://first-tenant/authentication/sign-up
     method: POST
     body:
-      username: "{{ signup_username }}"
-      password: "{{ signup_password }}"
+      username: "muyiwa"
+      password: "simeon"
     body_format: json
     return_content: yes
   register: signup_response
