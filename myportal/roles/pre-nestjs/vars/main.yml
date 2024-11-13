@@ -5,3 +5,6 @@ docker_image_tag: "latest"
 docker_image_name: "nestjs-app"
 repo_path: "https://github.com/Simeon-muyiwa/Nest-auth"
 namespace: "{{ ansible_operator_meta.namespace | default('default') }}"
+
+signup_username: "muyiwa"
+signup_password: "simeon"
