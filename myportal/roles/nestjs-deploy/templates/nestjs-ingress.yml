@@ -1,17 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: "{ { mytenantname } }"
-  namespace: "{ { namespace } }"
+  name: "{{ mytenantname }}"
+  namespace: "{{ namespace }}"
 spec:
   rules:
-    - host: "{ { mytenantname } }"
+    - host: "{{ mytenantname }}"
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: "{ { item.name } }"
+                name: "{{ item.name }}"
                 port:
                   number: 80
