@@ -5,6 +5,7 @@
             "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myPortal/roles/nestjs-deploy/templates/nestjs-ingress.yml",
             "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myPortal/roles/nestjs-deploy/tasks/main.yml"
         ],
-        "https://github.com/DannyBen/completely/blob/master/schemas/completely.json": "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myPortal/roles/postgresql/tasks/main.yml"
+        "https://github.com/DannyBen/completely/blob/master/schemas/completely.json": "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myPortal/roles/postgresql/tasks/main.yml",
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks": "file:///Users/muyiwasimeon/Desktop/Auth/auth-extension/myportal/roles/pre-nestjs/tasks/main.yml"
     }
 }
