@@ -8,8 +8,6 @@
           replicacount: 1,
           namespace: portal1,
           image: "nestjs-auth:V1",
-          signup_username: "muyiwa",
-          signup_password: "simeon",
         }
 
 - name: Set Docker environment variables for Minikube Docker Daemon
