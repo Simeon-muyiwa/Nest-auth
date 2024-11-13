@@ -14,9 +14,9 @@
   include_role:
     name: redis
 
-- name: Include NestJS deployment role
-  include_role:
-    name: nestjs-deploy
+# - name: Include NestJS deployment role
+#   include_role:
+#     name: nestjs-deploy
 
 - name: Include Nestjs API CALL
   include_role:

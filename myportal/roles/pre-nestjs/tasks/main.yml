@@ -253,3 +253,25 @@
                 targetPort: 3000
             ClusterIP: none
       loop: "{{ myportals }}"
+
+    - name: Create Kubernetes Ingress
+      kubernetes.core.k8s:
+        state: present
+        definition: |
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: "{{ mytenantname }}-ingress"
+            namespace: "{{ namespace }}"
+          spec:
+            rules:
+              - host: "{{ mytenantname }}"
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: "{{ item.name }}"
+                          port:
+                            number: 80

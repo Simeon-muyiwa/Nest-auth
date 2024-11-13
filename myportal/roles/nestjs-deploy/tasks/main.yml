@@ -27,10 +27,11 @@
 #     state: present
 #   loop: "{{ myportals }}"
 
-- name: Create nestjs ingress for each portal
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(namespace=ansible_operator_meta.namespace)) | from_yaml }}"
-    state: present
+# - name: Create NestJS Ingress for each portal
+#   community.kubernetes.k8s:
+#    definition: "{{ lookup('template', 'nestjs-ingress.yml', template_vars=dict(namespace: ansible_operator_meta.namespace)) | from_yaml }}"
+#    state: present
+
 # - name: Create nestjs Secret for each portal
 #   community.kubernetes.k8s:
 #     definition:
