@@ -17,6 +17,7 @@
 - name: Include NestJS deployment role
   include_role:
     name: nestjs-deploy
-# - name: Include Nestjs SERVICE SETUP
-#   include_role:
-#     name: nestjs-service-setup
+
+- name: Include Nestjs API CALL
+  include_role:
+    name: nestjs-ouath-token
