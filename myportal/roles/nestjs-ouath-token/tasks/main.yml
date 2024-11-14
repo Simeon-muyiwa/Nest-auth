@@ -6,8 +6,8 @@
     url: "http://10.244.0.149:3000/authentication/sign-up"
     method: POST
     body:
-      email: "{{ email }}"
-      password: "{{ password }}"
+      email: muyiwa@email.com
+      password: "simeonmuyiwa"
     body_format: json
     return_content: yes
   register: signup_response
