@@ -1,13 +1,29 @@
 ---
 # tasks:
 
+- name: Ensure user does not already exist
+  ansible.builtin.uri:
+    url: "http://10.244.0.150:3000/users/user2@nestjs.com"
+    method: GET
+    return_content: yes
+  register: user_exists_response
+  ignore_errors: true
+
+- name: Delete existing user record if it exists
+  ansible.builtin.uri:
+    url: "http://10.244.0.150:3000/users/user2@nestjs.com"
+    method: DELETE
+    return_content: yes
+  when: user_exists_response.status == 200 # Only run this if the user exists
+  register: delete_response
+
 - name: Sign Up to Create User
   ansible.builtin.uri:
     url: "http://10.244.0.150:3000/authentication/sign-up"
     method: POST
     body:
-      email: "user3@nestjs.com"
-      password: "Password!323"
+      email: "user2@nestjs.com"
+      password: "Password!223"
     body_format: json
     return_content: yes
   register: signup_response
@@ -35,17 +51,15 @@
         body_format: json
         return_content: yes
       register: login_response
-      when: signup_response.status == 201
       failed_when: login_response.status != 200
+      when: signup_response.status == 201
 
     - name: Extract token from login response
       set_fact:
         auth_token: "{{ login_response.content | from_json | json_query('token') }}"
         refresh_token: "{{ login_response.content | from_json | json_query('refresh_token') }}"
       when: login_response.status == 200 and login_response.content | length > 0
-
   when: signup_response.status in [201, 200]
-  failed_when: login_response.status != 200
 # - name: Sign Up and Obtain Tokens
 #   ansible.builtin.uri:
 #     url: "http://10.244.0.150:3000/authentication/sign-up"
