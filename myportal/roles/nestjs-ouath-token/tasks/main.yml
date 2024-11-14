@@ -10,7 +10,11 @@
     body_format: json
     return_content: yes
   register: signup_response
-  failed_when: signup_response.status != 200
+  failed_when: signup_response.status != 201
+
+- name: Debug the signup response
+  debug:
+    msg: "Signup Response: {{ signup_response }}"
 # - name: Sign Up and Obtain Tokens
 #   ansible.builtin.uri:
 #     url: http://first-tenant/authentication/sign-up
