@@ -1,2 +1,1 @@
-email: "muyiwa@email.com"
-password: "simeonmuiwa"
+{ "email": "user1@nestjs.com", "password": "Password!123" }
