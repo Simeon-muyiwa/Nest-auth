@@ -3,7 +3,7 @@
 
 - name: Sign Up and Obtain Tokens
   ansible.builtin.uri:
-    url: "http://10.244.0.149:3000/authentication/sign-up"
+    url: "http://10.244.0.150:3000/authentication/sign-up"
     method: POST
     body: { "email": "user1@nestjs.com", "password": "Password!123" }
 
