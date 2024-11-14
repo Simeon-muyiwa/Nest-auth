@@ -1,65 +1,31 @@
 ---
 # tasks:
 
-- name: Ensure user does not already exist
-  ansible.builtin.uri:
-    url: "http://10.244.0.150:3000/users/user2@nestjs.com"
-    method: GET
-    return_content: yes
-  register: user_exists_response
-  ignore_errors: true
-
-- name: Delete existing user record if it exists
-  ansible.builtin.uri:
-    url: "http://10.244.0.150:3000/users/user2@nestjs.com"
-    method: DELETE
-    return_content: yes
-  when: user_exists_response.status == 200 # Only run this if the user exists
-  register: delete_response
-
-- name: Sign Up to Create User
+- name: Sign Up and Obtain Tokens
   ansible.builtin.uri:
     url: "http://10.244.0.150:3000/authentication/sign-up"
     method: POST
-    body:
-      email: "user2@nestjs.com"
-      password: "Password!223"
+    body: { "email": "user2@nestjs.com", "password": "Password!223" }
     body_format: json
     return_content: yes
   register: signup_response
   failed_when: signup_response.status != 201
 
-- name: Check for tokens after user creation
-  block:
-    - name: Debug the signup response status
-      debug:
-        msg: "Signup Response Status: {{ signup_response.status }}"
+- name: Debug the signup response
+  debug:
+    msg: "Signup Response: {{ signup_response }}"
 
-    - name: Extract token if available
-      set_fact:
-        auth_token: "{{ signup_response.content | from_json | json_query('token') }}"
-        refresh_token: "{{ signup_response.content | from_json | json_query('refresh_token') }}"
-      when: signup_response.status == 200 and signup_response.content | length > 0
+- name: Ensure signup response contains data
+  fail:
+    msg: "Signup failed, no token data received."
+  when: signup_response.content | length == 0
 
-    - name: Request tokens (if necessary)
-      ansible.builtin.uri:
-        url: "http://10.244.0.150:3000/authentication/login"
-        method: POST
-        body:
-          email: "user2@nestjs.com"
-          password: "Password!223"
-        body_format: json
-        return_content: yes
-      register: login_response
-      failed_when: login_response.status != 200
-      when: signup_response.status == 201
-
-    - name: Extract token from login response
-      set_fact:
-        auth_token: "{{ login_response.content | from_json | json_query('token') }}"
-        refresh_token: "{{ login_response.content | from_json | json_query('refresh_token') }}"
-      when: login_response.status == 200 and login_response.content | length > 0
-  when: signup_response.status in [201, 200]
+- name: Extract Auth and Refresh Tokens
+  set_fact:
+    auth_token: "{{ signup_response.content | from_json | json_query('token') }}"
+    refresh_token: "{{ signup_response.content | from_json | json_query('refresh_token') }}"
+  when: signup_response.content | length > 0
+  failed_when: signup_response.content | length == 0
 # - name: Sign Up and Obtain Tokens
 #   ansible.builtin.uri:
 #     url: "http://10.244.0.150:3000/authentication/sign-up"
