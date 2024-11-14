@@ -5,7 +5,7 @@
   ansible.builtin.uri:
     url: "http://10.244.0.150:3000/authentication/sign-up"
     method: POST
-    body: { "email": "user1@nestjs.com", "password": "Password!123" }
+    body: { "email": "user2@nestjs.com", "password": "Password!223" }
 
     body_format: json
     return_content: yes
@@ -27,11 +27,10 @@
 #   register: signup_response
 #   failed_when: "'token' not in signup_response.json or 'refresh_token' not in signup_response.json"
 
-# - name: Extract Auth and Refresh Tokens
-#   set_fact:
-#     auth_token: "{{ signup_response.json.token }}"
-#     refresh_token: "{{ signup_response.json.refresh_token }}"
-
+- name: Extract Auth and Refresh Tokens
+  set_fact:
+    auth_token: "{{ signup_response.json.token }}"
+    refresh_token: "{{ signup_response.json.refresh_token }}"
 # - name: Make a GET request with Bearer token
 #   ansible.builtin.uri:
 #     url: http://first-tenant/authentication/sign-in
