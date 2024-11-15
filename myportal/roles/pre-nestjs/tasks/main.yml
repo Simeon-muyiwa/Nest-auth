@@ -141,7 +141,7 @@
             name: "{{ item.name }}-jwt-configmap"
             namespace: "{{ ansible_operator_meta.namespace or item.namespace }}"
           data:
-            JWT_TOKEN_SECRET: 'secret'
+            JWT_SECRET: 'secret'
             JWT_ACCESS_TOKEN_TTL: '3600'
             JWT_REFRESH_TOKEN_TTL: '7600'
             JWT_TOKEN_ISSUER: "{{ item.name }}.default.svc.cluster.local"
@@ -204,7 +204,7 @@
                           configMapKeyRef:
                             name: "{{ item.name }}-configmap"
                             key: POSTGRES_DB
-                      - name: JWT_TOKEN_SECRET
+                      - name: JWT_SECRET
                         valueFrom:
                           configMapKeyRef:
                             name: "{{ item.name }}-jwt-configmap"
