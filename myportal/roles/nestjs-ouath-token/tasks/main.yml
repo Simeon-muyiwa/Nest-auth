@@ -1,24 +1,28 @@
 ---
 # tasks:
 
-- name: Sign Up and Obtain Tokens
+- name: Sign in and Obtain Tokens
   ansible.builtin.uri:
-    url: "http://10.244.0.150:3000/authentication/sign-up"
-    method: POST
+    url: "http://10.244.0.150:3000/authentication/sign-in"
+    method: POST # Changed to POST, which is more typical for sign-in operations
     body: { "email": "user2@nestjs.com", "password": "Password!223" }
     body_format: json
     return_content: yes
-  register: signup_response
-  failed_when: signup_response.status != 201
+  register: signin_response
+  failed_when: signin_response.status != 200
 
-- name: Debug the signup response
+- name: Check token in sign-in response
   debug:
-    msg: "Signup Response: {{ signup_response }}"
+    msg: "Token obtained: {{ signin_response.json.token }}"
 
-- name: Ensure signup response contains data
-  fail:
-    msg: "Signup failed, no token data received."
-  when: signup_response.content | length == 0
+# - name: Debug the signup response
+#   debug:
+#     msg: "Signup Response: {{ signup_response }}"
+
+# - name: Ensure signup response contains data
+#   fail:
+#     msg: "Signup failed, no token data received."
+#   when: signup_response.content | length == 0
 
 - name: Extract Auth and Refresh Tokens
   set_fact:
