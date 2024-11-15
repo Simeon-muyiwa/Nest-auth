@@ -3,7 +3,7 @@
 
 - name: Sign in and Obtain Tokens
   ansible.builtin.uri:
-    url: "http://10.244.0.150:3000/authentication/sign-in"
+    url: "http://10.244.0.151:3000/authentication/sign-in"
     method: POST # Changed to POST, which is more typical for sign-in operations
     body: { "email": "user2@nestjs.com", "password": "Password!223" }
     body_format: json
@@ -14,7 +14,6 @@
 - name: Check token in sign-in response
   debug:
     msg: "Token obtained: {{ signin_response.json.token }}"
-
 # - name: Debug the signup response
 #   debug:
 #     msg: "Signup Response: {{ signup_response }}"
@@ -24,12 +23,12 @@
 #     msg: "Signup failed, no token data received."
 #   when: signup_response.content | length == 0
 
-- name: Extract Auth and Refresh Tokens
-  set_fact:
-    auth_token: "{{ signup_response.content | from_json | json_query('token') }}"
-    refresh_token: "{{ signup_response.content | from_json | json_query('refresh_token') }}"
-  when: signup_response.content | length > 0
-  failed_when: signup_response.content | length == 0
+# - name: Extract Auth and Refresh Tokens
+#   set_fact:
+#     auth_token: "{{ signup_response.content | from_json | json_query('token') }}"
+#     refresh_token: "{{ signup_response.content | from_json | json_query('refresh_token') }}"
+#   when: signup_response.content | length > 0
+#   failed_when: signup_response.content | length == 0
 # - name: Sign Up and Obtain Tokens
 #   ansible.builtin.uri:
 #     url: "http://10.244.0.150:3000/authentication/sign-up"
