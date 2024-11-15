@@ -1,6 +1,5 @@
 ---
 # tasks:
-
 - name: Sign in and Obtain Tokens
   ansible.builtin.uri:
     url: "http://10.244.0.152:3000/authentication/sign-in"
@@ -11,9 +10,23 @@
   register: signin_response
   failed_when: signin_response.status != 200
 
-- name: Check token in sign-in response
+- name: Check accessToken in sign-in response
   debug:
-    msg: "Token obtained: {{ signin_response.json.token }}"
+    msg: "Access Token obtained: {{ signin_response.json.accessToken }}"
+
+- name: Check refreshToken in sign-in response
+  debug:
+    msg: "Refresh Token obtained: {{ signin_response.json.refreshToken }}"
+
+- name: Ensure accessToken is present
+  assert:
+    that:
+      - signin_response.json.accessToken is defined
+
+- name: Ensure refreshToken is present
+  assert:
+    that:
+      - signin_response.json.refreshToken is defined
 # - name: Debug the signup response
 #   debug:
 #     msg: "Signup Response: {{ signup_response }}"
