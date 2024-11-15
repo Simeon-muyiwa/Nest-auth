@@ -224,6 +224,12 @@
                           configMapKeyRef:
                             name: "{{ item.name }}-jwt-configmap"
                             key: JWT_TOKEN_AUDIENCE
+
+                      - name: JWT_TOKEN_ISSUER
+                        valueFrom:
+                          configMapKeyRef:
+                            name: "{{ item.name }}-jwt-configmap"
+                            key: JWT_TOKEN_ISSUER
                     resources:
                       requests:
                         memory: "512Mi"
