@@ -144,8 +144,8 @@
             JWT_SECRET: 'secret'
             JWT_ACCESS_TOKEN_TTL: '3600'
             JWT_REFRESH_TOKEN_TTL: '7600'
-            JWT_TOKEN_ISSUER: "http://10.244.0.150:3000/" 
-            JWT_TOKEN_AUDIENCE: "http://10.244.0.150:3000/"
+            JWT_TOKEN_ISSUER: "http://10.244.0.152:3000/" 
+            JWT_TOKEN_AUDIENCE: "http://10.244.0.152:3000/"
       loop: "{{ myportals }}"
 
     - name: Deploy the application using kubernetes.core.k8s for "{{ item.name }}"
