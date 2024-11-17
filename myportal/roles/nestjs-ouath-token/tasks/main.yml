@@ -16,19 +16,28 @@
     body_format: json
     return_content: yes
   register: signup_response
-  when: signin_response is defined and signin_response.status == 404 # Ensure signin_response exists before accessing status
+  when: signin_response is defined and signin_response.status != 200 # Sign in failed
   failed_when: signup_response.status != 201 # Ensure sign-up is successful
 
-- name: Extract accessToken from sign-in or sign-up response
+- name: Sign-in after successful sign-up to get access token
+  ansible.builtin.uri:
+    url: "http://10.244.0.152:3000/authentication/sign-in"
+    method: POST
+    body: '{"email": "user3@nestjs.com", "password": "Password!323"}'
+    body_format: json
+    return_content: yes
+  register: signin_after_signup_response
+  when: signup_response is defined and signup_response.status == 201 # Proceed only if sign-up is successful
+
+- name: Extract accessToken from sign-in response after sign-up
   set_fact:
-    auth_token: "{{ (signin_response.json.accessToken if signin_response.status == 200 and signin_response.json is defined else signup_response.json.accessToken) | default('') }}"
-  when:
-    - signin_response is defined and signin_response.status == 200
-    - signup_response is defined and signup_response.status == 201
+    auth_token: "{{ signin_after_signup_response.json.accessToken }}"
+  when: signin_after_signup_response is defined and signin_after_signup_response.status == 200 # Sign-in after signup is successful
 
 - name: Check accessToken in response
   debug:
     msg: "Access Token obtained: {{ auth_token }}"
+  when: auth_token != '' # Only run this task if auth_token is not empty
 
 - name: Ensure accessToken is present
   assert:
