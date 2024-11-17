@@ -16,14 +16,15 @@
     body_format: json
     return_content: yes
   register: signup_response
-  when: signin_response.status == 404 # Sign-in fails with "User Not Found" (HTTP 404)
+  when: signin_response is defined and signin_response.status == 404 # Ensure signin_response exists before accessing status
   failed_when: signup_response.status != 201 # Ensure sign-up is successful
 
 - name: Extract accessToken from sign-in or sign-up response
   set_fact:
     auth_token: "{{ (signin_response.json.accessToken if signin_response.status == 200 and signin_response.json is defined else signup_response.json.accessToken) | default('') }}"
   when:
-    - signin_response.status == 200 or signup_response.status == 201
+    - signin_response is defined and signin_response.status == 200
+    - signup_response is defined and signup_response.status == 201
 
 - name: Check accessToken in response
   debug:
