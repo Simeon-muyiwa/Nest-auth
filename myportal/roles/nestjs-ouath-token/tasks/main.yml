@@ -17,7 +17,7 @@
   ansible.builtin.uri:
     url: "http://10.244.0.152:3000/authentication/sign-up"
     method: POST
-    body: '{"email": "user3@nestjs.com", "password": "Password!323"}'
+    body: '{"email": "user4@nestjs.com", "password": "Password!423"}'
     body_format: json
     return_content: yes
   register: signup_response
