@@ -2,7 +2,7 @@
   ansible.builtin.uri:
     url: "http://10.244.0.152:3000/authentication/sign-in"
     method: POST
-    body: '{"email": "user3@nestjs.com", "password": "Password!323"}'
+    body: '{"email": "user4@nestjs.com", "password": "Password!423"}'
     body_format: json
     return_content: yes
   register: signin_response
@@ -63,10 +63,6 @@
 #     return_content: yes
 #   register: get_api_response
 #   failed_when: get_api_response.status != 200
-
-# - name: Print the API response
-#   ansible.builtin.debug:
-#     msg: "{{ get_api_response.content }} (Status: {{ get_api_response.status }})"
 
 # - name: Refresh Auth Token
 #   ansible.builtin.uri:
