@@ -34,7 +34,7 @@
 
 - name: GET request with Bearer token and JSON payload to protected route
   ansible.builtin.uri:
-    url: "http://10.244.0.152:3000/coffee"
+    url: "http://10.244.0.152:3000/coffees"
     method: GET
     headers:
       Authorization: "Bearer {{ auth_token }}" # Using the extracted auth_token
@@ -96,7 +96,7 @@
 
 # - name: GET request with Bearer token and JSON payload to protected route
 #   ansible.builtin.uri:
-#     url: http://localhost/coffee
+#     url: http://localhost/coffees
 #     method: GET
 #     headers:
 #       Authorization: "Bearer {{ auth_token }}"
