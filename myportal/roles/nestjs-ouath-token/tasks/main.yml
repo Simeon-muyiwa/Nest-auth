@@ -21,7 +21,9 @@
 
 - name: Extract accessToken from sign-in or sign-up response
   set_fact:
-    auth_token: "{{ signin_response.json.accessToken if signin_response.status == 200 else signup_response.json.accessToken }}"
+    auth_token: "{{ (signin_response.json.accessToken if signin_response.status == 200 and signin_response.json is defined else signup_response.json.accessToken) | default('') }}"
+  when:
+    - signin_response.status == 200 or signup_response.status == 201
 
 - name: Check accessToken in response
   debug:
@@ -31,6 +33,7 @@
   assert:
     that:
       - auth_token is defined
+      - auth_token != '' # Ensure that the access token is not empty
 
 - name: GET request with Bearer token and JSON payload to protected route
   ansible.builtin.uri:
