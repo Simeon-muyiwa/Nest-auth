@@ -3,12 +3,16 @@
 - name: Sign in and Obtain Tokens
   ansible.builtin.uri:
     url: "http://10.244.0.152:3000/authentication/sign-in"
-    method: POST # Changed to POST, which is more typical for sign-in operations
-    body: { "email": "user2@nestjs.com", "password": "Password!223" }
+    method: POST
+    body: '{"email": "user2@nestjs.com", "password": "Password!223"}' # JSON string format for the body
     body_format: json
     return_content: yes
   register: signin_response
   failed_when: signin_response.status != 200
+
+- name: Extract accessToken and set as auth_token
+  set_fact:
+    auth_token: "{{ signin_response.json.accessToken }}"
 
 - name: Check accessToken in sign-in response
   debug:
@@ -27,6 +31,19 @@
   assert:
     that:
       - signin_response.json.refreshToken is defined
+
+- name: GET request with Bearer token and JSON payload to protected route
+  ansible.builtin.uri:
+    url: "http://10.244.0.152:3000/coffee"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ auth_token }}" # Using the extracted auth_token
+      Content-Type: "application/json"
+    body: '{"email": "user2@nestjs.com", "password": "Password!223"}' # Correct JSON string for the body
+    body_format: json
+    return_content: yes
+  register: get_api_response
+  failed_when: get_api_response.status != 200
 # - name: Debug the signup response
 #   debug:
 #     msg: "Signup Response: {{ signup_response }}"
@@ -42,36 +59,12 @@
 #     refresh_token: "{{ signup_response.content | from_json | json_query('refresh_token') }}"
 #   when: signup_response.content | length > 0
 #   failed_when: signup_response.content | length == 0
-# - name: Sign Up and Obtain Tokens
-#   ansible.builtin.uri:
-#     url: "http://10.244.0.150:3000/authentication/sign-up"
-#     method: POST
-#     body: { "email": "user2@nestjs.com", "password": "Password!223" }
-
-#     body_format: json
-#     return_content: yes
-#   register: signup_response
-#   failed_when: signup_response.status != 201
-
-# - name: Debug the signup response
-#   debug:
-#     msg: "Signup Response: {{ signup_response }}"
-# - name: Sign Up and Obtain Tokens
-#   ansible.builtin.uri:
-#     url: http://first-tenant/authentication/sign-up
-#     method: POST
-#     body:
-#       username: "muyiwa"
-#       password: "simeon"
-#     body_format: json
-#     return_content: yes
-#   register: signup_response
-#   failed_when: "'token' not in signup_response.json or 'refresh_token' not in signup_response.json"
 
 # - name: Extract Auth and Refresh Tokens
 #   set_fact:
 #     auth_token: "{{ signup_response.json.token }}"
 #     refresh_token: "{{ signup_response.json.refresh_token }}"
+
 # - name: Make a GET request with Bearer token
 #   ansible.builtin.uri:
 #     url: http://first-tenant/authentication/sign-in
@@ -85,6 +78,7 @@
 # - name: Print the API response
 #   ansible.builtin.debug:
 #     msg: "{{ get_api_response.content }} (Status: {{ get_api_response.status }})"
+
 # - name: Refresh Auth Token
 #   ansible.builtin.uri:
 #     url: http://localhost/authentication/refresh
@@ -100,20 +94,18 @@
 #   set_fact:
 #     auth_token: "{{ refresh_response.json.token }}"
 
-# - name: Make a POST request with Bearer token and JSON payload
+# - name: GET request with Bearer token and JSON payload to protected route
 #   ansible.builtin.uri:
 #     url: http://localhost/coffee
-#     method: POST
+#     method: GET
 #     headers:
 #       Authorization: "Bearer {{ auth_token }}"
 #       Content-Type: "application/json"
-#     body:
-#       key: "value"
+#     body: { "email": "user2@nestjs.com", "password": "Password!223" }
 #     body_format: json
 #     return_content: yes
-#   register: post_api_response
-#   failed_when: post_api_response.status != 200
-
+#   register: get_api_response
+#   failed_when: get_api_response.status != 200
 # - name: Print the API response
 #   ansible.builtin.debug:
 #     msg: "{{ post_api_response.content }} (Status: {{ post_api_response.status }})"
