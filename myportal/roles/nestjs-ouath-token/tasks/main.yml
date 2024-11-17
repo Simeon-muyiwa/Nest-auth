@@ -1,45 +1,45 @@
----
-# tasks:
-- name: Sign in and Obtain Tokens
+- name: Attempt Sign-in to check if user exists
   ansible.builtin.uri:
     url: "http://10.244.0.152:3000/authentication/sign-in"
     method: POST
-    body: '{"email": "user2@nestjs.com", "password": "Password!223"}' # JSON string format for the body
+    body: '{"email": "user2@nestjs.com", "password": "Password!223"}'
     body_format: json
     return_content: yes
   register: signin_response
-  failed_when: signin_response.status != 200
+  ignore_errors: true # Continue playbook even if sign-in fails
 
-- name: Extract accessToken and set as auth_token
+- name: Proceed with Sign Up if Sign In Failed (User does not exist)
+  ansible.builtin.uri:
+    url: "http://10.244.0.152:3000/authentication/sign-up"
+    method: POST
+    body: '{"email": "user2@nestjs.com", "password": "Password!223"}'
+    body_format: json
+    return_content: yes
+  register: signup_response
+  when: signin_response.status == 404 # Sign-in fails with "User Not Found" (HTTP 404)
+  failed_when: signup_response.status != 201 # Ensure sign-up is successful
+
+- name: Extract accessToken from sign-in or sign-up response
   set_fact:
-    auth_token: "{{ signin_response.json.accessToken }}"
+    auth_token: "{{ signin_response.json.accessToken if signin_response.status == 200 else signup_response.json.accessToken }}"
 
-- name: Check accessToken in sign-in response
+- name: Check accessToken in response
   debug:
-    msg: "Access Token obtained: {{ signin_response.json.accessToken }}"
-
-- name: Check refreshToken in sign-in response
-  debug:
-    msg: "Refresh Token obtained: {{ signin_response.json.refreshToken }}"
+    msg: "Access Token obtained: {{ auth_token }}"
 
 - name: Ensure accessToken is present
   assert:
     that:
-      - signin_response.json.accessToken is defined
-
-- name: Ensure refreshToken is present
-  assert:
-    that:
-      - signin_response.json.refreshToken is defined
+      - auth_token is defined
 
 - name: GET request with Bearer token and JSON payload to protected route
   ansible.builtin.uri:
     url: "http://10.244.0.152:3000/coffees"
     method: GET
     headers:
-      Authorization: "Bearer {{ auth_token }}" # Using the extracted auth_token
+      Authorization: "Bearer {{ auth_token }}"
       Content-Type: "application/json"
-    body: '{"email": "user2@nestjs.com", "password": "Password!223"}' # Correct JSON string for the body
+    body: '{"email": "user2@nestjs.com", "password": "Password!223"}'
     body_format: json
     return_content: yes
   register: get_api_response
