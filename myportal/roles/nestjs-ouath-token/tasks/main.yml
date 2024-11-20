@@ -25,35 +25,79 @@
   failed_when: signup_response.status is defined and signup_response.status != 201 # Ensure sign-up is successful (status 201)
   ignore_errors: true # Handle errors gracefully for debugging purposes
 
-- name: Debug sign-up response (optional, for troubleshooting)
-  debug:
-    var: signup_response
+- name: Sign in and Obtain Tokens
+  ansible.builtin.uri:
+    url: "http://10.244.0.152:3000/authentication/sign-in"
+    method: POST
+    body: '{"email": "user2@nestjs.com", "password": "Password!223"}'
+    body_format: json
+    return_content: yes
+  register: signin_response
+  failed_when: signin_response.status != 200
 
-- name: Fail if Sign-up was unsuccessful
-  fail:
-    msg: "Sign-up failed with status: {{ signup_response.status }} and message: {{ signup_response.content }}"
-  when: signup_response is defined and signup_response.status is defined and signup_response.status != 201
-
-- name: Extract Auth and Refresh Tokens
+- name: Extract accessToken and set as auth_token
   set_fact:
-    auth_token: "{{ signup_response.json.token }}"
-    refresh_token: "{{ signup_response.json.refresh_token }}"
+    auth_token: "{{ signin_response.json.accessToken }}"
+
+- name: Check accessToken in sign-in response
+  debug:
+    msg: "Access Token obtained: {{ signin_response.json.accessToken }}"
+
+- name: Check refreshToken in sign-in response
+  debug:
+    msg: "Refresh Token obtained: {{ signin_response.json.refreshToken }}"
+
+- name: Ensure accessToken is present
+  assert:
+    that:
+      - signin_response.json.accessToken is defined
+
+- name: Ensure refreshToken is present
+  assert:
+    that:
+      - signin_response.json.refreshToken is defined
 
 - name: GET request with Bearer token and JSON payload to protected route
   ansible.builtin.uri:
-    url: http://localhost/coffees
+    url: "http://10.244.0.152:3000/coffees"
     method: GET
     headers:
       Authorization: "Bearer {{ auth_token }}"
       Content-Type: "application/json"
-    body: { "email": "user2@nestjs.com", "password": "Password!223" }
+    body: '{"email": "user2@nestjs.com", "password": "Password!223"}'
     body_format: json
     return_content: yes
   register: get_api_response
   failed_when: get_api_response.status != 200
-- name: Print the API response
-  ansible.builtin.debug:
-    msg: "{{ post_api_response.content }} (Status: {{ post_api_response.status }})"
+# - name: Debug sign-up response (optional, for troubleshooting)
+#   debug:
+#     var: signup_response
+
+# - name: Fail if Sign-up was unsuccessful
+#   fail:
+#     msg: "Sign-up failed with status: {{ signup_response.status }} and message: {{ signup_response.content }}"
+#   when: signup_response is defined and signup_response.status is defined and signup_response.status != 201
+
+# - name: Extract Auth and Refresh Tokens
+#   set_fact:
+#     auth_token: "{{ signup_response.json.token }}"
+#     refresh_token: "{{ signup_response.json.refresh_token }}"
+
+# - name: GET request with Bearer token and JSON payload to protected route
+#   ansible.builtin.uri:
+#     url: http://localhost/coffees
+#     method: GET
+#     headers:
+#       Authorization: "Bearer {{ auth_token }}"
+#       Content-Type: "application/json"
+#     body: { "email": "user2@nestjs.com", "password": "Password!223" }
+#     body_format: json
+#     return_content: yes
+#   register: get_api_response
+#   failed_when: get_api_response.status != 200
+# - name: Print the API response
+#   ansible.builtin.debug:
+#     msg: "{{ post_api_response.content }} (Status: {{ post_api_response.status }})"
 # - name: Debug the signup response
 #   debug:
 #     msg: "Signup Response: {{ signup_response }}"
