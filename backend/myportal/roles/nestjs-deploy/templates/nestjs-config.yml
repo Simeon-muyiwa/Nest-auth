@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nestjs-configmap
+  namespace: portal1
+data:
+  POSTGRES_HOST: 'postgres.portal1.svc.cluster.local'
+  POSTGRES_PORT: '5432'
+  POSTGRES_USER: 'postgres'
+  POSTGRES_PASSWORD: 'pass123'
+  POSTGRES_DB: 'postgres'
