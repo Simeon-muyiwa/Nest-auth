@@ -33,6 +33,27 @@
   fail:
     msg: "Sign-up failed with status: {{ signup_response.status }} and message: {{ signup_response.content }}"
   when: signup_response is defined and signup_response.status is defined and signup_response.status != 201
+
+- name: Extract Auth and Refresh Tokens
+  set_fact:
+    auth_token: "{{ signup_response.json.token }}"
+    refresh_token: "{{ signup_response.json.refresh_token }}"
+
+- name: GET request with Bearer token and JSON payload to protected route
+  ansible.builtin.uri:
+    url: http://localhost/coffees
+    method: GET
+    headers:
+      Authorization: "Bearer {{ auth_token }}"
+      Content-Type: "application/json"
+    body: { "email": "user2@nestjs.com", "password": "Password!223" }
+    body_format: json
+    return_content: yes
+  register: get_api_response
+  failed_when: get_api_response.status != 200
+- name: Print the API response
+  ansible.builtin.debug:
+    msg: "{{ post_api_response.content }} (Status: {{ post_api_response.status }})"
 # - name: Debug the signup response
 #   debug:
 #     msg: "Signup Response: {{ signup_response }}"
@@ -48,11 +69,6 @@
 #     refresh_token: "{{ signup_response.content | from_json | json_query('refresh_token') }}"
 #   when: signup_response.content | length > 0
 #   failed_when: signup_response.content | length == 0
-
-# - name: Extract Auth and Refresh Tokens
-#   set_fact:
-#     auth_token: "{{ signup_response.json.token }}"
-#     refresh_token: "{{ signup_response.json.refresh_token }}"
 
 # - name: Make a GET request with Bearer token
 #   ansible.builtin.uri:
@@ -74,23 +90,3 @@
 #     return_content: yes
 #   register: refresh_response
 #   failed_when: "'token' not in refresh_response.json"
-
-# - name: Extract New Auth Token
-#   set_fact:
-#     auth_token: "{{ refresh_response.json.token }}"
-
-# - name: GET request with Bearer token and JSON payload to protected route
-#   ansible.builtin.uri:
-#     url: http://localhost/coffees
-#     method: GET
-#     headers:
-#       Authorization: "Bearer {{ auth_token }}"
-#       Content-Type: "application/json"
-#     body: { "email": "user2@nestjs.com", "password": "Password!223" }
-#     body_format: json
-#     return_content: yes
-#   register: get_api_response
-#   failed_when: get_api_response.status != 200
-# - name: Print the API response
-#   ansible.builtin.debug:
-#     msg: "{{ post_api_response.content }} (Status: {{ post_api_response.status }})"
